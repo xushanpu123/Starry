@@ -14,3 +14,4 @@ axfs = { path = "../../../modules/axfs" }
 axconfig = { path = "../../../modules/axconfig" }
 axerrno = { path = "../../../crates/axerrno" }
 numeric-enum-macro = { git = "https://github.com/mexus/numeric-enum-macro" }
+axprocess = { path = "../../../modules/axprocess" }

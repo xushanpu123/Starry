@@ -2,11 +2,11 @@
 #![cfg_attr(all(not(test), not(doc)), no_std)]
 
 mod task_syscall_id;
-#[cfg(feature = "signal")]
-use axsignal::action::SigAction;
-use syscall_utils::{
-    ITimerVal, RLimit, SysInfo, SyscallError, SyscallResult, TimeSecs, TimeVal, UtsName, WaitFlags,
-    TMS,
+// #[cfg(feature = "signal")]
+// use axsignal::action::SigAction;
+use 
+syscall_utils::{
+    SyscallError, SyscallResult, WaitFlags,
 };
 pub use task_syscall_id::TaskSyscallId::{self, *};
 
@@ -22,31 +22,31 @@ pub fn task_syscall(syscall_id: task_syscall_id::TaskSyscallId, args: [usize; 6]
     match syscall_id {
         EXIT => syscall_exit(args[0] as i32),
         EXECVE => syscall_exec(
-            args[0] as *const u8,
-            args[1] as *const usize,
-            args[2] as *const usize,
+            args[0].into(),
+            args[1].into(),
+            args[2].into(),
         ),
         CLONE => syscall_clone(args[0], args[1], args[2], args[3], args[4]),
-        NANO_SLEEP => syscall_sleep(args[0] as *const TimeSecs, args[1] as *mut TimeSecs),
+        NANO_SLEEP => syscall_sleep(args[0].into(), args[1].into()),
         SCHED_YIELD => syscall_yield(),
-        TIMES => syscall_time(args[0] as *mut TMS),
-        UNAME => syscall_uname(args[0] as *mut UtsName),
-        GETTIMEOFDAY => syscall_get_time_of_day(args[0] as *mut TimeVal),
+        TIMES => syscall_time(args[0].into()),
+        UNAME => syscall_uname(args[0].into()),
+        GETTIMEOFDAY => syscall_get_time_of_day(args[0].into()),
         GETPID => syscall_getpid(),
         GETPPID => syscall_getppid(),
         WAIT4 => syscall_wait4(
             args[0] as isize,
-            args[1] as *mut i32,
+            args[1].into(),
             WaitFlags::from_bits(args[2] as u32).unwrap(),
         ),
-        GETRANDOM => syscall_getrandom(args[0] as *mut u8, args[1], args[2]),
+        GETRANDOM => syscall_getrandom(args[0].into(), args[1], args[2]),
         #[cfg(feature = "signal")]
-        SIGSUSPEND => syscall_sigsuspend(args[0] as *const usize),
+        SIGSUSPEND => syscall_sigsuspend(args[0].into()),
         #[cfg(feature = "signal")]
         SIGACTION => syscall_sigaction(
             args[0],
-            args[1] as *const SigAction,
-            args[2] as *mut SigAction,
+            args[1].into(),
+            args[2].into(),
         ),
         #[cfg(feature = "signal")]
         KILL => syscall_kill(args[0] as isize, args[1] as isize),
@@ -55,8 +55,8 @@ pub fn task_syscall(syscall_id: task_syscall_id::TaskSyscallId, args: [usize; 6]
         #[cfg(feature = "signal")]
         SIGPROCMASK => syscall_sigprocmask(
             syscall_utils::SigMaskFlag::from(args[0]),
-            args[1] as *const usize,
-            args[2] as *mut usize,
+            args[1].into(),
+            args[2].into(),
             args[3],
         ),
         #[cfg(feature = "signal")]
@@ -66,10 +66,10 @@ pub fn task_syscall(syscall_id: task_syscall_id::TaskSyscallId, args: [usize; 6]
         PRLIMIT64 => syscall_prlimit64(
             args[0] as usize,
             args[1] as i32,
-            args[2] as *const RLimit,
-            args[3] as *mut RLimit,
+            args[2].into(),
+            args[3].into(),
         ),
-        CLOCK_GET_TIME => syscall_clock_get_time(args[0] as usize, args[1] as *mut TimeSecs),
+        CLOCK_GET_TIME => syscall_clock_get_time(args[0] as usize, args[1].into()),
         GETUID => syscall_getuid(),
         GETEUID => syscall_geteuid(),
         GETGID => syscall_getgid(),
@@ -88,17 +88,17 @@ pub fn task_syscall(syscall_id: task_syscall_id::TaskSyscallId, args: [usize; 6]
         SET_ROBUST_LIST => syscall_set_robust_list(args[0] as usize, args[1] as usize),
         #[cfg(feature = "futex")]
         GET_ROBUST_LIST => {
-            syscall_get_robust_list(args[0] as i32, args[1] as *mut usize, args[2] as *mut usize)
+            syscall_get_robust_list(args[0] as i32, args[1].into(), args[2].into())
         }
-        SYSINFO => syscall_sysinfo(args[0] as *mut SysInfo),
+        SYSINFO => syscall_sysinfo(args[0].into()),
         SETITIMER => syscall_settimer(
             args[0] as usize,
-            args[1] as *const ITimerVal,
-            args[2] as *mut ITimerVal,
+            args[1].into(),
+            args[2].into(),
         ),
-        GETTIMER => syscall_gettimer(args[0] as usize, args[1] as *mut ITimerVal),
+        GETTIMER => syscall_gettimer(args[0] as usize, args[1].into()),
         SETSID => syscall_setsid(),
-        GETRUSAGE => syscall_getrusage(args[0] as i32, args[1] as *mut TimeVal),
+        GETRUSAGE => syscall_getrusage(args[0] as i32, args[1].into()),
         UMASK => syscall_umask(args[0] as i32),
         // 不做处理即可
         SIGTIMEDWAIT => Ok(0),
@@ -109,22 +109,22 @@ pub fn task_syscall(syscall_id: task_syscall_id::TaskSyscallId, args: [usize; 6]
         SCHED_SETAFFINITY => Ok(0),
         #[cfg(feature = "schedule")]
         SCHED_GETAFFINITY => {
-            syscall_sched_getaffinity(args[0] as usize, args[1] as usize, args[2] as *mut usize)
+            syscall_sched_getaffinity(args[0] as usize, args[1] as usize, args[2].into())
         }
         #[cfg(feature = "schedule")]
         SCHED_SETSCHEDULER => syscall_sched_setscheduler(
             args[0] as usize,
             args[1] as usize,
-            args[2] as *const SchedParam,
+            args[2].into(),
         ),
         #[cfg(feature = "schedule")]
         SCHED_GETSCHEDULER => syscall_sched_getscheduler(args[0] as usize),
-        CLOCK_GETRES => syscall_clock_getres(args[0] as usize, args[1] as *mut TimeSecs),
+        CLOCK_GETRES => syscall_clock_getres(args[0] as usize, args[1].into()),
         CLOCK_NANOSLEEP => syscall_clock_nanosleep(
             args[0] as usize,
             args[1] as usize,
-            args[2] as *const TimeSecs,
-            args[3] as *mut TimeSecs,
+            args[2].into(),
+            args[3].into(),
         ),
         SOCKETPAIR => Err(SyscallError::EAFNOSUPPORT),
         #[allow(unused)]

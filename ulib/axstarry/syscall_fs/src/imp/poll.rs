@@ -1,6 +1,6 @@
 use axfs::api::FileIO;
 use axhal::{mem::VirtAddr, time::current_ticks};
-use axprocess::{current_process, yield_now_task};
+use axprocess::{UserRef, current_process, yield_now_task};
 use bitflags::bitflags;
 extern crate alloc;
 use alloc::{sync::Arc, vec::Vec};
@@ -35,12 +35,12 @@ pub struct PollFd {
 
 // 定义一个bitset，用于查找掩码
 struct ShadowBitset {
-    addr: *mut usize,
+    addr: UserRef<usize>,
     len: usize, // 是包含的bit数目，而不是字节数目
 }
 
 impl ShadowBitset {
-    pub fn new(addr: *mut usize, len: usize) -> Self {
+    pub fn new(addr: UserRef<usize>, len: usize) -> Self {
         Self { addr, len }
     }
 
@@ -51,7 +51,7 @@ impl ShadowBitset {
         // 因为一次add会移动八个字节，所以这里需要除以64，即8个字节，每一个字节8位
         let byte_index = index / 64;
         let bit_index = index & 0x3f;
-        unsafe { *self.addr.add(byte_index) & (1 << bit_index) != 0 }
+        *self.addr.get_t(byte_index) & (1 << bit_index) != 0
     }
 
     pub fn set(&mut self, index: usize) {
@@ -61,7 +61,7 @@ impl ShadowBitset {
         let byte_index = index / 64;
         let bit_index = index & 0x3f;
         unsafe {
-            *self.addr.add(byte_index) |= 1 << bit_index;
+            *self.addr.add_count(byte_index) |= 1 << bit_index;
         }
     }
 
@@ -69,13 +69,13 @@ impl ShadowBitset {
     pub fn clear(&self) {
         for i in 0..=(self.len - 1) / 64 {
             unsafe {
-                *(self.addr.add(i)) = 0;
+                *(self.addr.add_count(i)) = 0;
             }
         }
     }
 
     pub fn valid(&self) -> bool {
-        self.addr as usize != 0
+        self.addr.get_mut_ptr() as usize != 0
     }
 }
 
@@ -138,14 +138,14 @@ fn ppoll(mut fds: Vec<PollFd>, expire_time: usize) -> (isize, Vec<PollFd>) {
 ///
 /// 其中timeout是一段相对时间，需要计算出相对于当前时间戳的绝对时间戳
 pub fn syscall_ppoll(
-    ufds: *mut PollFd,
+    ufds: UserRef<PollFd>,
     nfds: usize,
-    timeout: *const TimeSecs,
+    timeout: UserRef<TimeSecs>,
     _mask: usize,
 ) -> SyscallResult {
     let process = current_process();
 
-    let start: VirtAddr = (ufds as usize).into();
+    let start = (ufds.get_usize()).into();
     let end = start + nfds * core::mem::size_of::<PollFd>();
     if process.manual_alloc_range_for_lazy(start, end).is_err() {
         return Err(SyscallError::EFAULT);
@@ -154,16 +154,17 @@ pub fn syscall_ppoll(
     let mut fds: Vec<PollFd> = Vec::new();
 
     for i in 0..nfds {
-        unsafe {
-            fds.push(*(ufds.add(i)));
-        }
+        fds.push(*ufds.get_t(i));
     }
 
-    let expire_time = if timeout as usize != 0 {
-        if process.manual_alloc_type_for_lazy(timeout).is_err() {
+    let expire_time = if timeout.get_usize() != 0 {
+        if process
+            .manual_alloc_type_for_lazy(timeout.get_ptr())
+            .is_err()
+        {
             return Err(SyscallError::EFAULT);
         }
-        current_ticks() as usize + unsafe { (*timeout).get_ticks() }
+        current_ticks() as usize + (*timeout.get_ref()).get_ticks()
     } else {
         usize::MAX
     };
@@ -171,16 +172,14 @@ pub fn syscall_ppoll(
     let (set, ret_fds) = ppoll(fds, expire_time);
     // 将得到的fd存储到原先的指针中
     for i in 0..ret_fds.len() {
-        unsafe {
-            *(ufds.add(i)) = ret_fds[i];
-        }
+        ufds.write_offset(i as isize, ret_fds[i]);
     }
     Ok(set)
 }
 
 /// 根据给定的地址和长度新建一个fd set，包括文件描述符指针数组，文件描述符数值数组，以及一个bitset
 fn init_fd_set(
-    addr: *mut usize,
+    addr: UserRef<usize>,
     len: usize,
 ) -> Result<(Vec<Arc<dyn FileIO>>, Vec<usize>, ShadowBitset), SyscallError> {
     let process = current_process();
@@ -193,11 +192,11 @@ fn init_fd_set(
     }
 
     let shadow_bitset = ShadowBitset::new(addr, len);
-    if addr.is_null() {
+    if addr.ptr_is_null() {
         return Ok((Vec::new(), Vec::new(), shadow_bitset));
     }
 
-    let start: VirtAddr = (addr as usize).into();
+    let start: VirtAddr = addr.get_usize().into();
     let end = start + (len + 7) / 8;
     if process.manual_alloc_range_for_lazy(start, end).is_err() {
         axlog::error!("[pselect6()] addr {addr:?} invalid");
@@ -225,10 +224,10 @@ fn init_fd_set(
 /// 实现pselect6系统调用
 pub fn syscall_pselect6(
     nfds: usize,
-    readfds: *mut usize,
-    writefds: *mut usize,
-    exceptfds: *mut usize,
-    timeout: *const TimeSecs,
+    readfds: UserRef<usize>,
+    writefds: UserRef<usize>,
+    exceptfds: UserRef<usize>,
+    timeout: UserRef<TimeSecs>,
     _mask: usize,
 ) -> SyscallResult {
     let (rfiles, rfds, mut rset) = match init_fd_set(readfds, nfds) {
@@ -245,17 +244,17 @@ pub fn syscall_pselect6(
     };
     let process = current_process();
 
-    let expire_time = if !timeout.is_null() {
+    let expire_time = if !timeout.ptr_is_null() {
         if process
             .memory_set
             .lock()
-            .manual_alloc_type_for_lazy(timeout)
+            .manual_alloc_type_for_lazy(timeout.get_ptr())
             .is_err()
         {
             axlog::error!("[pselect6()] timeout addr {timeout:?} invalid");
             return Err(SyscallError::EFAULT);
         }
-        current_ticks() as usize + unsafe { (*timeout).get_ticks() }
+        current_ticks() as usize + (*timeout.get_ref()).get_ticks()
     } else {
         usize::MAX
     };

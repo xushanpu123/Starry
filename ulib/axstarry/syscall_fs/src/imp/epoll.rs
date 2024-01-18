@@ -4,7 +4,7 @@
 extern crate alloc;
 use alloc::sync::Arc;
 use axhal::{mem::VirtAddr, time::current_ticks};
-use axprocess::current_process;
+use axprocess::{current_process, UserRef};
 use syscall_utils::{SyscallError, SyscallResult};
 
 use crate::ctype::epoll::{EpollCtl, EpollEvent, EpollFile};
@@ -38,16 +38,13 @@ pub fn syscall_epoll_create1(_flag: usize) -> SyscallResult {
 /// - op: 修改操作的类型
 /// - fd: 接受事件的文件的fd
 /// - event: 接受的事件
-pub fn syscall_epoll_ctl(epfd: i32, op: i32, fd: i32, event: *const EpollEvent) -> SyscallResult {
+pub fn syscall_epoll_ctl(epfd: i32, op: i32, fd: i32, event: UserRef<EpollEvent>) -> SyscallResult {
     let process = current_process();
-    if process
-        .manual_alloc_type_for_lazy(event as *const EpollEvent)
-        .is_err()
-    {
+    if process.manual_alloc_type_for_lazy(event.get_ptr()).is_err() {
         return Err(SyscallError::EFAULT);
     }
     let fd_table = process.fd_manager.fd_table.lock();
-    let event = unsafe { *event };
+    let event = *event.get_mut_ref();
     if fd_table[fd as usize].is_none() {
         return Err(SyscallError::EBADF);
     }
@@ -78,7 +75,7 @@ pub fn syscall_epoll_ctl(epfd: i32, op: i32, fd: i32, event: *const EpollEvent) 
 /// ret: 实际写入的响应事件数目
 pub fn syscall_epoll_wait(
     epfd: i32,
-    event: *mut EpollEvent,
+    event: UserRef<EpollEvent>,
     max_event: i32,
     timeout: i32,
 ) -> SyscallResult {
@@ -87,7 +84,7 @@ pub fn syscall_epoll_wait(
     }
     let max_event = max_event as usize;
     let process = current_process();
-    let start: VirtAddr = (event as usize).into();
+    let start: VirtAddr = (event.get_usize()).into();
     let end = start + max_event * core::mem::size_of::<EpollEvent>();
     if process.manual_alloc_range_for_lazy(start, end).is_err() {
         return Err(SyscallError::EFAULT);
@@ -117,9 +114,7 @@ pub fn syscall_epoll_wait(
     let real_len = ret_events.len().min(max_event);
     for i in 0..real_len {
         // 写入响应事件
-        unsafe {
-            *(event.add(i)) = ret_events[i];
-        }
+        event.write_offset(i as isize, ret_events[i]);
     }
     Ok(real_len as isize)
 }

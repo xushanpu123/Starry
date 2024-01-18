@@ -5,9 +5,11 @@ use alloc::collections::VecDeque;
 use axhal::mem::VirtAddr;
 use axlog::info;
 use axprocess::{
+    read_u32_from_addr,
+    read_from_addr,
     current_process, current_task,
     futex::{FutexRobustList, FUTEX_WAIT_TASK, WAIT_FOR_FUTEX},
-    yield_now_task,
+    yield_now_task, UserRef,
 };
 use axtask::TaskState;
 
@@ -64,7 +66,7 @@ pub fn futex(
         FutexFlags::WAIT => {
             let process = current_process();
             if process.manual_alloc_for_lazy(vaddr).is_ok() {
-                let real_futex_val = unsafe { (vaddr.as_usize() as *const u32).read_volatile() };
+                let real_futex_val = read_u32_from_addr(vaddr);
                 info!("real val: {}, expected val: {}", real_futex_val, val);
                 if real_futex_val != val {
                     return Err(SyscallError::EAGAIN);
@@ -139,7 +141,7 @@ pub fn check_dead_wait() {
     let mut futex_wait_task = FUTEX_WAIT_TASK.lock();
     for (vaddr, wait_list) in futex_wait_task.iter_mut() {
         if process.manual_alloc_for_lazy(*vaddr).is_ok() {
-            let real_futex_val = unsafe { ((*vaddr).as_usize() as *const u32).read_volatile() };
+            let real_futex_val = read_u32_from_addr(*vaddr);
             for (task, val) in wait_list.iter() {
                 if real_futex_val != *val && task.state() == TaskState::Blocked {
                     WAIT_FOR_FUTEX.notify_task(false, task);
@@ -163,7 +165,7 @@ pub fn syscall_futex(
     let process = current_process();
     let timeout = if time_out_val != 0 && process.manual_alloc_for_lazy(time_out_val.into()).is_ok()
     {
-        let time_sepc: TimeSecs = unsafe { *(time_out_val as *const TimeSecs) };
+        let time_sepc: TimeSecs = *read_from_addr::<TimeSecs>(time_out_val);
         time_sepc.to_nano()
     } else {
         // usize::MAX
@@ -207,21 +209,23 @@ pub fn syscall_set_robust_list(head: usize, len: usize) -> SyscallResult {
 }
 
 /// 取出对应线程的robust list
-pub fn syscall_get_robust_list(pid: i32, head: *mut usize, len: *mut usize) -> SyscallResult {
+pub fn syscall_get_robust_list(
+    pid: i32,
+    head: UserRef<usize>,
+    len: UserRef<usize>,
+) -> SyscallResult {
     if pid == 0 {
         let process = current_process();
         let curr_id = current_task().id().as_u64();
         if process
-            .manual_alloc_for_lazy((head as usize).into())
+            .manual_alloc_for_lazy((head.get_usize()).into())
             .is_ok()
         {
             let robust_list = process.robust_list.lock();
             if robust_list.contains_key(&curr_id) {
                 let list = robust_list.get(&curr_id).unwrap();
-                unsafe {
-                    *head = list.head;
-                    *len = list.len;
-                }
+                *head.get_mut_ref() = list.head;
+                *len.get_mut_ref() = list.len;
             } else {
                 return Err(SyscallError::EPERM);
             }

@@ -4,6 +4,7 @@
 extern crate alloc;
 
 use axlog::debug;
+use axprocess::UserRef;
 use axprocess::link::{create_link, deal_with_path, remove_link, FilePath};
 use syscall_utils::{SyscallError, SyscallResult};
 
@@ -21,17 +22,17 @@ const AT_REMOVEDIR: usize = 0x200; // Remove directory instead of unlinking file
 #[allow(dead_code)]
 pub fn sys_linkat(
     old_dir_fd: usize,
-    old_path: *const u8,
+    old_path: UserRef<u8>,
     new_dir_fd: usize,
-    new_path: *const u8,
+    new_path: UserRef<u8>,
     _flags: usize,
 ) -> SyscallResult {
-    let old_path = if let Some(path) = deal_with_path(old_dir_fd, Some(old_path), false) {
+    let old_path = if let Some(path) = deal_with_path(old_dir_fd, Some(old_path.get_ptr()), false) {
         path
     } else {
         return Err(SyscallError::EINVAL);
     };
-    let new_path = if let Some(path) = deal_with_path(new_dir_fd, Some(new_path), false) {
+    let new_path = if let Some(path) = deal_with_path(new_dir_fd, Some(new_path.get_ptr()), false) {
         path
     } else {
         return Err(SyscallError::EINVAL);
@@ -49,8 +50,8 @@ pub fn sys_linkat(
 ///     - path：要删除的链接的名字。如果path是相对路径，则它是相对于dir_fd目录而言的。如果path是相对路径，且dir_fd的值为AT_FDCWD，则它是相对于当前路径而言的。如果path是绝对路径，则dir_fd被忽略。
 ///     - flags：可设置为0或AT_REMOVEDIR。
 /// 返回值：成功执行，返回0。失败，返回-1。
-pub fn syscall_unlinkat(dir_fd: usize, path: *const u8, flags: usize) -> SyscallResult {
-    let path = deal_with_path(dir_fd, Some(path), false).unwrap();
+pub fn syscall_unlinkat(dir_fd: usize, path: UserRef<u8>, flags: usize) -> SyscallResult {
+    let path = deal_with_path(dir_fd, Some(path.get_ptr()), false).unwrap();
 
     if path.start_with(&FilePath::new("/proc").unwrap()) {
         return Ok(-1);

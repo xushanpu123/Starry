@@ -1,8 +1,8 @@
-use core::{slice::from_raw_parts_mut, time::Duration};
+use core::time::Duration;
 
 use axhal::time::{current_time, current_time_nanos, nanos_to_ticks, NANOS_PER_SEC};
 
-use axprocess::{current_process, current_task, time_stat_output};
+use axprocess::{current_process, current_task, time_stat_output, UserRef};
 use rand::{rngs::SmallRng, Fill, SeedableRng};
 
 use syscall_utils::{
@@ -11,90 +11,79 @@ use syscall_utils::{
 };
 
 /// 返回值为当前经过的时钟中断数
-pub fn syscall_time(tms: *mut TMS) -> SyscallResult {
+pub fn syscall_time(tms: UserRef<TMS>) -> SyscallResult {
     let (_, utime_us, _, stime_us) = time_stat_output();
-    unsafe {
-        *tms = TMS {
-            tms_utime: utime_us,
-            tms_stime: stime_us,
-            tms_cutime: utime_us,
-            tms_cstime: stime_us,
-        }
-    }
+    *tms.get_mut_ref() = TMS {
+        tms_utime: utime_us,
+        tms_stime: stime_us,
+        tms_cutime: utime_us,
+        tms_cstime: stime_us,
+    };
     Ok(nanos_to_ticks(current_time_nanos()) as isize)
 }
 
 /// 获取当前系统时间并且存储在给定结构体中
-pub fn syscall_get_time_of_day(ts: *mut TimeVal) -> SyscallResult {
+pub fn syscall_get_time_of_day(ts: UserRef<TimeVal>) -> SyscallResult {
     let current_us = current_time_nanos() as usize / 1000;
-    unsafe {
-        *ts = TimeVal {
-            sec: current_us / 1000_000,
-            usec: current_us % 1000_000,
-        }
-    }
+    *ts.get_mut_ref() = TimeVal {
+        sec: current_us / 1000_000,
+        usec: current_us % 1000_000,
+    };
     Ok(0)
 }
 
 /// 用于获取当前系统时间并且存储在对应的结构体中
-pub fn syscall_clock_get_time(_clock_id: usize, ts: *mut TimeSecs) -> SyscallResult {
-    unsafe {
-        (*ts) = TimeSecs::now();
-    }
+pub fn syscall_clock_get_time(_clock_id: usize, ts: UserRef<TimeSecs>) -> SyscallResult {
+    *ts.get_mut_ref() = TimeSecs::now();
     Ok(0)
 }
 
 /// 获取系统信息
-pub fn syscall_uname(uts: *mut UtsName) -> SyscallResult {
-    unsafe {
-        *uts = UtsName::default();
-    }
+pub fn syscall_uname(uts: UserRef<UtsName>) -> SyscallResult {
+    *uts.get_mut_ref() = UtsName::default();
     Ok(0)
 }
 
 /// 获取系统的启动时间和内存信息，当前仅支持启动时间
-pub fn syscall_sysinfo(info: *mut SysInfo) -> SyscallResult {
+pub fn syscall_sysinfo(info: UserRef<SysInfo>) -> SyscallResult {
     let process = current_process();
-    if process
-        .manual_alloc_type_for_lazy(info as *const SysInfo)
-        .is_err()
-    {
+    if process.manual_alloc_type_for_lazy(info.get_ptr()).is_err() {
         return Err(SyscallError::EFAULT);
     }
 
-    unsafe {
-        // 获取以秒为单位的时间
-        (*info).uptime = (current_time_nanos() / NANOS_PER_SEC) as isize;
-    }
+    // 获取以秒为单位的时间
+    (*info.get_mut_ref()).uptime = (current_time_nanos() / NANOS_PER_SEC) as isize;
+
     Ok(0)
 }
 
 pub fn syscall_settimer(
     which: usize,
-    new_value: *const ITimerVal,
-    old_value: *mut ITimerVal,
+    new_value: UserRef<ITimerVal>,
+    old_value: UserRef<ITimerVal>,
 ) -> SyscallResult {
     let process = current_process();
 
-    if new_value.is_null() {
+    if new_value.ptr_is_null() {
         return Err(SyscallError::EFAULT);
     }
 
-    let new_value = match process.manual_alloc_type_for_lazy(new_value) {
-        Ok(_) => unsafe { &*new_value },
+    let new_value = match process.manual_alloc_type_for_lazy(new_value.get_ptr()) {
+        Ok(_) => &*new_value.get_ref(),
         Err(_) => return Err(SyscallError::EFAULT),
     };
 
-    if !old_value.is_null() {
-        if process.manual_alloc_type_for_lazy(old_value).is_err() {
+    if !old_value.ptr_is_null() {
+        if process
+            .manual_alloc_type_for_lazy(old_value.get_mut_ptr())
+            .is_err()
+        {
             return Err(SyscallError::EFAULT);
         }
 
         let (time_interval_us, time_remained_us) = current_task().timer_output();
-        unsafe {
-            (*old_value).it_interval = TimeVal::from_micro(time_interval_us);
-            (*old_value).it_value = TimeVal::from_micro(time_remained_us);
-        }
+        (*old_value.get_mut_ref()).it_interval = TimeVal::from_micro(time_interval_us);
+        (*old_value.get_mut_ref()).it_value = TimeVal::from_micro(time_remained_us);
     }
     let (time_interval_ns, time_remained_ns) = (
         new_value.it_interval.to_nanos(),
@@ -108,56 +97,53 @@ pub fn syscall_settimer(
     }
 }
 
-pub fn syscall_gettimer(_which: usize, value: *mut ITimerVal) -> SyscallResult {
+pub fn syscall_gettimer(_which: usize, value: UserRef<ITimerVal>) -> SyscallResult {
     let process = current_process();
-    if process
-        .manual_alloc_type_for_lazy(value as *const ITimerVal)
-        .is_err()
-    {
+    if process.manual_alloc_type_for_lazy(value.get_ptr()).is_err() {
         return Err(SyscallError::EFAULT);
     }
     let (time_interval_us, time_remained_us) = current_task().timer_output();
-    unsafe {
-        (*value).it_interval = TimeVal::from_micro(time_interval_us);
-        (*value).it_value = TimeVal::from_micro(time_remained_us);
-    }
+    (*value.get_mut_ref()).it_interval = TimeVal::from_micro(time_interval_us);
+    (*value.get_mut_ref()).it_value = TimeVal::from_micro(time_remained_us);
     Ok(0)
 }
 
-pub fn syscall_getrusage(who: i32, utime: *mut TimeVal) -> SyscallResult {
-    let stime: *mut TimeVal = unsafe { utime.add(1) };
+pub fn syscall_getrusage(who: i32, utime: UserRef<TimeVal>) -> SyscallResult {
+    let stime: *mut TimeVal = utime.add_count(1);
+    let stime_ref = utime.get_adjacent_mut_ref(stime);
     let process = current_process();
-    if process.manual_alloc_type_for_lazy(utime).is_err()
+    if process
+        .manual_alloc_type_for_lazy(utime.get_mut_ptr())
+        .is_err()
         || process.manual_alloc_type_for_lazy(stime).is_err()
     {
         return Err(SyscallError::EFAULT);
     }
     if RusageFlags::from(who).is_some() {
         let (_, utime_us, _, stime_us) = time_stat_output();
-        unsafe {
-            *utime = TimeVal::from_micro(utime_us);
-            *stime = TimeVal::from_micro(stime_us);
-        }
+        *utime.get_mut_ref() = TimeVal::from_micro(utime_us);
+        *stime_ref = TimeVal::from_micro(stime_us);
+        
         Ok(0)
     } else {
         Err(SyscallError::EINVAL)
     }
 }
 
-pub fn syscall_getrandom(buf: *mut u8, len: usize, _flags: usize) -> SyscallResult {
+pub fn syscall_getrandom(buf: UserRef<u8>, len: usize, _flags: usize) -> SyscallResult {
     let process = current_process();
 
     if process
         .manual_alloc_range_for_lazy(
-            (buf as usize).into(),
-            unsafe { buf.add(len) as usize }.into(),
+            (buf.get_usize()).into(),
+            (buf.add_count(len) as usize).into(),
         )
         .is_err()
     {
         return Err(SyscallError::EFAULT);
     }
 
-    let buf = unsafe { from_raw_parts_mut(buf, len) };
+    let buf = buf.slice_mut_with_len(len);
 
     // TODO: flags
     // - GRND_RANDOM: use /dev/random or /dev/urandom
@@ -174,7 +160,7 @@ pub fn syscall_getrandom(buf: *mut u8, len: usize, _flags: usize) -> SyscallResu
 /// * id：时钟种类，当前仅支持CLOCK_MONOTONIC
 ///
 /// * res：存储时钟精度的结构体的地址
-pub fn syscall_clock_getres(id: usize, res: *mut TimeSecs) -> SyscallResult {
+pub fn syscall_clock_getres(id: usize, res: UserRef<TimeSecs>) -> SyscallResult {
     let id = if let Ok(opt) = ClockId::try_from(id) {
         opt
     } else {
@@ -187,16 +173,17 @@ pub fn syscall_clock_getres(id: usize, res: *mut TimeSecs) -> SyscallResult {
     }
 
     let process = current_process();
-    if process.manual_alloc_type_for_lazy(res).is_err() {
+    if process
+        .manual_alloc_type_for_lazy(res.get_mut_ptr())
+        .is_err()
+    {
         return Err(SyscallError::EFAULT);
     }
 
-    unsafe {
-        (*res) = TimeSecs {
-            tv_nsec: 1,
-            tv_sec: 0,
-        };
-    }
+    (*res.get_mut_ref()) = TimeSecs {
+        tv_nsec: 1,
+        tv_sec: 0,
+    };
 
     Ok(0)
 }
@@ -216,8 +203,8 @@ pub fn syscall_clock_getres(id: usize, res: *mut TimeSecs) -> SyscallResult {
 pub fn syscall_clock_nanosleep(
     id: usize,
     flags: usize,
-    request: *const TimeSecs,
-    remain: *mut TimeSecs,
+    request: UserRef<TimeSecs>,
+    remain: UserRef<TimeSecs>,
 ) -> SyscallResult {
     const TIMER_ABSTIME: usize = 1;
     let id = if let Ok(opt) = ClockId::try_from(id) {
@@ -233,10 +220,13 @@ pub fn syscall_clock_nanosleep(
 
     let process = current_process();
 
-    if process.manual_alloc_type_for_lazy(request).is_err() {
+    if process
+        .manual_alloc_type_for_lazy(request.get_ptr())
+        .is_err()
+    {
         return Err(SyscallError::EFAULT);
     }
-    let request_time = unsafe { *request };
+    let request_time = *request.get_mut_ref();
     let request_time = Duration::new(request_time.tv_sec as u64, request_time.tv_nsec as u32);
     let deadline = if flags != TIMER_ABSTIME {
         current_time() + request_time
@@ -250,16 +240,17 @@ pub fn syscall_clock_nanosleep(
     axtask::sleep_until(deadline);
 
     let current_time = current_time();
-    if current_time < deadline && !remain.is_null() {
-        if process.manual_alloc_type_for_lazy(remain).is_err() {
+    if current_time < deadline && !remain.ptr_is_null() {
+        if process
+            .manual_alloc_type_for_lazy(remain.get_mut_ptr())
+            .is_err()
+        {
             return Err(SyscallError::EFAULT);
         } else {
             let delta = (deadline - current_time).as_nanos() as usize;
-            unsafe {
-                *remain = TimeSecs {
-                    tv_sec: delta / 1000_000_000,
-                    tv_nsec: delta % 1000_000_000,
-                }
+            *remain.get_mut_ref() = TimeSecs {
+                tv_sec: delta / 1000_000_000,
+                tv_nsec: delta % 1000_000_000,
             };
             return Err(SyscallError::EINTR);
         }

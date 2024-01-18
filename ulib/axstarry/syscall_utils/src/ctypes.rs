@@ -2,6 +2,8 @@ use axhal::{
     paging::MappingFlags,
     time::{current_time_nanos, nanos_to_ticks, MICROS_PER_SEC, NANOS_PER_MICROS, NANOS_PER_SEC},
 };
+use axprocess::UserRef;
+use core::ptr::copy_nonoverlapping;
 use bitflags::*;
 use core::panic;
 pub const NSEC_PER_SEC: usize = 1_000_000_000;
@@ -234,7 +236,7 @@ pub struct RobustList {
 /// readv/writev使用的结构体
 #[repr(C)]
 pub struct IoVec {
-    pub base: *mut u8,
+    pub base: UserRef<u8>,
     pub len: usize,
 }
 /// 对 futex 的操作
@@ -415,6 +417,12 @@ impl DirEnt {
         self.d_off = -1;
         self.d_reclen = reclen as u16;
         self.d_type = type_ as u8;
+    }
+
+    pub fn _copy_nonoverlapping(&mut self, src: *const u8, len: usize) {
+        unsafe {
+            copy_nonoverlapping(src, self.d_name.as_mut_ptr(), len);
+        }
     }
 }
 

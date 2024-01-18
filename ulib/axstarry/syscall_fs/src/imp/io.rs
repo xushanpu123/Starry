@@ -7,8 +7,8 @@ use axerrno::AxError;
 use axfs::api::{FileIOType, OpenFlags};
 use axio::SeekFrom;
 use axlog::{debug, info};
-use axprocess::current_process;
 use axprocess::link::{create_link, deal_with_path, real_path};
+use axprocess::{current_process, UserRef};
 use syscall_utils::{IoVec, SyscallError, SyscallResult};
 
 use crate::ctype::pipe::make_pipe;
@@ -19,10 +19,10 @@ use crate::ctype::{dir::new_dir, file::new_fd};
 ///     - buf：一个缓存区，用于存放读取的内容。
 ///     - count：要读取的字节数。
 /// 返回值：成功执行，返回读取的字节数。如为0，表示文件结束。错误，则返回-1。
-pub fn syscall_read(fd: usize, buf: *mut u8, count: usize) -> SyscallResult {
+pub fn syscall_read(fd: usize, buf: UserRef<u8>, count: usize) -> SyscallResult {
     info!("[read()] fd: {fd}, buf: {buf:?}, len: {count}",);
 
-    if buf.is_null() {
+    if buf.ptr_is_null() {
         return Err(SyscallError::EFAULT);
     }
 
@@ -30,10 +30,10 @@ pub fn syscall_read(fd: usize, buf: *mut u8, count: usize) -> SyscallResult {
 
     // TODO: 左闭右开
     let buf = match process.manual_alloc_range_for_lazy(
-        (buf as usize).into(),
-        (unsafe { buf.add(count) as usize } - 1).into(),
+        (buf.get_usize()).into(),
+        (buf.add_count(count) as usize - 1).into(),
     ) {
-        Ok(_) => unsafe { core::slice::from_raw_parts_mut(buf, count) },
+        Ok(_) => buf.slice_mut_with_len(count),
         Err(_) => return Err(SyscallError::EFAULT),
     };
 
@@ -86,10 +86,10 @@ pub fn syscall_read(fd: usize, buf: *mut u8, count: usize) -> SyscallResult {
 ///     - buf：一个缓存区，用于存放要写入的内容。
 ///     - count：要写入的字节数。
 /// 返回值：成功执行，返回写入的字节数。错误，则返回-1。
-pub fn syscall_write(fd: usize, buf: *const u8, count: usize) -> SyscallResult {
+pub fn syscall_write(fd: usize, buf: UserRef<u8>, count: usize) -> SyscallResult {
     info!("[write()] fd: {fd}, buf: {buf:?}, len: {count}");
 
-    if buf.is_null() {
+    if buf.ptr_is_null() {
         return Err(SyscallError::EFAULT);
     }
 
@@ -97,10 +97,10 @@ pub fn syscall_write(fd: usize, buf: *const u8, count: usize) -> SyscallResult {
 
     // TODO: 左闭右开
     let buf = match process.manual_alloc_range_for_lazy(
-        (buf as usize).into(),
-        (unsafe { buf.add(count) as usize } - 1).into(),
+        (buf.get_usize()).into(),
+        (buf.add_count(count) as usize - 1).into(),
     ) {
-        Ok(_) => unsafe { core::slice::from_raw_parts(buf, count) },
+        Ok(_) => buf.slice_mut_with_unmut_len(count),
         Err(_) => return Err(SyscallError::EFAULT),
     };
 
@@ -150,12 +150,12 @@ pub fn syscall_write(fd: usize, buf: *const u8, count: usize) -> SyscallResult {
 }
 
 /// 从同一个文件描述符读取多个字符串
-pub fn syscall_readv(fd: usize, iov: *mut IoVec, iov_cnt: usize) -> SyscallResult {
+pub fn syscall_readv(fd: usize, iov: UserRef<IoVec>, iov_cnt: usize) -> SyscallResult {
     let mut read_len = 0;
     // 似乎要判断iov是否分配，但是懒了，反正能过测例
     for i in 0..iov_cnt {
-        let io: &IoVec = unsafe { &*iov.add(i) };
-        if io.base.is_null() || io.len == 0 {
+        let io: &IoVec = iov.get_t(i);
+        if io.base.ptr_is_null() || io.len == 0 {
             continue;
         }
         match syscall_read(fd, io.base, io.len) {
@@ -168,12 +168,12 @@ pub fn syscall_readv(fd: usize, iov: *mut IoVec, iov_cnt: usize) -> SyscallResul
 }
 
 /// 从同一个文件描述符写入多个字符串
-pub fn syscall_writev(fd: usize, iov: *const IoVec, iov_cnt: usize) -> SyscallResult {
+pub fn syscall_writev(fd: usize, iov: UserRef<IoVec>, iov_cnt: usize) -> SyscallResult {
     let mut write_len = 0;
     // 似乎要判断iov是否分配，但是懒了，反正能过测例
     for i in 0..iov_cnt {
-        let io: &IoVec = unsafe { &(*iov.add(i)) };
-        if io.base.is_null() || io.len == 0 {
+        let io: &IoVec = iov.get_t(i);
+        if io.base.ptr_is_null() || io.len == 0 {
             continue;
         }
         match syscall_write(fd, io.base, io.len) {
@@ -191,10 +191,17 @@ pub fn syscall_writev(fd: usize, iov: *const IoVec, iov_cnt: usize) -> SyscallRe
 /// 返回值：成功执行，返回0。失败，返回-1。
 ///
 /// 注意：fd[2]是32位数组，所以这里的 fd 是 u32 类型的指针，而不是 usize 类型的指针。
-pub fn syscall_pipe2(fd: *mut u32, flags: usize) -> SyscallResult {
-    axlog::info!("Into syscall_pipe2. fd: {} flags: {}", fd as usize, flags);
+pub fn syscall_pipe2(fd: UserRef<u32>, flags: usize) -> SyscallResult {
+    axlog::info!(
+        "Into syscall_pipe2. fd: {} flags: {}",
+        fd.get_usize(),
+        flags
+    );
     let process = current_process();
-    if process.manual_alloc_for_lazy((fd as usize).into()).is_err() {
+    if process
+        .manual_alloc_for_lazy((fd.get_usize()).into())
+        .is_err()
+    {
         return Err(SyscallError::EINVAL);
     }
     let non_block = (flags & 0x800) != 0;
@@ -213,10 +220,8 @@ pub fn syscall_pipe2(fd: *mut u32, flags: usize) -> SyscallResult {
     };
     fd_table[fd_num2] = Some(write);
     info!("read end: {} write: end: {}", fd_num, fd_num2);
-    unsafe {
-        core::ptr::write(fd, fd_num as u32);
-        core::ptr::write(fd.offset(1), fd_num2 as u32);
-    }
+    fd.write_offset(0, fd_num as u32);
+    fd.write_offset(1, fd_num2 as u32);
     Ok(0)
 }
 
@@ -292,9 +297,9 @@ pub fn syscall_dup3(fd: usize, new_fd: usize) -> SyscallResult {
 ///
 /// 说明：如果打开的是一个目录，那么返回的文件描述符指向的是该目录的描述符。(后面会用到针对目录的文件描述符)
 /// flags: O_RDONLY: 0, O_WRONLY: 1, O_RDWR: 2, O_CREAT: 64, O_DIRECTORY: 65536
-pub fn syscall_openat(fd: usize, path: *const u8, flags: usize, _mode: u8) -> SyscallResult {
+pub fn syscall_openat(fd: usize, path: UserRef<u8>, flags: usize, _mode: u8) -> SyscallResult {
     let force_dir = OpenFlags::from(flags).is_dir();
-    let path = if let Some(path) = deal_with_path(fd, Some(path), force_dir) {
+    let path = if let Some(path) = deal_with_path(fd, Some(path.get_ptr()), force_dir) {
         path
     } else {
         return Err(SyscallError::EINVAL);
@@ -369,15 +374,15 @@ pub fn syscall_close(fd: usize) -> SyscallResult {
 /// 67
 /// pread64
 /// 从文件的指定位置读取数据，并且不改变文件的读写指针
-pub fn syscall_pread64(fd: usize, buf: *mut u8, count: usize, offset: usize) -> SyscallResult {
+pub fn syscall_pread64(fd: usize, buf: UserRef<u8>, count: usize, offset: usize) -> SyscallResult {
     let process = current_process();
     // todo: 把check fd整合到fd_manager中
     let file = process.fd_manager.fd_table.lock()[fd].clone().unwrap();
 
     let old_offset = file.seek(SeekFrom::Current(0)).unwrap();
-    let ret = file
-        .seek(SeekFrom::Start(offset as u64))
-        .and_then(|_| file.read(unsafe { core::slice::from_raw_parts_mut(buf, count) }));
+    let ret = file.seek(SeekFrom::Start(offset as u64)).and_then(|_| {
+        file.read(buf.slice_mut_with_len(count))
+    });
     file.seek(SeekFrom::Start(old_offset)).unwrap();
     ret.map(|size| Ok(size as isize))
         .unwrap_or_else(|_| Err(SyscallError::EINVAL))
@@ -386,7 +391,7 @@ pub fn syscall_pread64(fd: usize, buf: *mut u8, count: usize, offset: usize) -> 
 /// 68
 /// pwrite64
 /// 向文件的指定位置写入数据，并且不改变文件的读写指针
-pub fn syscall_pwrite64(fd: usize, buf: *const u8, count: usize, offset: usize) -> SyscallResult {
+pub fn syscall_pwrite64(fd: usize, buf: UserRef<u8>, count: usize, offset: usize) -> SyscallResult {
     let process = current_process();
 
     let file = process.fd_manager.fd_table.lock()[fd].clone().unwrap();
@@ -394,7 +399,7 @@ pub fn syscall_pwrite64(fd: usize, buf: *const u8, count: usize, offset: usize) 
     let old_offset = file.seek(SeekFrom::Current(0)).unwrap();
 
     let ret = file.seek(SeekFrom::Start(offset as u64)).and_then(|_| {
-        let res = file.write(unsafe { core::slice::from_raw_parts(buf, count) });
+        let res = file.write( buf.slice_mut_with_unmut_len(count));
         res
     });
 
@@ -413,7 +418,7 @@ pub fn syscall_pwrite64(fd: usize, buf: *const u8, count: usize, offset: usize) 
 pub fn syscall_sendfile64(
     out_fd: usize,
     in_fd: usize,
-    offset: *mut usize,
+    offset: UserRef<usize>,
     count: usize,
 ) -> SyscallResult {
     info!("send from {} to {}, count: {}", in_fd, out_fd, count);
@@ -423,12 +428,12 @@ pub fn syscall_sendfile64(
     let old_in_offset = in_file.seek(SeekFrom::Current(0)).unwrap();
 
     let mut buf = vec![0u8; count];
-    if !offset.is_null() {
+    if !offset.ptr_is_null() {
         // 如果offset不为NULL，则从offset指定的位置开始读取
-        let in_offset = unsafe { *offset };
+        let in_offset = *offset.get_mut_ref();
         in_file.seek(SeekFrom::Start(in_offset as u64)).unwrap();
         let ret = in_file.read(buf.as_mut_slice());
-        unsafe { *offset = in_offset + ret.unwrap() };
+        *offset.get_mut_ref() = in_offset + ret.unwrap();
         in_file.seek(SeekFrom::Start(old_in_offset)).unwrap();
         let buf = buf[..ret.unwrap()].to_vec();
         Ok(out_file.write(buf.as_slice()).unwrap() as isize)
@@ -451,27 +456,27 @@ pub fn syscall_sendfile64(
 /// 如果写入的内容超出了buf_size则直接截断
 pub fn syscall_readlinkat(
     dir_fd: usize,
-    path: *const u8,
-    buf: *mut u8,
+    path: UserRef<u8>,
+    buf: UserRef<u8>,
     bufsiz: usize,
 ) -> SyscallResult {
     let process = current_process();
     if process
-        .manual_alloc_for_lazy((path as usize).into())
+        .manual_alloc_for_lazy((path.get_usize()).into())
         .is_err()
     {
         return Err(SyscallError::EFAULT);
     }
-    if !buf.is_null() {
+    if !buf.ptr_is_null() {
         if process
-            .manual_alloc_for_lazy((buf as usize).into())
+            .manual_alloc_for_lazy((buf.get_usize()).into())
             .is_err()
         {
             return Err(SyscallError::EFAULT);
         }
     }
 
-    let path = deal_with_path(dir_fd, Some(path), false);
+    let path = deal_with_path(dir_fd, Some(path.get_ptr()), false);
     if path.is_none() {
         return Err(SyscallError::ENOENT);
     }
@@ -480,7 +485,7 @@ pub fn syscall_readlinkat(
         // 针对lmbench_all特判
         let name = "/lmbench_all";
         let len = bufsiz.min(name.len());
-        let slice = unsafe { core::slice::from_raw_parts_mut(buf, bufsiz) };
+        let slice = buf.slice_mut_with_len(bufsiz);
         slice.copy_from_slice(&name.as_bytes()[..len]);
         return Ok(len as isize);
     }
@@ -488,7 +493,7 @@ pub fn syscall_readlinkat(
         // 说明链接存在
         let path = path.path();
         let len = bufsiz.min(path.len());
-        let slice = unsafe { core::slice::from_raw_parts_mut(buf, len) };
+        let slice = buf.slice_mut_with_len(len);
         slice.copy_from_slice(&path.as_bytes()[..len]);
         return Ok(path.len() as isize);
     }
@@ -560,21 +565,21 @@ pub fn syscall_fsync(fd: usize) -> SyscallResult {
  */
 pub fn syscall_copyfilerange(
     fd_in: usize,
-    off_in: *mut usize,
+    off_in: UserRef<usize>,
     fd_out: usize,
-    off_out: *mut usize,
+    off_out: UserRef<usize>,
     len: usize,
     flags: usize,
 ) -> SyscallResult {
-    let in_offset = if off_in.is_null() {
+    let in_offset = if off_in.ptr_is_null() {
         -1
     } else {
-        unsafe { *off_in as isize }
+        off_in.get_mut_ptr() as isize 
     };
-    let out_offset = if off_out.is_null() {
+    let out_offset = if off_out.ptr_is_null() {
         -1
     } else {
-        unsafe { *off_out as isize }
+        *off_out.get_mut_ref() as isize
     };
     if len == 0 {
         return Ok(0);
@@ -595,11 +600,11 @@ pub fn syscall_copyfilerange(
     // }
 
     // set offset
-    if !off_in.is_null() {
+    if !off_in.ptr_is_null() {
         in_file.seek(SeekFrom::Start(in_offset as u64)).unwrap();
     }
 
-    if !off_out.is_null() {
+    if !off_out.ptr_is_null() {
         out_file.seek(SeekFrom::Start(out_offset as u64)).unwrap();
     }
 
@@ -612,17 +617,13 @@ pub fn syscall_copyfilerange(
     // assert_eq!(read_len, write_len);    // tmp
 
     // set offset | modify off_in & off_out
-    if !off_in.is_null() {
+    if !off_in.ptr_is_null() {
         in_file.seek(SeekFrom::Start(old_in_offset)).unwrap();
-        unsafe {
-            *off_in += read_len;
-        }
+        *off_in.get_mut_ref() += read_len;
     }
-    if !off_out.is_null() {
+    if !off_out.ptr_is_null() {
         out_file.seek(SeekFrom::Start(old_out_offset)).unwrap();
-        unsafe {
-            *off_out += write_len;
-        }
+        *off_out.get_mut_ref() += write_len;
     }
 
     Ok(write_len as isize)

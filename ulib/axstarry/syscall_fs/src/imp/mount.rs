@@ -1,6 +1,7 @@
 use axprocess::{
     current_process,
-    link::{deal_with_path, raw_ptr_to_ref_str, AT_FDCWD},
+    link::{deal_with_path, AT_FDCWD},
+    UserRef,
 };
 use syscall_utils::{SyscallError, SyscallResult};
 
@@ -18,35 +19,35 @@ use axlog::debug;
 ///   - data: 传递给文件系统的字符串参数，可为NULL；
 /// 返回值：成功返回0，失败返回-1
 pub fn syscall_mount(
-    special: *const u8,
-    dir: *const u8,
-    fs_type: *const u8,
+    special: UserRef<u8>,
+    dir: UserRef<u8>,
+    fs_type: UserRef<u8>,
     _flags: usize,
-    _data: *const u8,
+    _data: UserRef<u8>,
 ) -> SyscallResult {
-    let device_path = deal_with_path(AT_FDCWD, Some(special), false).unwrap();
+    let device_path = deal_with_path(AT_FDCWD, Some(special.get_ptr()), false).unwrap();
     // 这里dir必须以"/"结尾，但在shell中输入时，不需要以"/"结尾
-    let mount_path = deal_with_path(AT_FDCWD, Some(dir), true).unwrap();
+    let mount_path = deal_with_path(AT_FDCWD, Some(dir.get_ptr()), true).unwrap();
 
     let process = current_process();
     if process
-        .manual_alloc_for_lazy((fs_type as usize).into())
+        .manual_alloc_for_lazy((fs_type.get_usize()).into())
         .is_err()
     {
         return Err(SyscallError::EINVAL);
     }
 
-    let fs_type = unsafe { raw_ptr_to_ref_str(fs_type).to_string() };
+    let fs_type = fs_type.raw_ptr_to_ref_str().to_string();
     let mut _data_str = "".to_string();
-    if !_data.is_null() {
+    if !_data.ptr_is_null() {
         if process
-            .manual_alloc_for_lazy((_data as usize).into())
+            .manual_alloc_for_lazy((_data.get_usize()).into())
             .is_err()
         {
             return Err(SyscallError::EINVAL);
         }
         // data可以为NULL, 必须判断, 否则会panic, 发生LoadPageFault
-        _data_str = unsafe { raw_ptr_to_ref_str(_data) }.to_string();
+        _data_str = _data.raw_ptr_to_ref_str().to_string();
     }
     if device_path.is_dir() {
         debug!("device_path should not be a dir");
@@ -91,8 +92,8 @@ pub fn syscall_mount(
 /// 功能：卸载文件系统；
 /// 输入：指定卸载目录，卸载参数；
 /// 返回值：成功返回0，失败返回-1；
-pub fn syscall_umount(dir: *const u8, flags: usize) -> SyscallResult {
-    let mount_path = deal_with_path(AT_FDCWD, Some(dir), true).unwrap();
+pub fn syscall_umount(dir: UserRef<u8>, flags: usize) -> SyscallResult {
+    let mount_path = deal_with_path(AT_FDCWD, Some(dir.get_ptr()), true).unwrap();
 
     if flags != 0 {
         debug!("flags unimplemented");

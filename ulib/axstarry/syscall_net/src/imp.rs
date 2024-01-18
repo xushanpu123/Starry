@@ -1,14 +1,13 @@
 //! 相关系统调用的具体实现
 extern crate alloc;
 use super::socket::*;
-use core::slice::{from_raw_parts, from_raw_parts_mut};
 
 use alloc::sync::Arc;
 
 use axerrno::AxError;
 use axlog::{debug, error, info, warn};
 use axnet::{into_core_sockaddr, IpAddr, SocketAddr};
-use axprocess::current_process;
+use axprocess::{current_process, UserRef};
 use num_enum::TryFromPrimitive;
 use syscall_utils::{SyscallError, SyscallResult};
 
@@ -44,7 +43,7 @@ pub fn syscall_socket(domain: usize, s_type: usize, _protocol: usize) -> Syscall
     Ok(fd as isize)
 }
 
-pub fn syscall_bind(fd: usize, addr: *const u8, _addr_len: usize) -> SyscallResult {
+pub fn syscall_bind(fd: usize, addr: UserRef<u8>, _addr_len: usize) -> SyscallResult {
     let curr = current_process();
 
     let file = match curr.fd_manager.fd_table.lock().get(fd) {
@@ -52,7 +51,7 @@ pub fn syscall_bind(fd: usize, addr: *const u8, _addr_len: usize) -> SyscallResu
         _ => return Err(SyscallError::EBADF),
     };
 
-    let addr = unsafe { socket_address_from(addr) };
+    let addr = socket_address_from(addr);
 
     let Some(socket) = file.as_any().downcast_ref::<Socket>() else {
         return Err(SyscallError::ENOTSOCK);
@@ -81,8 +80,8 @@ pub fn syscall_listen(fd: usize, _backlog: usize) -> SyscallResult {
 
 pub fn syscall_accept4(
     fd: usize,
-    addr_buf: *mut u8,
-    addr_len: *mut u32,
+    addr_buf: UserRef<u8>,
+    addr_len: UserRef<u32>,
     flags: usize,
 ) -> SyscallResult {
     let curr = current_process();
@@ -102,7 +101,7 @@ pub fn syscall_accept4(
 
     match socket.accept() {
         Ok((mut s, addr)) => {
-            let _ = unsafe { socket_address_to(addr, addr_buf, addr_len) };
+            let _ = (addr, addr_buf, addr_len);
 
             let mut fd_table = curr.fd_manager.fd_table.lock();
             let Ok(new_fd) = curr.alloc_fd(&mut fd_table) else {
@@ -129,7 +128,7 @@ pub fn syscall_accept4(
     }
 }
 
-pub fn syscall_connect(fd: usize, addr_buf: *const u8, _addr_len: usize) -> SyscallResult {
+pub fn syscall_connect(fd: usize, addr_buf: UserRef<u8>, _addr_len: usize) -> SyscallResult {
     let curr = current_process();
 
     let file = match curr.fd_manager.fd_table.lock().get(fd) {
@@ -141,7 +140,7 @@ pub fn syscall_connect(fd: usize, addr_buf: *const u8, _addr_len: usize) -> Sysc
         return Err(SyscallError::ENOTSOCK);
     };
 
-    let addr = unsafe { socket_address_from(addr_buf) };
+    let addr = socket_address_from(addr_buf);
 
     debug!("[connect()] socket {fd} connecting to {addr:?}");
 
@@ -155,7 +154,11 @@ pub fn syscall_connect(fd: usize, addr_buf: *const u8, _addr_len: usize) -> Sysc
 }
 
 /// NOTE: linux man 中没有说明若socket未bound应返回什么错误
-pub fn syscall_get_sock_name(fd: usize, addr: *mut u8, addr_len: *mut u32) -> SyscallResult {
+pub fn syscall_get_sock_name(
+    fd: usize,
+    addr: UserRef<u8>,
+    addr_len: UserRef<u32>,
+) -> SyscallResult {
     let curr = current_process();
 
     let file = match curr.fd_manager.fd_table.lock().get(fd) {
@@ -175,11 +178,18 @@ pub fn syscall_get_sock_name(fd: usize, addr: *mut u8, addr_len: *mut u32) -> Sy
 
     info!("[getsockname()] socket {fd} name: {:?}", name);
 
-    Ok(unsafe { socket_address_to(name, addr, addr_len) }.map_or(-1, |_| 0))
+    Ok(
+        socket_address_to(name, addr, addr_len)
+        .map_or(-1, |_| 0),
+    )
 }
 
 #[allow(unused)]
-pub fn syscall_getpeername(fd: usize, addr_buf: *mut u8, addr_len: *mut u32) -> SyscallResult {
+pub fn syscall_getpeername(
+    fd: usize,
+    addr_buf: UserRef<u8>,
+    addr_len: UserRef<u32>,
+) -> SyscallResult {
     let curr = current_process();
 
     let file = match curr.fd_manager.fd_table.lock().get(fd) {
@@ -187,8 +197,8 @@ pub fn syscall_getpeername(fd: usize, addr_buf: *mut u8, addr_len: *mut u32) -> 
         _ => return Err(SyscallError::EBADF),
     };
 
-    let len = match curr.manual_alloc_type_for_lazy(addr_len as *const u32) {
-        Ok(_) => unsafe { *addr_len },
+    let len = match curr.manual_alloc_type_for_lazy(addr_len.get_ptr()) {
+        Ok(_) => { *addr_len.get_mut_ref() },
         Err(_) => return Err(SyscallError::EFAULT),
     };
     // It seems it could be negative according to Linux man page.
@@ -198,8 +208,8 @@ pub fn syscall_getpeername(fd: usize, addr_buf: *mut u8, addr_len: *mut u32) -> 
 
     if curr
         .manual_alloc_range_for_lazy(
-            (addr_buf as usize).into(),
-            unsafe { addr_buf.add(len as usize) as usize }.into(),
+            (addr_buf.get_usize()).into(),
+            (addr_buf.add_count(len as usize) as usize).into(),
         )
         .is_err()
     {
@@ -211,7 +221,12 @@ pub fn syscall_getpeername(fd: usize, addr_buf: *mut u8, addr_len: *mut u32) -> 
     };
 
     match socket.peer_name() {
-        Ok(name) => Ok(unsafe { socket_address_to(name, addr_buf, addr_len) }.map_or(-1, |_| 0)),
+        Ok(name) => {
+            Ok(
+                socket_address_to(name, addr_buf, addr_len)
+                .map_or(-1, |_| 0),
+            )
+        }
         Err(AxError::NotConnected) => Err(SyscallError::ENOTCONN),
         Err(_) => unreachable!(),
     }
@@ -221,10 +236,10 @@ pub fn syscall_getpeername(fd: usize, addr_buf: *mut u8, addr_len: *mut u32) -> 
 /// Calling sendto() will bind the socket if it's not bound.
 pub fn syscall_sendto(
     fd: usize,
-    buf: *const u8,
+    buf: UserRef<u8>,
     len: usize,
     _flags: usize,
-    addr: *const u8,
+    addr: UserRef<u8>,
     addr_len: usize,
 ) -> SyscallResult {
     let curr = current_process();
@@ -238,26 +253,26 @@ pub fn syscall_sendto(
         return Err(SyscallError::ENOTSOCK);
     };
 
-    if buf.is_null() {
+    if buf.ptr_is_null() {
         return Err(SyscallError::EFAULT);
     }
     let Ok(buf) = curr
         .manual_alloc_range_for_lazy(
-            (buf as usize).into(),
-            unsafe { buf.add(len) as usize }.into(),
+            (buf.get_usize()).into(),
+            (buf.add_count(len) as usize).into(),
         )
-        .map(|_| unsafe { from_raw_parts(buf, len) })
+        .map(|_| buf.slice_mut_with_unmut_len(len))
     else {
         error!("[sendto()] buf address {buf:?} invalid");
         return Err(SyscallError::EFAULT);
     };
 
-    let addr = if !addr.is_null() && addr_len != 0 {
+    let addr = if !addr.ptr_is_null() && addr_len != 0 {
         match curr.manual_alloc_range_for_lazy(
-            (addr as usize).into(),
-            unsafe { addr.add(addr_len) as usize }.into(),
+            (addr.get_usize()).into(),
+            (addr.add_count(addr_len) as usize).into(),
         ) {
-            Ok(_) => Some(unsafe { socket_address_from(addr) }),
+            Ok(_) => Some(socket_address_from(addr)),
             Err(_) => {
                 error!("[sendto()] addr address {addr:?} invalid");
                 return Err(SyscallError::EFAULT);
@@ -313,11 +328,11 @@ pub fn syscall_sendto(
 
 pub fn syscall_recvfrom(
     fd: usize,
-    buf: *mut u8,
+    buf: UserRef<u8>,
     len: usize,
     _flags: usize,
-    addr_buf: *mut u8,
-    addr_len: *mut u32,
+    addr_buf: UserRef<u8>,
+    addr_len: UserRef<u32>,
 ) -> SyscallResult {
     let curr = current_process();
 
@@ -329,37 +344,39 @@ pub fn syscall_recvfrom(
         return Err(SyscallError::ENOTSOCK);
     };
 
-    if !addr_len.is_null()
+    if !addr_len.ptr_is_null()
         && curr
-            .manual_alloc_for_lazy((addr_len as usize).into())
+            .manual_alloc_for_lazy((addr_len.get_usize()).into())
             .is_err()
     {
         error!("[recvfrom()] addr_len address {addr_len:?} invalid");
         return Err(SyscallError::EFAULT);
     }
-    if !addr_buf.is_null()
-        && !addr_len.is_null()
+    if !addr_buf.ptr_is_null()
+        && !addr_len.ptr_is_null()
         && curr
             .manual_alloc_range_for_lazy(
-                (addr_buf as usize).into(),
-                unsafe { addr_buf.add(*addr_len as usize) as usize }.into(),
+                (addr_buf.get_ptr() as usize).into(),
+                (addr_buf.add_count(*addr_len.get_mut_ref() as usize) as usize).into(),
             )
             .is_err()
     {
         error!(
             "[recvfrom()] addr_buf address {addr_buf:?}, len: {} invalid",
-            unsafe { *addr_len }
+            *addr_len.get_ref()
         );
         return Err(SyscallError::EFAULT);
     }
-    let buf = unsafe { from_raw_parts_mut(buf, len) };
+    let buf = buf.slice_mut_with_len(len);
     info!("recv addr: {:?}", socket.name().unwrap());
     match socket.recv_from(buf) {
         Ok((len, addr)) => {
             info!("socket {fd} recv {len} bytes from {addr:?}");
-            if !addr_buf.is_null() && !addr_len.is_null() {
-                Ok(unsafe { socket_address_to(addr, addr_buf, addr_len) }
-                    .map_or(-1, |_| len as isize))
+            if !addr_buf.ptr_is_null() && !addr_len.ptr_is_null() {
+                Ok(
+                    socket_address_to(addr, addr_buf, addr_len)
+                    .map_or(-1, |_| len as isize)
+                )
             } else {
                 Ok(len as isize)
             }
@@ -376,7 +393,7 @@ pub fn syscall_set_sock_opt(
     fd: usize,
     level: usize,
     opt_name: usize,
-    opt_value: *const u8,
+    opt_value: UserRef<u8>,
     opt_len: u32,
 ) -> SyscallResult {
     let Ok(level) = SocketOptionLevel::try_from(level) else {
@@ -395,7 +412,7 @@ pub fn syscall_set_sock_opt(
         return Err(SyscallError::ENOTSOCK);
     };
 
-    let opt = unsafe { from_raw_parts(opt_value, opt_len as usize) };
+    let opt = opt_value.slice_mut_with_unmut_len(opt_len as usize);
 
     match level {
         SocketOptionLevel::IP => Ok(0),
@@ -424,15 +441,15 @@ pub fn syscall_get_sock_opt(
     fd: usize,
     level: usize,
     opt_name: usize,
-    opt_value: *mut u8,
-    opt_len: *mut u32,
+    opt_value: UserRef<u8>,
+    opt_len: UserRef<u32>,
 ) -> SyscallResult {
     let Ok(level) = SocketOptionLevel::try_from(level) else {
         error!("[setsockopt()] level {level} not supported");
         unimplemented!();
     };
 
-    if opt_value.is_null() || opt_len.is_null() {
+    if opt_value.ptr_is_null() || opt_len.ptr_is_null() {
         return Err(SyscallError::EFAULT);
     }
 
@@ -448,7 +465,7 @@ pub fn syscall_get_sock_opt(
     };
 
     if curr
-        .manual_alloc_type_for_lazy(opt_len as *const u32)
+        .manual_alloc_type_for_lazy(opt_len.get_ptr() as *const u32)
         .is_err()
     {
         error!("[getsockopt()] opt_len address {opt_len:?} invalid");
@@ -456,14 +473,14 @@ pub fn syscall_get_sock_opt(
     }
     if curr
         .manual_alloc_range_for_lazy(
-            (opt_value as usize).into(),
-            (unsafe { opt_value.add(*opt_len as usize) } as usize).into(),
+            (opt_value.get_usize()).into(),
+            (opt_value.add_count(*opt_len.get_ref() as usize) as usize).into(),
         )
         .is_err()
     {
         error!(
             "[getsockopt()] opt_value {opt_value:?}, len {} invalid",
-            unsafe { *opt_len }
+            *opt_len.get_mut_ref()
         );
         return Err(SyscallError::EFAULT);
     }

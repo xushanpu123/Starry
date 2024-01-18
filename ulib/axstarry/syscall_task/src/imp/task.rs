@@ -7,8 +7,8 @@ use axprocess::{
     current_process, current_task, exit_current_task,
     flags::{CloneFlags, WaitStatus},
     futex::clear_wait,
-    link::{deal_with_path, raw_ptr_to_ref_str, AT_FDCWD},
-    set_child_tid, sleep_now_task, wait_pid, yield_now_task, Process, PID2PC,
+    link::{deal_with_path, AT_FDCWD},
+    set_child_tid, sleep_now_task, yield_now_task, Process, PID2PC,
 };
 
 // use axtask::{
@@ -20,6 +20,7 @@ use axtask::TaskId;
 use syscall_utils::{SyscallError, SyscallResult};
 extern crate alloc;
 use alloc::{string::ToString, sync::Arc, vec::Vec};
+use axprocess::UserRef;
 use syscall_utils::{RLimit, TimeSecs, WaitFlags, RLIMIT_AS, RLIMIT_NOFILE, RLIMIT_STACK};
 
 #[cfg(feature = "signal")]
@@ -76,11 +77,11 @@ pub fn syscall_exit(exit_code: i32) -> ! {
 // }
 
 pub fn syscall_exec(
-    path: *const u8,
-    mut args: *const usize,
-    mut envp: *const usize,
+    path: UserRef<u8>,
+    mut args: UserRef<usize>,
+    mut envp: UserRef<usize>,
 ) -> SyscallResult {
-    let path = deal_with_path(AT_FDCWD, Some(path), false);
+    let path = deal_with_path(AT_FDCWD, Some(path.get_ptr()), false);
     if path.is_none() {
         return Err(SyscallError::EINVAL);
     }
@@ -92,26 +93,22 @@ pub fn syscall_exec(
     let mut args_vec = Vec::new();
     // args相当于argv，指向了参数所在的地址
     loop {
-        let args_str_ptr = unsafe { *args };
+        let args_str_ptr = *args.get_ref();
         if args_str_ptr == 0 {
             break;
         }
-        args_vec.push(unsafe { raw_ptr_to_ref_str(args_str_ptr as *const u8) }.to_string());
-        unsafe {
-            args = args.add(1);
-        }
+        args_vec.push((UserRef::<u8>::from(args_str_ptr)).raw_ptr_to_ref_str().to_string());
+        args = (args.add_count(1) as usize).into();
     }
     let mut envs_vec = Vec::new();
-    if envp as usize != 0 {
+    if envp.get_usize() != 0 {
         loop {
-            let envp_str_ptr = unsafe { *envp };
+            let envp_str_ptr = *envp.get_ref();
             if envp_str_ptr == 0 {
                 break;
             }
-            envs_vec.push(unsafe { raw_ptr_to_ref_str(envp_str_ptr as *const u8) }.to_string());
-            unsafe {
-                envp = envp.add(1);
-            }
+            envs_vec.push((UserRef::<u8>::from(envp_str_ptr)).raw_ptr_to_ref_str().to_string());
+            envp = (envp.add_count(1) as usize).into();
         }
     }
     // let testcase = if args_vec[0] == "./busybox".to_string()
@@ -172,9 +169,9 @@ pub fn syscall_clone(
 
 /// 等待子进程完成任务，若子进程没有完成，则自身yield
 /// 当前仅支持WNOHANG选项，即若未完成时则不予等待，直接返回0
-pub fn syscall_wait4(pid: isize, exit_code_ptr: *mut i32, option: WaitFlags) -> SyscallResult {
+pub fn syscall_wait4(pid: isize, exit_code_ptr: UserRef<i32>, option: WaitFlags) -> SyscallResult {
     loop {
-        let answer = unsafe { wait_pid(pid, exit_code_ptr) };
+        let answer = exit_code_ptr.wait_pid(pid);
         match answer {
             Ok(pid) => {
                 return Ok(pid as isize);
@@ -214,30 +211,26 @@ pub fn syscall_yield() -> SyscallResult {
 
 /// 当前任务进入睡眠，req指定了睡眠的时间
 /// rem存储当睡眠完成时，真实睡眠时间和预期睡眠时间之间的差值
-pub fn syscall_sleep(req: *const TimeSecs, rem: *mut TimeSecs) -> SyscallResult {
+pub fn syscall_sleep(req: UserRef<TimeSecs>, rem: UserRef<TimeSecs>) -> SyscallResult {
     // error!("req: {:X}, rem: {:X}", req as us, rem);
-    let req_time = unsafe { *req };
+    let req_time = *req.get_ref();
     let start_to_sleep = current_time();
     // info!("sleep: req_time = {:?}", req_time);
     let dur = Duration::new(req_time.tv_sec as u64, req_time.tv_nsec as u32);
     sleep_now_task(dur);
     // 若被唤醒时时间小于请求时间，则将剩余时间写入rem
     let sleep_time = current_time() - start_to_sleep;
-    if rem as usize != 0 {
+    if rem.get_usize() != 0 {
         if sleep_time < dur {
             let delta = (dur - sleep_time).as_nanos() as usize;
-            unsafe {
-                *rem = TimeSecs {
-                    tv_sec: delta / 1000_000_000,
-                    tv_nsec: delta % 1000_000_000,
-                }
+            *rem.get_mut_ref() = TimeSecs {
+                tv_sec: delta / 1000_000_000,
+                tv_nsec: delta % 1000_000_000,
             };
         } else {
-            unsafe {
-                *rem = TimeSecs {
-                    tv_sec: 0,
-                    tv_nsec: 0,
-                }
+            *rem.get_mut_ref() = TimeSecs {
+                tv_sec: 0,
+                tv_nsec: 0,
             };
         }
     }
@@ -261,48 +254,42 @@ pub fn syscall_set_tid_address(tid: usize) -> SyscallResult {
 pub fn syscall_prlimit64(
     pid: usize,
     resource: i32,
-    new_limit: *const RLimit,
-    old_limit: *mut RLimit,
+    new_limit: UserRef<RLimit>,
+    old_limit: UserRef<RLimit>,
 ) -> SyscallResult {
     // 当pid不为0，其实没有权利去修改其他的进程的资源限制
     let curr_process = current_process();
     if pid == 0 || pid == curr_process.pid() as usize {
         match resource {
             RLIMIT_STACK => {
-                if old_limit as usize != 0 {
-                    unsafe {
-                        *old_limit = RLimit {
-                            rlim_cur: TASK_STACK_SIZE as u64,
-                            rlim_max: TASK_STACK_SIZE as u64,
-                        };
-                    }
+                if old_limit.get_usize() != 0 {
+                    *old_limit.get_mut_ref() = RLimit {
+                        rlim_cur: TASK_STACK_SIZE as u64,
+                        rlim_max: TASK_STACK_SIZE as u64,
+                    };
                 }
             }
             RLIMIT_NOFILE => {
                 // 仅支持修改最大文件数
-                if old_limit as usize != 0 {
+                if old_limit.get_usize() != 0 {
                     let limit = curr_process.fd_manager.get_limit();
-                    unsafe {
-                        *old_limit = RLimit {
-                            rlim_cur: limit as u64,
-                            rlim_max: limit as u64,
-                        };
-                    }
+                    *old_limit.get_mut_ref() = RLimit {
+                        rlim_cur: limit as u64,
+                        rlim_max: limit as u64,
+                    };
                 }
-                if new_limit as usize != 0 {
-                    let new_limit = unsafe { (*new_limit).rlim_cur };
+                if new_limit.get_usize() != 0 {
+                    let new_limit = (*new_limit.get_ref()).rlim_cur;
                     curr_process.fd_manager.set_limit(new_limit);
                 }
             }
             RLIMIT_AS => {
                 const USER_MEMORY_LIMIT: usize = 0xffff_ffff;
-                if old_limit as usize != 0 {
-                    unsafe {
-                        *old_limit = RLimit {
-                            rlim_cur: USER_MEMORY_LIMIT as u64,
-                            rlim_max: USER_MEMORY_LIMIT as u64,
-                        };
-                    }
+                if old_limit.get_usize() != 0 {
+                    *old_limit.get_mut_ref() = RLimit {
+                        rlim_cur: USER_MEMORY_LIMIT as u64,
+                        rlim_max: USER_MEMORY_LIMIT as u64,
+                    };
                 }
             }
             _ => {}

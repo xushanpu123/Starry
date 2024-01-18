@@ -3,7 +3,7 @@ extern crate alloc;
 use alloc::sync::Arc;
 use axconfig::SMP;
 use axhal::mem::VirtAddr;
-use axprocess::{current_process, current_task, PID2PC, TID2TASK};
+use axprocess::{current_process, current_task, UserRef, PID2PC, TID2TASK};
 
 // #[cfg(feature = "signal")]
 use axtask::{SchedPolicy, SchedStatus};
@@ -22,7 +22,7 @@ use syscall_utils::{SchedParam, SyscallError, SyscallResult};
 pub fn syscall_sched_getaffinity(
     pid: usize,
     cpu_set_size: usize,
-    mask: *mut usize,
+    mask: UserRef<usize>,
 ) -> SyscallResult {
     // let task: LazyInit<AxTaskRef> = LazyInit::new();
     let tid2task = TID2TASK.lock();
@@ -52,19 +52,17 @@ pub fn syscall_sched_getaffinity(
 
     let process = current_process();
     if process
-        .manual_alloc_for_lazy(VirtAddr::from(mask as usize))
+        .manual_alloc_for_lazy(VirtAddr::from(mask.get_usize()))
         .is_err()
     {
         return Err(SyscallError::EFAULT);
     }
     let cpu_set = task.get_cpu_set();
-    let mut prev_mask = unsafe { *mask };
+    let mut prev_mask = *mask.get_mut_ptr();
     let len = SMP.min(cpu_set_size * 4);
     prev_mask &= !((1 << len) - 1);
     prev_mask &= cpu_set & ((1 << len) - 1);
-    unsafe {
-        *mask = prev_mask;
-    }
+    *mask.get_mut_ptr() = prev_mask;
     // 返回成功填充的缓冲区的长度
     Ok(SMP as isize)
 }
@@ -73,7 +71,7 @@ pub fn syscall_sched_getaffinity(
 pub fn syscall_sched_setaffinity(
     pid: usize,
     cpu_set_size: usize,
-    mask: *const usize,
+    mask: UserRef<usize>,
 ) -> SyscallResult {
     let tid2task = TID2TASK.lock();
     let pid2task = PID2PC.lock();
@@ -102,13 +100,13 @@ pub fn syscall_sched_setaffinity(
 
     let process = current_process();
     if process
-        .manual_alloc_for_lazy(VirtAddr::from(mask as usize))
+        .manual_alloc_for_lazy(VirtAddr::from(mask.get_usize()))
         .is_err()
     {
         return Err(SyscallError::EFAULT);
     }
 
-    let mask = unsafe { *mask };
+    let mask = *mask.get_ptr();
 
     task.set_cpu_set(mask, cpu_set_size);
 
@@ -118,9 +116,9 @@ pub fn syscall_sched_setaffinity(
 pub fn syscall_sched_setscheduler(
     pid: usize,
     policy: usize,
-    param: *const SchedParam,
+    param: UserRef<SchedParam>,
 ) -> SyscallResult {
-    if (pid as isize) < 0 || param.is_null() {
+    if (pid as isize) < 0 || param.ptr_is_null() {
         return Err(SyscallError::EINVAL);
     }
 
@@ -151,13 +149,13 @@ pub fn syscall_sched_setscheduler(
 
     let process = current_process();
     if process
-        .manual_alloc_for_lazy(VirtAddr::from(param as usize))
+        .manual_alloc_for_lazy(VirtAddr::from(param.get_usize()))
         .is_err()
     {
         return Err(SyscallError::EFAULT);
     }
 
-    let param = unsafe { *param };
+    let param = *param.get_ptr();
     let policy = SchedPolicy::from(policy);
     if policy == SchedPolicy::SCHED_UNKNOWN {
         return Err(SyscallError::EINVAL);
