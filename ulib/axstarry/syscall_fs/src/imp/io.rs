@@ -9,7 +9,10 @@ use axio::SeekFrom;
 use axlog::{debug, info};
 use axprocess::current_process;
 use axprocess::link::{create_link, deal_with_path, real_path};
+use axtask::yield_now;
 use syscall_utils::{IoVec, SyscallError, SyscallResult};
+#[cfg(feature = "net")]
+use syscall_net::Socket;
 
 use crate::ctype::pipe::make_pipe;
 use crate::ctype::{dir::new_dir, file::new_fd};
@@ -50,7 +53,7 @@ pub fn syscall_read(fd: usize, buf: *mut u8, count: usize) -> SyscallResult {
         // 1. nonblocking socket
         //
         // Normal socket will block while trying to read, so we don't return here.
-        #[cfg(feature = "net")]
+        // #[cfg(feature = "net")]
         if let Some(socket) = file.as_any().downcast_ref::<Socket>() {
             if socket.is_nonblocking() && socket.is_connected() {
                 return Err(SyscallError::EAGAIN);
@@ -339,7 +342,8 @@ pub fn syscall_openat(fd: usize, path: *const u8, flags: usize, _mode: u8) -> Sy
 ///     - fd：要关闭的文件描述符。
 /// 返回值：成功执行，返回0。失败，返回-1。
 pub fn syscall_close(fd: usize) -> SyscallResult {
-    info!("Into syscall_close. fd: {}", fd);
+    axlog::warn!("Into syscall_close. fd: {}", fd);
+    yield_now();
 
     let process = current_process();
     let mut fd_table = process.fd_manager.fd_table.lock();
@@ -356,6 +360,8 @@ pub fn syscall_close(fd: usize) -> SyscallResult {
         return Err(SyscallError::EPERM);
     }
     // let file = process_inner.fd_manager.fd_table[fd].unwrap();
+    use axfs::api::FileIO;
+    info!("cur fd strong count is {:?}===============",Arc::<dyn FileIO>::strong_count(fd_table[fd].as_ref().unwrap()));
     fd_table[fd] = None;
     // for i in 0..process_inner.fd_table.len() {
     //     if let Some(file) = process_inner.fd_table[i].as_ref() {

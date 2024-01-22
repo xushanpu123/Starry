@@ -23,6 +23,7 @@ impl axhal::trap::TrapHandler for TrapHandlerImpl {
         axprocess::time_stat_from_user_to_kernel();
         let ans = syscall(syscall_id, args);
         axprocess::time_stat_from_kernel_to_user();
+        // current().update_timer();
         ans
     }
 

@@ -274,7 +274,7 @@ pub fn syscall_pselect6(
         //
         // 可见 iperf 测例。
         yield_now_task();
-
+        
         let mut set = 0;
         if rset.valid() {
             for i in 0..rfds.len() {
@@ -305,10 +305,11 @@ pub fn syscall_pselect6(
         }
         if current_ticks() as usize > expire_time {
             return Ok(0);
+            // return Err(SyscallError::EINTR);
         }
-        #[cfg(feature = "signal")]
-        if process.have_signals().is_some() {
-            return Err(SyscallError::EINTR);
-        }
+        // #[cfg(feature = "signal")]
+        // if process.have_signals().is_some() {
+        //     return Err(SyscallError::EINTR);
+        // }
     }
 }

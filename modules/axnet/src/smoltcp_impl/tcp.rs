@@ -122,6 +122,7 @@ impl TcpSocket {
     ///
     /// The local port is generated automatically.
     pub fn connect(&self, remote_addr: SocketAddr) -> AxResult {
+        info!("add a connect=================================================");
         self.update_state(STATE_CLOSED, STATE_CONNECTING, || {
             // SAFETY: no other threads can read or write these fields.
             let handle = unsafe { self.handle.get().read() }
@@ -233,22 +234,26 @@ impl TcpSocket {
     ///
     /// It's must be called after [`bind`](Self::bind) and [`listen`](Self::listen).
     pub fn accept(&self) -> AxResult<TcpSocket> {
+        warn!("accept one");
         if !self.is_listening() {
             return ax_err!(InvalidInput, "socket accept() failed: not listen");
         }
 
         // SAFETY: `self.local_addr` should be initialized after `bind()`.
         let local_port = unsafe { self.local_addr.get().read().port };
+        warn!("local port is {:?}",local_port);
         self.block_on(|| {
             let (handle, (local_addr, peer_addr)) = LISTEN_TABLE.accept(local_port)?;
-            debug!("TCP socket accepted a new connection {}", peer_addr);
+            info!("TCP socket accepted a new connection {}", peer_addr);
             Ok(TcpSocket::new_connected(handle, local_addr, peer_addr))
         })
     }
 
     /// Close the connection.
     pub fn shutdown(&self) -> AxResult {
+        info!("shutdown the current tcp link==============================================");
         // stream
+        // yield_now();
         self.update_state(STATE_CONNECTED, STATE_CLOSED, || {
             // SAFETY: `self.handle` should be initialized in a connected socket, and
             // no other threads can read or write it.
@@ -307,20 +312,22 @@ impl TcpSocket {
         let handle = unsafe { self.handle.get().read().unwrap() };
         self.block_on(|| {
             SOCKET_SET.with_socket_mut::<tcp::Socket, _, _>(handle, |socket| {
-                if !socket.is_active() {
+                info!("the recv queue is {:?} now",socket.recv_queue());
+                if socket.recv_queue() > 0 {
+                    // data available
+                    // TODO: use socket.recv(|buf| {...})
+                    info!("go into here");
+                    let len = socket
+                        .recv_slice(buf)
+                        .map_err(|_| ax_err_type!(BadState, "socket recv() failed"))?;
+                    Ok(len)
+                } else if !socket.is_active() {
                     // not open
                     ax_err!(ConnectionRefused, "socket recv() failed")
                 } else if !socket.may_recv() {
                     // connection closed
                     Ok(0)
-                } else if socket.recv_queue() > 0 {
-                    // data available
-                    // TODO: use socket.recv(|buf| {...})
-                    let len = socket
-                        .recv_slice(buf)
-                        .map_err(|_| ax_err_type!(BadState, "socket recv() failed"))?;
-                    Ok(len)
-                } else {
+                }  else {
                     // no more data
                     Err(AxError::WouldBlock)
                 }
@@ -343,19 +350,19 @@ impl TcpSocket {
         let handle = unsafe { self.handle.get().read().unwrap() };
         self.block_on(|| {
             SOCKET_SET.with_socket_mut::<tcp::Socket, _, _>(handle, |socket| {
-                if !socket.is_active() {
-                    // not open
-                    ax_err!(ConnectionRefused, "socket recv() failed")
-                } else if !socket.may_recv() {
-                    // connection closed
-                    Ok(0)
-                } else if socket.recv_queue() > 0 {
+                if socket.recv_queue() > 0 {
                     // data available
                     // TODO: use socket.recv(|buf| {...})
                     let len = socket
                         .recv_slice(buf)
                         .map_err(|_| ax_err_type!(BadState, "socket recv() failed"))?;
                     Ok(len)
+                } else if !socket.is_active() {
+                    // not open
+                    ax_err!(ConnectionRefused, "socket recv() failed")
+                } else if !socket.may_recv() {
+                    // connection closed
+                    Ok(0)
                 } else {
                     // no more data
                     if current_ticks() > expire_at {
@@ -596,6 +603,14 @@ impl TcpSocket {
             f()
         } else {
             loop {
+                unsafe {
+                    extern "Rust" {
+                        fn current_have_signal() ->bool;
+                    }
+                    if current_have_signal() {
+                        return Err(AxError::Interrupted);
+                    }
+                }
                 SOCKET_SET.poll_interfaces();
                 match f() {
                     Ok(t) => return Ok(t),

@@ -2,6 +2,7 @@ use core::{slice::from_raw_parts_mut, time::Duration};
 
 use axhal::time::{current_time, current_time_nanos, nanos_to_ticks, NANOS_PER_SEC};
 
+use axlog::info;
 use axprocess::{current_process, current_task, time_stat_output};
 use rand::{rngs::SmallRng, Fill, SeedableRng};
 
@@ -85,6 +86,8 @@ pub fn syscall_settimer(
         Err(_) => return Err(SyscallError::EFAULT),
     };
 
+    axlog::error!("setitimer {:#x?}", new_value);
+
     if !old_value.is_null() {
         if process.manual_alloc_type_for_lazy(old_value).is_err() {
             return Err(SyscallError::EFAULT);
@@ -100,6 +103,7 @@ pub fn syscall_settimer(
         new_value.it_interval.to_nanos(),
         new_value.it_value.to_nanos(),
     );
+    axlog::error!("interval: {:#x}, remained_ns: {:#x}", time_interval_ns, time_remained_ns);
     if current_task().set_timer(time_interval_ns, time_remained_ns, which) {
         Ok(0)
     } else {

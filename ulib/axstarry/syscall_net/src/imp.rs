@@ -96,7 +96,7 @@ pub fn syscall_accept4(
         return Err(SyscallError::ENOTSOCK);
     };
 
-    debug!("[accept()] socket {fd} accept");
+    info!("[accept()] socket {fd} accept");
 
     // socket.accept() might block, we need to release all lock now.
 
@@ -109,7 +109,7 @@ pub fn syscall_accept4(
                 return Err(SyscallError::ENFILE); // Maybe ENFILE
             };
 
-            debug!("[accept()] socket {fd} accept new socket {new_fd} {addr:?}");
+            info!("[accept()] socket {fd} accept new socket {new_fd} {addr:?}");
 
             // handle flags
             if flags & SOCK_NONBLOCK != 0 {
@@ -483,7 +483,9 @@ pub fn syscall_get_sock_opt(
             };
 
             if option == TcpSocketOption::TCP_INFO {
-                return Err(SyscallError::ENOPROTOOPT);
+                // return Err(SyscallError::ENOPROTOOPT);
+                // TODO:support the protocal
+                return Ok(0);
             }
 
             option.get(socket, opt_value, opt_len);

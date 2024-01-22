@@ -49,6 +49,11 @@ pub fn current_process() -> Arc<Process> {
     current_process
 }
 
+#[no_mangle]
+pub extern "Rust" fn current_have_signal() -> bool {
+    current_process().have_signals().is_some()
+}
+
 /// 退出当前任务
 pub fn exit_current_task(exit_code: i32) -> ! {
     let process = current_process();

@@ -103,12 +103,13 @@ pub fn syscall_epoll_wait(
     } else {
         return Err(SyscallError::EBADF);
     };
-
+    
     let timeout = if timeout > 0 {
         current_ticks() as usize + timeout as usize
     } else {
         usize::MAX
     };
+    drop(fd_table);
     let ret_events = epoll_file.epoll_wait(timeout);
     if ret_events.is_err() {
         return Err(SyscallError::EINTR);
