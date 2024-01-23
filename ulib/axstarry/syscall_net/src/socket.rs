@@ -19,8 +19,8 @@ use axsync::Mutex;
 use num_enum::TryFromPrimitive;
 
 use syscall_utils::TimeVal;
+use syscall_pathref::{CheckType, UserRef};
 
-use axprocess::UserRef;
 pub const SOCKET_TYPE_MASK: usize = 0xFF;
 
 #[derive(TryFromPrimitive, Clone)]
@@ -182,7 +182,7 @@ impl SocketOption {
     }
 
     pub fn get(&self, socket: &Socket, opt_value: UserRef<u8>, opt_len: UserRef<u32>) {
-        let buf_len = *opt_len.get_mut_ref() as usize;
+        let buf_len = *opt_len.get_mut_ref(CheckType::Lazy).unwrap() as usize;
 
         match self {
             SocketOption::SO_REUSEADDR => {
@@ -193,8 +193,8 @@ impl SocketOption {
                 }
 
                 unsafe {
-                    copy_nonoverlapping(&value.to_ne_bytes() as *const u8, opt_value.get_mut_ptr(), 4);
-                    *opt_len.get_mut_ptr() = 4;
+                    copy_nonoverlapping(&value.to_ne_bytes() as *const u8, opt_value.get_mut_ptr(CheckType::Lazy).unwrap(), 4);
+                    *opt_len.get_mut_ptr(CheckType::Lazy).unwrap() = 4;
                 }
             }
             SocketOption::SO_DONTROUTE => {
@@ -205,8 +205,8 @@ impl SocketOption {
                 let size: i32 = if socket.dont_route { 1 } else { 0 };
 
                 unsafe {
-                    copy_nonoverlapping(&size.to_ne_bytes() as *const u8, opt_value.get_mut_ptr(), 4);
-                    *opt_len.get_mut_ptr() = 4;
+                    copy_nonoverlapping(&size.to_ne_bytes() as *const u8, opt_value.get_mut_ptr(CheckType::Lazy).unwrap(), 4);
+                    *opt_len.get_mut_ptr(CheckType::Lazy).unwrap() = 4;
                 }
             }
             SocketOption::SO_SNDBUF => {
@@ -217,8 +217,9 @@ impl SocketOption {
                 let size: i32 = socket.get_send_buf_size() as i32;
 
                 unsafe {
-                    copy_nonoverlapping(&size.to_ne_bytes() as *const u8, opt_value.get_mut_ptr(), 4);
-                    *opt_len.get_mut_ptr() = 4;
+                    copy_nonoverlapping(&size.to_ne_bytes() as *const u8, opt_value.get_mut_ptr(CheckType::Lazy).unwrap(), 4);
+
+                    *opt_len.get_mut_ptr(CheckType::Lazy).unwrap() = 4;
                 }
             }
             SocketOption::SO_RCVBUF => {
@@ -229,8 +230,8 @@ impl SocketOption {
                 let size: i32 = socket.get_recv_buf_size() as i32;
 
                 unsafe {
-                    copy_nonoverlapping(&size.to_ne_bytes() as *const u8, opt_value.get_mut_ptr(), 4);
-                    *opt_len.get_mut_ptr() = 4;
+                    copy_nonoverlapping(&size.to_ne_bytes() as *const u8, opt_value.get_mut_ptr(CheckType::Lazy).unwrap(), 4);
+                    *opt_len.get_mut_ptr(CheckType::Lazy).unwrap() = 4;
                 }
             }
             SocketOption::SO_KEEPALIVE => {
@@ -255,8 +256,8 @@ impl SocketOption {
                 drop(inner);
 
                 unsafe {
-                    copy_nonoverlapping(&keep_alive.to_ne_bytes() as *const u8, opt_value.get_mut_ptr(), 4);
-                    *opt_len.get_mut_ptr() = 4;
+                    copy_nonoverlapping(&keep_alive.to_ne_bytes() as *const u8, opt_value.get_mut_ptr(CheckType::Lazy).unwrap(), 4);
+                    *opt_len.get_mut_ptr(CheckType::Lazy).unwrap() = 4;
                 }
             }
             SocketOption::SO_RCVTIMEO => {
@@ -268,15 +269,15 @@ impl SocketOption {
                     match socket.get_recv_timeout() {
                         Some(time) => copy_nonoverlapping(
                             (&time) as *const TimeVal,
-                            opt_value.get_mut_ptr() as *mut TimeVal,
+                            opt_value.get_mut_ptr(CheckType::Lazy).unwrap() as *mut TimeVal,
                             1,
                         ),
                         None => {
-                            copy_nonoverlapping(&0u8 as *const u8, opt_value.get_mut_ptr(), size_of::<TimeVal>())
+                            copy_nonoverlapping(&0u8 as *const u8, opt_value.get_mut_ptr(CheckType::Lazy).unwrap(), size_of::<TimeVal>())
                         }
                     }
 
-                    *opt_len.get_mut_ptr() = size_of::<TimeVal>() as u32;
+                    *opt_len.get_mut_ptr(CheckType::Lazy).unwrap() = size_of::<TimeVal>() as u32;
                 }
             }
             SocketOption::SO_ERROR => {
@@ -321,7 +322,7 @@ impl TcpSocketOption {
             _ => panic!("calling tcp option on a wrong type of socket"),
         };
 
-        let buf_len = *opt_len.get_mut_ref();
+        let buf_len = *opt_len.get_mut_ref(CheckType::Lazy).unwrap();
 
         match self {
             TcpSocketOption::TCP_NODELAY => {
@@ -334,8 +335,8 @@ impl TcpSocketOption {
                 let value = value.to_ne_bytes();
 
                 unsafe {
-                    copy_nonoverlapping(&value as *const u8, opt_value.get_mut_ptr(), 4);
-                    *opt_len.get_mut_ptr() = 4;
+                    copy_nonoverlapping(&value as *const u8, opt_value.get_mut_ptr(CheckType::Lazy).unwrap(), 4);
+                    *opt_len.get_mut_ptr(CheckType::Lazy).unwrap() = 4;
                 }
             }
             TcpSocketOption::TCP_MAXSEG => {
@@ -344,8 +345,8 @@ impl TcpSocketOption {
                 let value: usize = 1500;
 
                 unsafe {
-                    copy_nonoverlapping(&value as *const usize as *const u8, opt_value.get_mut_ptr(), len);
-                    *opt_len.get_mut_ptr() = len as u32;
+                    copy_nonoverlapping(&value as *const usize as *const u8, opt_value.get_mut_ptr(CheckType::Lazy).unwrap(), len);
+                    *opt_len.get_mut_ptr(CheckType::Lazy).unwrap() = len as u32;
                 };
             }
             TcpSocketOption::TCP_INFO => {}
@@ -702,7 +703,7 @@ impl FileIO for Socket {
 }
 
 pub fn socket_address_from(addr: UserRef<u8>) -> SocketAddr {
-    let addr = addr.get_mut_ptr() as *const u16;
+    let addr = addr.get_mut_ptr(CheckType::Lazy).unwrap() as *const u16;
     let domain = Domain::try_from(addr as usize).expect("Unsupported Domain (Address Family)");
     match domain {
         Domain::AF_UNIX => unimplemented!(),
@@ -724,9 +725,9 @@ pub fn socket_address_from(addr: UserRef<u8>) -> SocketAddr {
 ///
 /// TODO: Returns error if buf or buf_len is in invalid memory
 pub fn socket_address_to(addr: SocketAddr, buf: UserRef<u8>, buf_len: UserRef<u32>) -> AxResult {
-    let mut tot_len = *buf_len.get_mut_ref() as usize;
+    let mut tot_len = *buf_len.get_mut_ref(CheckType::Lazy).unwrap() as usize;
 
-    *buf_len.get_mut_ref() = 8;
+    *buf_len.get_mut_ref(CheckType::Lazy).unwrap() = 8;
 
     // 写入 AF_INET
     if tot_len == 0 {
@@ -734,8 +735,8 @@ pub fn socket_address_to(addr: SocketAddr, buf: UserRef<u8>, buf_len: UserRef<u3
     }
     let domain = (Domain::AF_INET as u16).to_ne_bytes();
     let write_len = tot_len.min(2);
-    unsafe { copy_nonoverlapping(domain.as_ptr(), buf.get_mut_ptr(), write_len) };
-    let buf = unsafe { buf.add_count(write_len) };
+    unsafe { copy_nonoverlapping(domain.as_ptr(), buf.get_mut_ptr(CheckType::Lazy).unwrap(), write_len) };
+    let buf = unsafe { buf.add(write_len) };
     tot_len -= write_len;
 
     // 写入 port

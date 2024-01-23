@@ -4,9 +4,9 @@
 extern crate alloc;
 
 use axlog::debug;
-use axprocess::UserRef;
 use axprocess::link::{create_link, deal_with_path, remove_link, FilePath};
 use syscall_utils::{SyscallError, SyscallResult};
+use syscall_pathref::{CheckType, UserRef};
 
 // Special value used to indicate openat should use the current working directory.
 const AT_REMOVEDIR: usize = 0x200; // Remove directory instead of unlinking file.
@@ -27,12 +27,12 @@ pub fn sys_linkat(
     new_path: UserRef<u8>,
     _flags: usize,
 ) -> SyscallResult {
-    let old_path = if let Some(path) = deal_with_path(old_dir_fd, Some(old_path.get_ptr()), false) {
+    let old_path = if let Some(path) = deal_with_path(old_dir_fd, Some(old_path.get_ptr(CheckType::Lazy).unwrap()), false) {
         path
     } else {
         return Err(SyscallError::EINVAL);
     };
-    let new_path = if let Some(path) = deal_with_path(new_dir_fd, Some(new_path.get_ptr()), false) {
+    let new_path = if let Some(path) = deal_with_path(new_dir_fd, Some(new_path.get_ptr(CheckType::Lazy).unwrap()), false) {
         path
     } else {
         return Err(SyscallError::EINVAL);
@@ -51,7 +51,7 @@ pub fn sys_linkat(
 ///     - flags：可设置为0或AT_REMOVEDIR。
 /// 返回值：成功执行，返回0。失败，返回-1。
 pub fn syscall_unlinkat(dir_fd: usize, path: UserRef<u8>, flags: usize) -> SyscallResult {
-    let path = deal_with_path(dir_fd, Some(path.get_ptr()), false).unwrap();
+    let path = deal_with_path(dir_fd, Some(path.get_ptr(CheckType::Lazy).unwrap()), false).unwrap();
 
     if path.start_with(&FilePath::new("/proc").unwrap()) {
         return Ok(-1);

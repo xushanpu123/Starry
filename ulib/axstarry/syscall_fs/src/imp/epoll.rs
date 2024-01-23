@@ -4,8 +4,9 @@
 extern crate alloc;
 use alloc::sync::Arc;
 use axhal::{mem::VirtAddr, time::current_ticks};
-use axprocess::{current_process, UserRef};
+use axprocess::current_process;
 use syscall_utils::{SyscallError, SyscallResult};
+use syscall_pathref::{CheckType, UserRef};
 
 use crate::ctype::epoll::{EpollCtl, EpollEvent, EpollFile};
 
@@ -40,11 +41,8 @@ pub fn syscall_epoll_create1(_flag: usize) -> SyscallResult {
 /// - event: 接受的事件
 pub fn syscall_epoll_ctl(epfd: i32, op: i32, fd: i32, event: UserRef<EpollEvent>) -> SyscallResult {
     let process = current_process();
-    if process.manual_alloc_type_for_lazy(event.get_ptr()).is_err() {
-        return Err(SyscallError::EFAULT);
-    }
     let fd_table = process.fd_manager.fd_table.lock();
-    let event = *event.get_mut_ref();
+    let event = *event.get_mut_ref(CheckType::TypeLazy).unwrap();
     if fd_table[fd as usize].is_none() {
         return Err(SyscallError::EBADF);
     }
@@ -114,7 +112,7 @@ pub fn syscall_epoll_wait(
     let real_len = ret_events.len().min(max_event);
     for i in 0..real_len {
         // 写入响应事件
-        event.write_offset(i as isize, ret_events[i]);
+        event.write_offset(i as isize, ret_events[i], CheckType::Lazy).unwrap();
     }
     Ok(real_len as isize)
 }

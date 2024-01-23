@@ -9,6 +9,7 @@ use axprocess::{current_process, current_task, UserRef, PID2PC, TID2TASK};
 use axtask::{SchedPolicy, SchedStatus};
 
 use syscall_utils::{SchedParam, SyscallError, SyscallResult};
+use syscall_pathref::CheckType;
 
 /// 获取对应任务的CPU适配集
 ///
@@ -50,19 +51,12 @@ pub fn syscall_sched_getaffinity(
     drop(pid2task);
     drop(tid2task);
 
-    let process = current_process();
-    if process
-        .manual_alloc_for_lazy(VirtAddr::from(mask.get_usize()))
-        .is_err()
-    {
-        return Err(SyscallError::EFAULT);
-    }
     let cpu_set = task.get_cpu_set();
-    let mut prev_mask = *mask.get_mut_ptr();
+    let mut prev_mask = *mask.get_mut_ptr(CheckType::Lazy).unwrap();
     let len = SMP.min(cpu_set_size * 4);
     prev_mask &= !((1 << len) - 1);
     prev_mask &= cpu_set & ((1 << len) - 1);
-    *mask.get_mut_ptr() = prev_mask;
+    *mask.get_mut_ptr(CheckType::Lazy).unwrap() = prev_mask;
     // 返回成功填充的缓冲区的长度
     Ok(SMP as isize)
 }
@@ -98,15 +92,7 @@ pub fn syscall_sched_setaffinity(
     drop(pid2task);
     drop(tid2task);
 
-    let process = current_process();
-    if process
-        .manual_alloc_for_lazy(VirtAddr::from(mask.get_usize()))
-        .is_err()
-    {
-        return Err(SyscallError::EFAULT);
-    }
-
-    let mask = *mask.get_ptr();
+    let mask = *mask.get_ptr(CheckType::Lazy).unwrap();
 
     task.set_cpu_set(mask, cpu_set_size);
 
@@ -118,7 +104,7 @@ pub fn syscall_sched_setscheduler(
     policy: usize,
     param: UserRef<SchedParam>,
 ) -> SyscallResult {
-    if (pid as isize) < 0 || param.ptr_is_null() {
+    if (pid as isize) < 0 || param.is_null() {
         return Err(SyscallError::EINVAL);
     }
 
@@ -147,15 +133,7 @@ pub fn syscall_sched_setscheduler(
     drop(pid2task);
     drop(tid2task);
 
-    let process = current_process();
-    if process
-        .manual_alloc_for_lazy(VirtAddr::from(param.get_usize()))
-        .is_err()
-    {
-        return Err(SyscallError::EFAULT);
-    }
-
-    let param = *param.get_ptr();
+    let param = *param.get_ptr(CheckType::Lazy).unwrap();
     let policy = SchedPolicy::from(policy);
     if policy == SchedPolicy::SCHED_UNKNOWN {
         return Err(SyscallError::EINVAL);

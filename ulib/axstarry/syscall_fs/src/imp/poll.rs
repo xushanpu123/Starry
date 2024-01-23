@@ -1,10 +1,12 @@
 use axfs::api::FileIO;
 use axhal::{mem::VirtAddr, time::current_ticks};
-use axprocess::{UserRef, current_process, yield_now_task};
+use axprocess::{current_process, yield_now_task};
 use bitflags::bitflags;
 extern crate alloc;
 use alloc::{sync::Arc, vec::Vec};
 use syscall_utils::{SyscallError, SyscallResult, TimeSecs};
+use syscall_pathref::{CheckType, UserRef};
+
 bitflags! {
     /// 在文件上等待或者发生过的事件
     #[derive(Clone, Copy,Debug)]
@@ -51,7 +53,7 @@ impl ShadowBitset {
         // 因为一次add会移动八个字节，所以这里需要除以64，即8个字节，每一个字节8位
         let byte_index = index / 64;
         let bit_index = index & 0x3f;
-        *self.addr.get_t(byte_index) & (1 << bit_index) != 0
+        *self.addr.get_t(byte_index, CheckType::TypeLazy).unwrap() & (1 << bit_index) != 0
     }
 
     pub fn set(&mut self, index: usize) {
@@ -61,7 +63,7 @@ impl ShadowBitset {
         let byte_index = index / 64;
         let bit_index = index & 0x3f;
         unsafe {
-            *self.addr.add_count(byte_index) |= 1 << bit_index;
+            *self.addr.add(byte_index) |= 1 << bit_index;
         }
     }
 
@@ -69,13 +71,13 @@ impl ShadowBitset {
     pub fn clear(&self) {
         for i in 0..=(self.len - 1) / 64 {
             unsafe {
-                *(self.addr.add_count(i)) = 0;
+                *(self.addr.add(i)) = 0;
             }
         }
     }
 
     pub fn valid(&self) -> bool {
-        self.addr.get_mut_ptr() as usize != 0
+        self.addr.get_mut_ptr(CheckType::Lazy).unwrap() as usize != 0
     }
 }
 
@@ -154,17 +156,11 @@ pub fn syscall_ppoll(
     let mut fds: Vec<PollFd> = Vec::new();
 
     for i in 0..nfds {
-        fds.push(*ufds.get_t(i));
+        fds.push(*ufds.get_t(i, CheckType::TypeLazy).unwrap());
     }
 
     let expire_time = if timeout.get_usize() != 0 {
-        if process
-            .manual_alloc_type_for_lazy(timeout.get_ptr())
-            .is_err()
-        {
-            return Err(SyscallError::EFAULT);
-        }
-        current_ticks() as usize + (*timeout.get_ref()).get_ticks()
+        current_ticks() as usize + (*timeout.get_ref(CheckType::TypeLazy).unwrap()).get_ticks()
     } else {
         usize::MAX
     };
@@ -172,7 +168,7 @@ pub fn syscall_ppoll(
     let (set, ret_fds) = ppoll(fds, expire_time);
     // 将得到的fd存储到原先的指针中
     for i in 0..ret_fds.len() {
-        ufds.write_offset(i as isize, ret_fds[i]);
+        ufds.write_offset(i as isize, ret_fds[i], CheckType::Lazy).unwrap();
     }
     Ok(set)
 }
@@ -182,6 +178,8 @@ fn init_fd_set(
     addr: UserRef<usize>,
     len: usize,
 ) -> Result<(Vec<Arc<dyn FileIO>>, Vec<usize>, ShadowBitset), SyscallError> {
+
+    
     let process = current_process();
     if len >= process.fd_manager.get_limit() as usize {
         axlog::error!(
@@ -192,7 +190,7 @@ fn init_fd_set(
     }
 
     let shadow_bitset = ShadowBitset::new(addr, len);
-    if addr.ptr_is_null() {
+    if addr.is_null() {
         return Ok((Vec::new(), Vec::new(), shadow_bitset));
     }
 
@@ -244,17 +242,8 @@ pub fn syscall_pselect6(
     };
     let process = current_process();
 
-    let expire_time = if !timeout.ptr_is_null() {
-        if process
-            .memory_set
-            .lock()
-            .manual_alloc_type_for_lazy(timeout.get_ptr())
-            .is_err()
-        {
-            axlog::error!("[pselect6()] timeout addr {timeout:?} invalid");
-            return Err(SyscallError::EFAULT);
-        }
-        current_ticks() as usize + (*timeout.get_ref()).get_ticks()
+    let expire_time = if !timeout.is_null() {
+        current_ticks() as usize + (*timeout.get_ref(CheckType::TypeLazy).unwrap()).get_ticks()
     } else {
         usize::MAX
     };

@@ -1,0 +1,951 @@
+    [92;1mBuilding[0m App: oscomp, Arch: riscv64, Platform: riscv64-qemu-virt, App type: rust
+[37mcargo build[0m [90m--target riscv64gc-unknown-none-elf --target-dir /home/yanlien/Program/kernel/Starry/target --release  --manifest-path apps/oscomp/Cargo.toml --features "syscall_entry/log-level-debug syscall_entry/syscall_fs syscall_entry/syscall_mem syscall_entry/syscall_task syscall_entry/futex syscall_entry/signal syscall_entry/img syscall_entry/syscall_net"[0m
+[37mrust-objcopy --binary-architecture=riscv64[0m [90mapps/oscomp/oscomp_riscv64-qemu-virt.elf --strip-all -O binary apps/oscomp/oscomp_riscv64-qemu-virt.bin[0m
+    [96;1mRunning[0m on qemu...
+[37mqemu-system-riscv64[0m [90m-m 16G -smp 1 -machine virt -bios default -kernel apps/oscomp/oscomp_riscv64-qemu-virt.bin -device virtio-blk-device,drive=disk0 -drive id=disk0,if=none,format=raw,file=disk.img -device virtio-net-device,netdev=net0 -netdev user,id=net0,hostfwd=tcp::5555-:5555,hostfwd=udp::5555-:5555 -nographic[0m
+
+OpenSBI v1.0
+   ____                    _____ ____ _____
+  / __ \                  / ____|  _ \_   _|
+ | |  | |_ __   ___ _ __ | (___ | |_) || |
+ | |  | | '_ \ / _ \ '_ \ \___ \|  _ < | |
+ | |__| | |_) |  __/ | | |____) | |_) || |_
+  \____/| .__/ \___|_| |_|_____/|____/_____|
+        | |
+        |_|
+
+Platform Name             : riscv-virtio,qemu
+Platform Features         : medeleg
+Platform HART Count       : 1
+Platform IPI Device       : aclint-mswi
+Platform Timer Device     : aclint-mtimer @ 10000000Hz
+Platform Console Device   : uart8250
+Platform HSM Device       : ---
+Platform Reboot Device    : sifive_test
+Platform Shutdown Device  : sifive_test
+Firmware Base             : 0x80000000
+Firmware Size             : 252 KB
+Runtime SBI Version       : 0.3
+
+Domain0 Name              : root
+Domain0 Boot HART         : 0
+Domain0 HARTs             : 0*
+Domain0 Region00          : 0x0000000002000000-0x000000000200ffff (I)
+Domain0 Region01          : 0x0000000080000000-0x000000008003ffff ()
+Domain0 Region02          : 0x0000000000000000-0xffffffffffffffff (R,W,X)
+Domain0 Next Address      : 0x0000000080200000
+Domain0 Next Arg1         : 0x00000000bf000000
+Domain0 Next Mode         : S-mode
+Domain0 SysReset          : yes
+
+Boot HART ID              : 0
+Boot HART Domain          : root
+Boot HART ISA             : rv64imafdcsuh
+Boot HART Features        : scounteren,mcounteren,time
+Boot HART PMP Count       : 16
+Boot HART PMP Granularity : 4
+Boot HART PMP Address Bits: 54
+Boot HART MHPM Count      : 0
+Boot HART MIDELEG         : 0x0000000000001666
+Boot HART MEDELEG         : 0x0000000000f0b509
+
+       d8888                            .d88888b.   .d8888b.
+      d88888                           d88P" "Y88b d88P  Y88b
+     d88P888                           888     888 Y88b.
+    d88P 888 888d888  .d8888b  .d88b.  888     888  "Y888b.
+   d88P  888 888P"   d88P"    d8P  Y8b 888     888     "Y88b.
+  d88P   888 888     888      88888888 888     888       "888
+ d8888888888 888     Y88b.    Y8b.     Y88b. .d88P Y88b  d88P
+d88P     888 888      "Y8888P  "Y8888   "Y88888P"   "Y8888P"
+
+arch = riscv64
+platform = riscv64-qemu-virt
+target = riscv64gc-unknown-none-elf
+smp = 1
+build_mode = release
+log_level = debug
+
+[37m[  0.266823 0 axruntime:130] [32mLogging is enabled.[m
+[m[37m[  0.276172 0 axruntime:131] [32mPrimary CPU 0 started, dtb = 0xbf000000.[m
+[m[37m[  0.280775 0 axruntime:133] [32mFound physcial memory regions:[m
+[m[37m[  0.285869 0 axruntime:135] [32m  [PA:0x80200000, PA:0x802a1000) .text (READ | EXECUTE | RESERVED)[m
+[m[37m[  0.292118 0 axruntime:135] [32m  [PA:0x802a1000, PA:0x802c6000) .rodata (READ | RESERVED)[m
+[m[37m[  0.295672 0 axruntime:135] [32m  [PA:0x802d0000, PA:0x84ae2000) .data .tdata .tbss .percpu (READ | WRITE | RESERVED)[m
+[m[37m[  0.300290 0 axruntime:135] [32m  [PA:0x84ae2000, PA:0x84b22000) boot stack (READ | WRITE | RESERVED)[m
+[m[37m[  0.304127 0 axruntime:135] [32m  [PA:0x84b22000, PA:0x84b47000) .bss (READ | WRITE | RESERVED)[m
+[m[37m[  0.308173 0 axruntime:135] [32m  [PA:0x84b47000, PA:0x88000000) free memory (READ | WRITE | FREE)[m
+[m[37m[  0.312675 0 axruntime:135] [32m  [PA:0xc000000, PA:0xc210000) mmio (READ | WRITE | DEVICE | RESERVED)[m
+[m[37m[  0.316860 0 axruntime:135] [32m  [PA:0x10000000, PA:0x10001000) mmio (READ | WRITE | DEVICE | RESERVED)[m
+[m[37m[  0.320966 0 axruntime:135] [32m  [PA:0x10001000, PA:0x10009000) mmio (READ | WRITE | DEVICE | RESERVED)[m
+[m[37m[  0.325133 0 axruntime:135] [32m  [PA:0x30000000, PA:0x40000000) mmio (READ | WRITE | DEVICE | RESERVED)[m
+[m[37m[  0.329110 0 axruntime:135] [32m  [PA:0x40000000, PA:0x80000000) mmio (READ | WRITE | DEVICE | RESERVED)[m
+[m[37m[  0.334297 0 axruntime:135] [32m  [PA:0xa0000000, PA:0x1a0000000) extend free memory (READ | WRITE | FREE)[m
+[m[37m[  0.339163 0 axruntime:217] [32mInitialize global memory allocator...[m
+[m[37m[  0.342934 0 axruntime:218] [32m  use TLSF allocator.[m
+[m[37m[  0.349462 0 axruntime:230] [32malloc region size: 100000000[m
+[m[37m[  0.353645 0 axalloc:212] [36minitialize global allocator at: [0xffffffc0a0000000, 0xffffffc1a0000000)[m
+[m[37m[  0.375373 0 axalloc:227] [36madd a memory region to global allocator: [0xffffffc084b47000, 0xffffffc088000000)[m
+[m[37m[  0.383619 0 axruntime:149] [32mInitialize kernel page table...[m
+[m[37m[  0.409453 0 axruntime:153] [32mInitialize platform devices...[m
+[m[37m[  0.416258 0 axtask::api:68] [32mInitialize scheduling...[m
+[m[37m[  0.424525 0 axtask::task:470] [36mnew task: Task(2, "idle")[m
+[m[37m[  0.432691 0 axtask::task:470] [36mnew task: Task(4, "gc")[m
+[m[37m[  0.438057 0 axtask::api:74] [32m  use FIFO scheduler.[m
+[m[37m[  0.445657 0 axdriver:152] [32mInitialize device drivers...[m
+[m[37m[  0.450640 0 axdriver:153] [32m  device model: static[m
+[m[37m[  0.460416 0 axalloc:118] [36mexpand heap memory: [0xffffffc0a0031000, 0xffffffc0a4031000)[m
+[m[37m[  0.476871 0 axalloc:118] [36mexpand heap memory: [0xffffffc0a4031000, 0xffffffc0ac031000)[m
+[m[37m[  0.923840 0 axalloc:118] [36mexpand heap memory: [0xffffffc0ac031000, 0xffffffc0bc031000)[m
+[m[37m[  1.490151 0 axdriver:124] [32mregistered a new Block device: "ramdisk"[m
+[m[37m[  1.497476 0 virtio_drivers::transport:78] [36mDevice features: Features(CTRL_GUEST_OFFLOADS | MAC | GSO | MRG_RXBUF | STATUS | CTRL_VQ | CTRL_RX | CTRL_VLAN | CTRL_RX_EXTRA | GUEST_ANNOUNCE | CTL_MAC_ADDR | RING_INDIRECT_DESC | RING_EVENT_IDX)[m
+[m[37m[  1.514213 0 virtio_drivers::device::net::dev_raw:30] [32mnegotiated_features Features(MAC | STATUS | RING_EVENT_IDX)[m
+[m[37m[  1.520521 0 virtio_drivers::device::net::dev_raw:37] [36mGot MAC=[52, 54, 00, 12, 34, 56], status=Status(LINK_UP)[m
+[m[37m[  1.544735 0 axdriver::bus::mmio:11] [32mregistered a new Net device at [PA:0x10007000, PA:0x10008000): "virtio-net"[m
+[m[37m[  1.552693 0 axdriver:171] [36mnumber of NICs: 1[m
+[m[37m[  1.556069 0 axdriver:174] [36m  NIC 0: "virtio-net"[m
+[m[37m[  1.559441 0 axdriver:179] [36mnumber of block devices: 1[m
+[m[37m[  1.563767 0 axdriver:182] [36m  block device 0: "ramdisk"[m
+[m[37m[  1.567950 0 axfs:44] [32mInitialize filesystems...[m
+[m[37m[  1.571690 0 axfs:47] [32m  use block device 0: "ramdisk"[m
+[m[37m[  1.600832 0 axfs::fs::fatfs:176] [36mcreate Dir at fatfs: /dev[m
+[m[37m[  1.710054 0 axfs::fs::fatfs:156] [36mlookup at fatfs: /dev[m
+[m[37m[  1.743637 0 fatfs::dir:140] [31mIs a directory[m
+[m[37m[  1.783163 0 axfs::fs::fatfs:176] [36mcreate Dir at fatfs: /tmp[m
+[m[37m[  1.841643 0 axfs::fs::fatfs:156] [36mlookup at fatfs: /tmp[m
+[m[37m[  1.873381 0 fatfs::dir:140] [31mIs a directory[m
+[m[37m[  1.906881 0 axfs::fs::fatfs:176] [36mcreate Dir at fatfs: /var[m
+[m[37m[  1.966934 0 axfs::fs::fatfs:156] [36mlookup at fatfs: /var[m
+[m[37m[  2.000487 0 fatfs::dir:140] [31mIs a directory[m
+[m[37m[  2.033181 0 axfs_ramfs::dir:128] [36mcreate Dir at ramfs: sys[m
+[m[37m[  2.039512 0 axfs_ramfs::dir:128] [36mcreate Dir at ramfs: sys/net[m
+[m[37m[  2.044801 0 axfs_ramfs::dir:128] [36mcreate Dir at ramfs: net[m
+[m[37m[  2.048916 0 axfs_ramfs::dir:128] [36mcreate Dir at ramfs: sys/net/core[m
+[m[37m[  2.053094 0 axfs_ramfs::dir:128] [36mcreate Dir at ramfs: net/core[m
+[m[37m[  2.056749 0 axfs_ramfs::dir:128] [36mcreate Dir at ramfs: core[m
+[m[37m[  2.060203 0 axfs_ramfs::dir:128] [36mcreate File at ramfs: sys/net/core/somaxconn[m
+[m[37m[  2.065848 0 axfs_ramfs::dir:128] [36mcreate File at ramfs: net/core/somaxconn[m
+[m[37m[  2.070644 0 axfs_ramfs::dir:128] [36mcreate File at ramfs: core/somaxconn[m
+[m[37m[  2.074952 0 axfs_ramfs::dir:128] [36mcreate File at ramfs: somaxconn[m
+[m[37m[  2.082878 0 axfs_ramfs::dir:128] [36mcreate Dir at ramfs: sys/vm[m
+[m[37m[  2.086802 0 axfs_ramfs::dir:128] [36mcreate Dir at ramfs: vm[m
+[m[37m[  2.091581 0 axfs_ramfs::dir:128] [36mcreate File at ramfs: sys/vm/overcommit_memory[m
+[m[37m[  2.095829 0 axfs_ramfs::dir:128] [36mcreate File at ramfs: vm/overcommit_memory[m
+[m[37m[  2.100074 0 axfs_ramfs::dir:128] [36mcreate File at ramfs: overcommit_memory[m
+[m[37m[  2.105591 0 axfs_ramfs::dir:128] [36mcreate Dir at ramfs: self[m
+[m[37m[  2.109605 0 axfs_ramfs::dir:128] [36mcreate File at ramfs: self/stat[m
+[m[37m[  2.113340 0 axfs_ramfs::dir:128] [36mcreate File at ramfs: stat[m
+[m[37m[  2.116827 0 axfs_ramfs::dir:128] [36mcreate File at ramfs: meminfo[m
+[m[37m[  2.120423 0 axfs_ramfs::dir:128] [36mcreate File at ramfs: mounts[m
+[m[37m[  2.123955 0 axfs_ramfs::dir:128] [36mcreate File at ramfs: interrupts[m
+[m[37m[  2.128574 0 axfs::fs::fatfs:176] [36mcreate Dir at fatfs: /proc[m
+[m[37m[  2.189053 0 axfs::fs::fatfs:156] [36mlookup at fatfs: /proc[m
+[m[37m[  2.222117 0 fatfs::dir:140] [31mIs a directory[m
+[m[37m[  2.256643 0 axfs_ramfs::dir:128] [36mcreate Dir at ramfs: kernel[m
+[m[37m[  2.260474 0 axfs_ramfs::dir:128] [36mcreate Dir at ramfs: kernel/mm[m
+[m[37m[  2.264518 0 axfs_ramfs::dir:128] [36mcreate Dir at ramfs: mm[m
+[m[37m[  2.268297 0 axfs_ramfs::dir:128] [36mcreate Dir at ramfs: kernel/mm/transparent_hugepage[m
+[m[37m[  2.273062 0 axfs_ramfs::dir:128] [36mcreate Dir at ramfs: mm/transparent_hugepage[m
+[m[37m[  2.277142 0 axfs_ramfs::dir:128] [36mcreate Dir at ramfs: transparent_hugepage[m
+[m[37m[  2.281333 0 axfs_ramfs::dir:128] [36mcreate File at ramfs: kernel/mm/transparent_hugepage/enabled[m
+[m[37m[  2.286467 0 axfs_ramfs::dir:128] [36mcreate File at ramfs: mm/transparent_hugepage/enabled[m
+[m[37m[  2.291166 0 axfs_ramfs::dir:128] [36mcreate File at ramfs: transparent_hugepage/enabled[m
+[m[37m[  2.295517 0 axfs_ramfs::dir:128] [36mcreate File at ramfs: enabled[m
+[m[37m[  2.299687 0 axfs_ramfs::dir:128] [36mcreate Dir at ramfs: devices[m
+[m[37m[  2.303510 0 axfs_ramfs::dir:128] [36mcreate Dir at ramfs: devices/system[m
+[m[37m[  2.307363 0 axfs_ramfs::dir:128] [36mcreate Dir at ramfs: system[m
+[m[37m[  2.310858 0 axfs_ramfs::dir:128] [36mcreate Dir at ramfs: devices/system/clocksource[m
+[m[37m[  2.315124 0 axfs_ramfs::dir:128] [36mcreate Dir at ramfs: system/clocksource[m
+[m[37m[  2.318901 0 axfs_ramfs::dir:128] [36mcreate Dir at ramfs: clocksource[m
+[m[37m[  2.322504 0 axfs_ramfs::dir:128] [36mcreate Dir at ramfs: devices/system/clocksource/clocksource0[m
+[m[37m[  2.327402 0 axfs_ramfs::dir:128] [36mcreate Dir at ramfs: system/clocksource/clocksource0[m
+[m[37m[  2.332867 0 axfs_ramfs::dir:128] [36mcreate Dir at ramfs: clocksource/clocksource0[m
+[m[37m[  2.337418 0 axfs_ramfs::dir:128] [36mcreate Dir at ramfs: clocksource0[m
+[m[37m[  2.341561 0 axfs_ramfs::dir:128] [36mcreate File at ramfs: devices/system/clocksource/clocksource0/current_clocksource[m
+[m[37m[  2.347465 0 axfs_ramfs::dir:128] [36mcreate File at ramfs: system/clocksource/clocksource0/current_clocksource[m
+[m[37m[  2.352758 0 axfs_ramfs::dir:128] [36mcreate File at ramfs: clocksource/clocksource0/current_clocksource[m
+[m[37m[  2.358081 0 axfs_ramfs::dir:128] [36mcreate File at ramfs: clocksource0/current_clocksource[m
+[m[37m[  2.362695 0 axfs_ramfs::dir:128] [36mcreate File at ramfs: current_clocksource[m
+[m[37m[  2.367810 0 axfs::fs::fatfs:176] [36mcreate Dir at fatfs: /sys[m
+[m[37m[  2.432342 0 axfs::fs::fatfs:156] [36mlookup at fatfs: /sys[m
+[m[37m[  2.465517 0 fatfs::dir:140] [31mIs a directory[m
+[m[37m[  2.503420 0 axnet:46] [32mInitialize network subsystem...[m
+[m[37m[  2.508305 0 axnet:49] [32m  use NIC 0: "virtio-net"[m
+[m[37m[  2.540849 0 axruntime:185] [32mInitialize interrupt handlers...[m
+[m[37m[  2.550329 0 axruntime:195] [32mPrimary CPU 0 init OK.[m
+[m[37m[  2.565856 0:3 axprocess::link:236] [32mcreate_link: /lib/ld-musl-riscv64-sf.so.1 -> /libc.so[m
+[m[37m[  2.573596 0:3 axfs::root:81] [36mlookup at root: /libc.so[m
+[m[37m[  2.578470 0:3 axfs::fs::fatfs:156] [36mlookup at fatfs: libc.so[m
+[m[37m[  2.604278 0:3 axprocess::link:236] [32mcreate_link: /lib/ld-musl-riscv64.so.1 -> /libc.so[m
+[m[37m[  2.608381 0:3 axfs::root:81] [36mlookup at root: /libc.so[m
+[m[37m[  2.611429 0:3 axfs::fs::fatfs:156] [36mlookup at fatfs: libc.so[m
+[m[37m[  2.632543 0:3 axprocess::link:236] [32mcreate_link: /lib/tls_get_new-dtv_dso.so -> /tls_get_new-dtv_dso.so[m
+[m[37m[  2.637036 0:3 axfs::root:81] [36mlookup at root: /tls_get_new-dtv_dso.so[m
+[m[37m[  2.641165 0:3 axfs::fs::fatfs:156] [36mlookup at fatfs: tls_get_new-dtv_dso.so[m
+[m[37m[  2.673603 0:3 axprocess::link:236] [32mcreate_link: /sbin/busybox -> /busybox[m
+[m[37m[  2.676770 0:3 axfs::root:81] [36mlookup at root: /busybox[m
+[m[37m[  2.683840 0:3 axfs::fs::fatfs:156] [36mlookup at fatfs: busybox[m
+[m[37m[  2.688989 0:3 axprocess::link:236] [32mcreate_link: /sbin/ls -> /busybox[m
+[m[37m[  2.691951 0:3 axfs::root:81] [36mlookup at root: /busybox[m
+[m[37m[  2.694397 0:3 axfs::fs::fatfs:156] [36mlookup at fatfs: busybox[m
+[m[37m[  2.699213 0:3 axprocess::link:236] [32mcreate_link: /ls -> /busybox[m
+[m[37m[  2.701989 0:3 axfs::root:81] [36mlookup at root: /busybox[m
+[m[37m[  2.704467 0:3 axfs::fs::fatfs:156] [36mlookup at fatfs: busybox[m
+[m[37m[  2.709920 0:3 axprocess::link:236] [32mcreate_link: /sh -> /busybox[m
+[m[37m[  2.712699 0:3 axfs::root:81] [36mlookup at root: /busybox[m
+[m[37m[  2.715054 0:3 axfs::fs::fatfs:156] [36mlookup at fatfs: busybox[m
+[m[37m[  2.720126 0:3 axprocess::link:236] [32mcreate_link: /bin/lmbench_all -> /lmbench_all[m
+[m[37m[  2.723415 0:3 axfs::root:81] [36mlookup at root: /lmbench_all[m
+[m[37m[  2.725897 0:3 axfs::fs::fatfs:156] [36mlookup at fatfs: lmbench_all[m
+[m[37m[  2.745170 0:3 axprocess::link:236] [32mcreate_link: /bin/iozone -> /iozone[m
+[m[37m[  2.749281 0:3 axfs::root:81] [36mlookup at root: /iozone[m
+[m[37m[  2.751924 0:3 axfs::fs::fatfs:156] [36mlookup at fatfs: iozone[m
+[m[37m[  2.767333 0:3 axfs::fops:117] [36mopen file: /lat_sig READ | WRITE | CREATE[m
+[m[37m[  2.773994 0:3 axfs::root:81] [36mlookup at root: /lat_sig[m
+[m[37m[  2.776781 0:3 axfs::fs::fatfs:156] [36mlookup at fatfs: lat_sig[m
+[m[37m[  2.839980 0:3 axfs::root:81] [36mlookup at root: /lat_sig[m
+[m[37m[  2.844422 0:3 axfs::fs::fatfs:176] [36mcreate File at fatfs: lat_sig[m
+[m[37m[  2.909415 0:3 axfs::root:81] [36mlookup at root: /lat_sig[m
+[m[37m[  2.912224 0:3 axfs::fs::fatfs:156] [36mlookup at fatfs: lat_sig[m
+[m[37m[  2.949194 0:3 axprocess::link:236] [32mcreate_link: /riscv64-linux-musl-native/lib/ld-musl-riscv64.so.1 -> /lib/libc.so[m
+[m[37m[  2.953997 0:3 axfs::root:81] [36mlookup at root: /lib/libc.so[m
+[m[37m[  2.956530 0:3 axfs::fs::fatfs:156] [36mlookup at fatfs: lib/libc.so[m
+[m[37m[  3.021204 0:3 axprocess::link:246] [36mlink dest file not exists[m
+[m[37m[  3.026112 0:3 axprocess::link:236] [32mcreate_link: /riscv64-linux-musl-native/lib/libatomic.so -> /riscv64-linux-musl-native/lib/libatomic.so.1.2.0[m
+[m[37m[  3.032936 0:3 axfs::root:81] [36mlookup at root: /riscv64-linux-musl-native/lib/libatomic.so.1.2.0[m
+[m[37m[  3.036893 0:3 axfs::fs::fatfs:156] [36mlookup at fatfs: riscv64-linux-musl-native/lib/libatomic.so.1.2.0[m
+[m[37m[  3.102140 0:3 axprocess::link:246] [36mlink dest file not exists[m
+[m[37m[  3.107259 0:3 axprocess::link:236] [32mcreate_link: /riscv64-linux-musl-native/lib/libatomic.so.1 -> /riscv64-linux-musl-native/lib/libatomic.so.1.2.0[m
+[m[37m[  3.115425 0:3 axfs::root:81] [36mlookup at root: /riscv64-linux-musl-native/lib/libatomic.so.1.2.0[m
+[m[37m[  3.122279 0:3 axfs::fs::fatfs:156] [36mlookup at fatfs: riscv64-linux-musl-native/lib/libatomic.so.1.2.0[m
+[m[37m[  3.187549 0:3 axprocess::link:246] [36mlink dest file not exists[m
+[m[37m[  3.193416 0:3 axprocess::link:236] [32mcreate_link: /riscv64-linux-musl-native/lib/libgfortran.so -> /riscv64-linux-musl-native/lib/libgfortran.so.5.0.0[m
+[m[37m[  3.199511 0:3 axfs::root:81] [36mlookup at root: /riscv64-linux-musl-native/lib/libgfortran.so.5.0.0[m
+[m[37m[  3.203791 0:3 axfs::fs::fatfs:156] [36mlookup at fatfs: riscv64-linux-musl-native/lib/libgfortran.so.5.0.0[m
+[m[37m[  3.267677 0:3 axprocess::link:246] [36mlink dest file not exists[m
+[m[37m[  3.273562 0:3 axprocess::link:236] [32mcreate_link: /riscv64-linux-musl-native/lib/libgfortran.so.5 -> /riscv64-linux-musl-native/lib/libgfortran.so.5.0.0[m
+[m[37m[  3.280692 0:3 axfs::root:81] [36mlookup at root: /riscv64-linux-musl-native/lib/libgfortran.so.5.0.0[m
+[m[37m[  3.285019 0:3 axfs::fs::fatfs:156] [36mlookup at fatfs: riscv64-linux-musl-native/lib/libgfortran.so.5.0.0[m
+[m[37m[  3.349619 0:3 axprocess::link:246] [36mlink dest file not exists[m
+[m[37m[  3.354142 0:3 axprocess::link:236] [32mcreate_link: /riscv64-linux-musl-native/lib/libgomp.so -> /riscv64-linux-musl-native/lib/libgomp.so.1.0.0[m
+[m[37m[  3.360902 0:3 axfs::root:81] [36mlookup at root: /riscv64-linux-musl-native/lib/libgomp.so.1.0.0[m
+[m[37m[  3.365382 0:3 axfs::fs::fatfs:156] [36mlookup at fatfs: riscv64-linux-musl-native/lib/libgomp.so.1.0.0[m
+[m[37m[  3.431872 0:3 axprocess::link:246] [36mlink dest file not exists[m
+[m[37m[  3.436649 0:3 axprocess::link:236] [32mcreate_link: /riscv64-linux-musl-native/lib/libgomp.so.1 -> /riscv64-linux-musl-native/lib/libgomp.so.1.0.0[m
+[m[37m[  3.445452 0:3 axfs::root:81] [36mlookup at root: /riscv64-linux-musl-native/lib/libgomp.so.1.0.0[m
+[m[37m[  3.450236 0:3 axfs::fs::fatfs:156] [36mlookup at fatfs: riscv64-linux-musl-native/lib/libgomp.so.1.0.0[m
+[m[37m[  3.512636 0:3 axprocess::link:246] [36mlink dest file not exists[m
+[m[37m[  3.517244 0:3 axprocess::link:236] [32mcreate_link: /riscv64-linux-musl-native/lib/libssp.so -> /riscv64-linux-musl-native/lib/libssp.so.0.0.0[m
+[m[37m[  3.524047 0:3 axfs::root:81] [36mlookup at root: /riscv64-linux-musl-native/lib/libssp.so.0.0.0[m
+[m[37m[  3.528585 0:3 axfs::fs::fatfs:156] [36mlookup at fatfs: riscv64-linux-musl-native/lib/libssp.so.0.0.0[m
+[m[37m[  3.591670 0:3 axprocess::link:246] [36mlink dest file not exists[m
+[m[37m[  3.596196 0:3 axprocess::link:236] [32mcreate_link: /riscv64-linux-musl-native/lib/libssp.so.0 -> /riscv64-linux-musl-native/lib/libssp.so.0.0.0[m
+[m[37m[  3.605605 0:3 axfs::root:81] [36mlookup at root: /riscv64-linux-musl-native/lib/libssp.so.0.0.0[m
+[m[37m[  3.612826 0:3 axfs::fs::fatfs:156] [36mlookup at fatfs: riscv64-linux-musl-native/lib/libssp.so.0.0.0[m
+[m[37m[  3.680421 0:3 axprocess::link:246] [36mlink dest file not exists[m
+[m[37m[  3.685064 0:3 axprocess::link:236] [32mcreate_link: /riscv64-linux-musl-native/lib/libstdc++.so -> /riscv64-linux-musl-native/lib/libstdc++.so.6.0.29[m
+[m[37m[  3.691758 0:3 axfs::root:81] [36mlookup at root: /riscv64-linux-musl-native/lib/libstdc++.so.6.0.29[m
+[m[37m[  3.699527 0:3 axfs::fs::fatfs:156] [36mlookup at fatfs: riscv64-linux-musl-native/lib/libstdc++.so.6.0.29[m
+[m[37m[  3.763384 0:3 axprocess::link:246] [36mlink dest file not exists[m
+[m[37m[  3.767984 0:3 axprocess::link:236] [32mcreate_link: /riscv64-linux-musl-native/lib/libstdc++.so.6 -> /riscv64-linux-musl-native/lib/libstdc++.so.6.0.29[m
+[m[37m[  3.775849 0:3 axfs::root:81] [36mlookup at root: /riscv64-linux-musl-native/lib/libstdc++.so.6.0.29[m
+[m[37m[  3.781524 0:3 axfs::fs::fatfs:156] [36mlookup at fatfs: riscv64-linux-musl-native/lib/libstdc++.so.6.0.29[m
+[m[37m[  3.845380 0:3 axprocess::link:246] [36mlink dest file not exists[m
+[m[37m[  3.857050 0:3 axmem:87] [36mmapping kernel region [0xffffffc080200000, 0xffffffc0802a1000)[m
+[m[37m[  3.869474 0:3 axmem:87] [36mmapping kernel region [0xffffffc0802a1000, 0xffffffc0802c6000)[m
+[m[37m[  3.873129 0:3 axmem:87] [36mmapping kernel region [0xffffffc0802d0000, 0xffffffc084ae2000)[m
+[m[37m[  3.877196 0:3 axmem:87] [36mmapping kernel region [0xffffffc084ae2000, 0xffffffc084b22000)[m
+[m[37m[  3.882365 0:3 axmem:87] [36mmapping kernel region [0xffffffc084b22000, 0xffffffc084b47000)[m
+[m[37m[  3.892542 0:3 axmem:87] [36mmapping kernel region [0xffffffc084b47000, 0xffffffc088000000)[m
+[m[37m[  3.896632 0:3 axmem:87] [36mmapping kernel region [0xffffffc00c000000, 0xffffffc00c210000)[m
+[m[37m[  3.901928 0:3 axmem:87] [36mmapping kernel region [0xffffffc010000000, 0xffffffc010001000)[m
+[m[37m[  3.905634 0:3 axmem:87] [36mmapping kernel region [0xffffffc010001000, 0xffffffc010009000)[m
+[m[37m[  3.909563 0:3 axmem:87] [36mmapping kernel region [0xffffffc030000000, 0xffffffc040000000)[m
+[m[37m[  3.913618 0:3 axmem:87] [36mmapping kernel region [0xffffffc040000000, 0xffffffc080000000)[m
+[m[37m[  3.917295 0:3 axmem:87] [36mmapping kernel region [0xffffffc0a0000000, 0xffffffc1a0000000)[m
+[m[37m[  3.926717 0:3 axfs::fops:117] [36mopen file: busybox READ[m
+[m[37m[  3.936274 0:3 axfs::root:81] [36mlookup at root: busybox[m
+[m[37m[  3.939809 0:3 axfs::fs::fatfs:156] [36mlookup at fatfs: busybox[m
+[m[37m[  5.049794 0:3 axprocess::api:163] [36mapp elf data length: 1387560[m
+[m[37m[  5.054506 0:3 axprocess::loader:53] [32margs: ["busybox", "ls"][m
+[m[37m[  5.062027 0:3 axmem:127] [32mBase addr for the elf: 0x0[m
+[m[37m[  5.065718 0:3 axmem:155] [36m[new region] elf section [0x10000, 0x161fac)[m
+[m[37m[  5.088423 0:3 axmem::area:62] [32mstart: VA:0x10000, size: 152000,  page start: VA:0xffffffc0bc03b000[m
+[m[37m[  5.094496 0:3 axmem:343] [36mallocating [0x10000, 0x161fac) to [0x10000, 0x162000) flag: MappingFlags(READ | EXECUTE | USER)[m
+[m[37m[  5.103244 0:3 axmem:155] [36m[new region] elf section [0x162000, 0x165380)[m
+[m[37m[  5.108229 0:3 axmem::area:62] [32mstart: VA:0x162000, size: 4000,  page start: VA:0xffffffc0bc18f000[m
+[m[37m[  5.114982 0:3 axmem:343] [36mallocating [0x162000, 0x165380) to [0x162000, 0x166000) flag: MappingFlags(READ | WRITE | USER)[m
+[m[37m[  5.124261 0:3 axmem:169] [32m[loader] base addr: 0x0[m
+[m[37m[  5.131095 0:3 axmem:293] [32mRelocating done[m
+[m[37m[  5.294573 0:3 axmem::area:62] [32mstart: VA:0x3fa00000, size: 400000,  page start: VA:0xffffffc0bc193000[m
+[m[37m[  5.301691 0:3 axmem:343] [36mallocating [0x3fa00000, 0x3fe00000) to [0x3fa00000, 0x3fe00000) flag: MappingFlags(READ | WRITE | USER)[m
+[m[37m[  5.307577 0:3 axprocess::loader:98] [32m[new region] user heap: [VA:0x3fa00000, VA:0x3fe00000)[m
+[m[37m[  5.313488 0:3 axprocess::loader:105] [32m[new region] user stack: [VA:0x3fe00000, VA:0x40000000)[m
+[m[37m[  5.438999 0:3 axmem::area:62] [32mstart: VA:0x3fe00000, size: 200000,  page start: VA:0xffffffc0bc595000[m
+[m[37m[  5.444248 0:3 axmem:343] [36mallocating [0x3fe00000, 0x40000000) to [0x3fe00000, 0x40000000) flag: MappingFlags(READ | WRITE | USER)[m
+[m[37m[  5.455226 0:3 axtask::task:470] [36mnew task: Task(6, "busybox")[m
+[m[37m[  5.480012 0:3 axtask::run_queue:46] [36mtask spawn: Task(6, "busybox")[m
+[m[37m[  5.484485 0:3 syscall_entry::test:406] [32m --------------- load testcase: ["busybox", "ls"] --------------- [m
+[m[37m[  5.492810 0:3 axtask::run_queue:62] [36mtask yield: Task(3, "main")[m
+[m[37m[  5.500469 0:4 axtask::run_queue:134] [36mtask block: Task(4, "gc")[m
+[m[37m[  5.517616 0:6 syscall_entry::syscall:41] [32msyscall: 96 -> 6[m
+[m[37m[  5.525426 0:6 syscall_entry::syscall:41] [32msyscall: 174 -> 0[m
+[m[37m[  5.534506 0:6 syscall_entry::syscall:41] [32msyscall: 113 -> 0[m
+[m[37m[  5.540423 0:6 syscall_fs::imp::ctl:335] [32mfd: 0, request: 21523, argp: 1073740600[m
+[m[37m[  5.545858 0:6 syscall_entry::syscall:41] [32msyscall: 29 -> 0[m
+[m[37m[  5.558364 0:6 syscall_fs::imp::ctl:335] [32mfd: 1, request: 21523, argp: 1073740664[m
+[m[37m[  5.562145 0:6 syscall_entry::syscall:41] [32msyscall: 29 -> 0[m
+[m[37m[  5.565527 0:6 syscall_fs::imp::ctl:335] [32mfd: 1, request: 21523, argp: 1073740664[m
+[m[37m[  5.570452 0:6 syscall_entry::syscall:41] [32msyscall: 29 -> 0[m
+[m[37m[  5.576736 0:6 syscall_entry::syscall:41] [32msyscall: 214 -> 1067450368[m
+[m[37m[  5.582307 0:6 syscall_mem::imp:51] [36mmmap start=0 len=1000 prot=[MMAPPROT(
+    PROT_READ | PROT_WRITE,
+)] flags=[MMAPFlags(
+    MAP_PRIVATE | MAP_ANONYMOUS,
+)] fd=-1 offset=0[m
+[m[37m[  5.598092 0:6 axmem:468] [32m[mmap] vaddr: [VA:0x0, VA:0x1000), MappingFlags(READ | WRITE | USER), fixed: false, backend: false[m
+[m[37m[  5.603499 0:6 axmem:486] [32mfind free area[m
+[m[37m[  5.609274 0:6 axmem:491] [32mfound area [VA:0x1000, VA:0x2000)[m
+[m[37m[  5.613150 0:6 axmem:343] [36mallocating [0x1000, 0x2000) to [0x1000, 0x2000) flag: MappingFlags(READ | WRITE | USER)[m
+[m[37m[  5.618377 0:6 axmem:500] [36m[mmap] return addr: 0x1000[m
+[m[37m[  5.622564 0:6 syscall_mem::imp:100] [36mmmap: 0x1000[m
+[m[37m[  5.625156 0:6 syscall_entry::syscall:41] [32msyscall: 222 -> 4096[m
+[m[37m[  5.629636 0:6 axprocess::api:190] [36m'page fault' addr: VA:0x1010, flags: MappingFlags(WRITE | USER)[m
+[m[37m[  5.634888 0:6 axprocess::api:192] [36mmemory token : 3154317312[m
+[m[37m[  5.639271 0:6 axmem::area:124] [36mpage index 0[m
+[m[37m[  5.642794 0:6 axmem::area:129] [36mnew phys page virtual (offset) address VA:0xffffffc0bc796000[m
+[m[37m[  5.658063 0:6 syscall_fs::imp::stat:49] [32mpath : /[m
+[m[37m[  5.662140 0:6 syscall_fs::ctype::dir:79] [36mInto function new_dir, dir_path: /[m
+[m[37m[  5.666144 0:6 axfs::root:81] [36mlookup at root: /[m
+[m[37m[  5.668479 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: [m
+[m[37m[  5.673591 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  5.685345 0:6 syscall_fs::imp::io:305] [36mallocated fd_num: 3[m
+[m[37m[  5.688871 0:6 syscall_fs::imp::io:308] [36mopen dir[m
+[m[37m[  5.692410 0:6 syscall_fs::ctype::dir:79] [36mInto function new_dir, dir_path: /[m
+[m[37m[  5.695549 0:6 axfs::root:81] [36mlookup at root: /[m
+[m[37m[  5.697699 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: [m
+[m[37m[  5.700710 0:6 syscall_fs::imp::io:310] [36mnew dir_desc successfully allocated: /[m
+[m[37m[  5.705013 0:6 syscall_entry::syscall:41] [32msyscall: 56 -> 3[m
+[m[37m[  5.708679 0:6 syscall_fs::imp::ctl:275] [32mfd: 3, cmd: 2[m
+[m[37m[  5.712472 0:6 syscall_entry::syscall:41] [32msyscall: 25 -> -22[m
+[m[37m[  5.719039 0:6 axprocess::link:317] [36mhandled_path: //[m
+[m[37m[  5.723649 0:6 axmem:736] [36mallocating page at 1000[m
+[m[37m[  5.727530 0:6 axfs::fops:261] [36mopen dir: /[m
+[m[37m[  5.729717 0:6 axfs::root:81] [36mlookup at root: /[m
+[m[37m[  5.732640 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: [m
+[m[37m[  5.808919 0:6 syscall_fs::imp::ctl:165] [36mbuf not big enough[m
+[m[37m[  5.813113 0:6 syscall_entry::syscall:41] [32msyscall: 61 -> 2022[m
+[m[37m[  5.826208 0:6 syscall_fs::imp::stat:49] [32mpath : /arithoh[m
+[m[37m[  5.830061 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /arithoh[m
+[m[37m[  5.835585 0:6 axfs::fops:117] [36mopen file: /arithoh READ[m
+[m[37m[  5.838146 0:6 axfs::root:81] [36mlookup at root: /arithoh[m
+[m[37m[  5.840864 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: arithoh[m
+[m[37m[  5.852503 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  5.856040 0:6 syscall_fs::imp::stat:49] [32mpath : /bin[m
+[m[37m[  5.858454 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /bin[m
+[m[37m[  5.862234 0:6 axfs::fops:117] [36mopen file: /bin READ[m
+[m[37m[  5.864875 0:6 axfs::root:81] [36mlookup at root: /bin[m
+[m[37m[  5.867110 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: bin[m
+[m[37m[  5.870640 0:6 fatfs::dir:140] [31mIs a directory[m
+[m[37m[  5.874086 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  5.877014 0:6 syscall_fs::imp::stat:49] [32mpath : /busybox[m
+[m[37m[  5.879526 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /busybox[m
+[m[37m[  5.883864 0:6 axfs::fops:117] [36mopen file: /busybox READ[m
+[m[37m[  5.886718 0:6 axfs::root:81] [36mlookup at root: /busybox[m
+[m[37m[  5.890178 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: busybox[m
+[m[37m[  5.928554 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  5.932990 0:6 syscall_fs::imp::stat:49] [32mpath : /busybox_cmd.txt[m
+[m[37m[  5.935802 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /busybox_cmd.txt[m
+[m[37m[  5.939089 0:6 axfs::fops:117] [36mopen file: /busybox_cmd.txt READ[m
+[m[37m[  5.942558 0:6 axfs::root:81] [36mlookup at root: /busybox_cmd.txt[m
+[m[37m[  5.945829 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: busybox_cmd.txt[m
+[m[37m[  5.950222 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  5.955176 0:6 syscall_fs::imp::stat:49] [32mpath : /busybox_testcode.sh[m
+[m[37m[  5.958094 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /busybox_testcode.sh[m
+[m[37m[  5.963511 0:6 axfs::fops:117] [36mopen file: /busybox_testcode.sh READ[m
+[m[37m[  5.967677 0:6 axfs::root:81] [36mlookup at root: /busybox_testcode.sh[m
+[m[37m[  5.970419 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: busybox_testcode.sh[m
+[m[37m[  5.976473 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  5.979695 0:6 syscall_fs::imp::stat:49] [32mpath : /context1[m
+[m[37m[  5.983193 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /context1[m
+[m[37m[  5.986784 0:6 axfs::fops:117] [36mopen file: /context1 READ[m
+[m[37m[  5.989165 0:6 axfs::root:81] [36mlookup at root: /context1[m
+[m[37m[  5.992539 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: context1[m
+[m[37m[  6.000142 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  6.004364 0:6 syscall_fs::imp::stat:49] [32mpath : /copy-file-range-test-1[m
+[m[37m[  6.007389 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /copy-file-range-test-1[m
+[m[37m[  6.011389 0:6 axfs::fops:117] [36mopen file: /copy-file-range-test-1 READ[m
+[m[37m[  6.014424 0:6 axfs::root:81] [36mlookup at root: /copy-file-range-test-1[m
+[m[37m[  6.017237 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: copy-file-range-test-1[m
+[m[37m[  6.024054 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  6.027019 0:6 syscall_fs::imp::stat:49] [32mpath : /copy-file-range-test-2[m
+[m[37m[  6.029986 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /copy-file-range-test-2[m
+[m[37m[  6.034871 0:6 axfs::fops:117] [36mopen file: /copy-file-range-test-2 READ[m
+[m[37m[  6.039971 0:6 axfs::root:81] [36mlookup at root: /copy-file-range-test-2[m
+[m[37m[  6.043801 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: copy-file-range-test-2[m
+[m[37m[  6.052680 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  6.055648 0:6 syscall_fs::imp::stat:49] [32mpath : /copy-file-range-test-3[m
+[m[37m[  6.058618 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /copy-file-range-test-3[m
+[m[37m[  6.063406 0:6 axfs::fops:117] [36mopen file: /copy-file-range-test-3 READ[m
+[m[37m[  6.066783 0:6 axfs::root:81] [36mlookup at root: /copy-file-range-test-3[m
+[m[37m[  6.069601 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: copy-file-range-test-3[m
+[m[37m[  6.078303 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  6.082049 0:6 syscall_mem::imp:51] [36mmmap start=0 len=1000 prot=[MMAPPROT(
+    PROT_READ | PROT_WRITE,
+)] flags=[MMAPFlags(
+    MAP_PRIVATE | MAP_ANONYMOUS,
+)] fd=-1 offset=0[m
+[m[37m[  6.088555 0:6 axmem:468] [32m[mmap] vaddr: [VA:0x0, VA:0x1000), MappingFlags(READ | WRITE | USER), fixed: false, backend: false[m
+[m[37m[  6.094230 0:6 axmem:486] [32mfind free area[m
+[m[37m[  6.096610 0:6 axmem:491] [32mfound area [VA:0x2000, VA:0x3000)[m
+[m[37m[  6.099099 0:6 axmem:343] [36mallocating [0x2000, 0x3000) to [0x2000, 0x3000) flag: MappingFlags(READ | WRITE | USER)[m
+[m[37m[  6.104507 0:6 axmem:500] [36m[mmap] return addr: 0x2000[m
+[m[37m[  6.108500 0:6 syscall_mem::imp:100] [36mmmap: 0x2000[m
+[m[37m[  6.111579 0:6 syscall_entry::syscall:41] [32msyscall: 222 -> 8192[m
+[m[37m[  6.114583 0:6 axprocess::api:190] [36m'page fault' addr: VA:0x2ff0, flags: MappingFlags(WRITE | USER)[m
+[m[37m[  6.118471 0:6 axprocess::api:192] [36mmemory token : 3154317312[m
+[m[37m[  6.121373 0:6 axmem::area:124] [36mpage index 0[m
+[m[37m[  6.124179 0:6 axmem::area:129] [36mnew phys page virtual (offset) address VA:0xffffffc0bc797000[m
+[m[37m[  6.133754 0:6 syscall_fs::imp::stat:49] [32mpath : /copy-file-range-test-4[m
+[m[37m[  6.136917 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /copy-file-range-test-4[m
+[m[37m[  6.140438 0:6 axfs::fops:117] [36mopen file: /copy-file-range-test-4 READ[m
+[m[37m[  6.143678 0:6 axfs::root:81] [36mlookup at root: /copy-file-range-test-4[m
+[m[37m[  6.146902 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: copy-file-range-test-4[m
+[m[37m[  6.155873 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  6.158992 0:6 syscall_fs::imp::stat:49] [32mpath : /cyclictest[m
+[m[37m[  6.161927 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /cyclictest[m
+[m[37m[  6.166374 0:6 axfs::fops:117] [36mopen file: /cyclictest READ[m
+[m[37m[  6.169037 0:6 axfs::root:81] [36mlookup at root: /cyclictest[m
+[m[37m[  6.171503 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: cyclictest[m
+[m[37m[  6.185358 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  6.188332 0:6 syscall_fs::imp::stat:49] [32mpath : /cyclictest_testcode.sh[m
+[m[37m[  6.191401 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /cyclictest_testcode.sh[m
+[m[37m[  6.196055 0:6 axfs::fops:117] [36mopen file: /cyclictest_testcode.sh READ[m
+[m[37m[  6.199066 0:6 axfs::root:81] [36mlookup at root: /cyclictest_testcode.sh[m
+[m[37m[  6.201864 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: cyclictest_testcode.sh[m
+[m[37m[  6.210792 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  6.214239 0:6 syscall_fs::imp::stat:49] [32mpath : /date.lua[m
+[m[37m[  6.216812 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /date.lua[m
+[m[37m[  6.219927 0:6 axfs::fops:117] [36mopen file: /date.lua READ[m
+[m[37m[  6.222280 0:6 axfs::root:81] [36mlookup at root: /date.lua[m
+[m[37m[  6.225536 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: date.lua[m
+[m[37m[  6.233503 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  6.236479 0:6 syscall_fs::imp::stat:49] [32mpath : /dhry2[m
+[m[37m[  6.238940 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /dhry2[m
+[m[37m[  6.242221 0:6 axfs::fops:117] [36mopen file: /dhry2 READ[m
+[m[37m[  6.245358 0:6 axfs::root:81] [36mlookup at root: /dhry2[m
+[m[37m[  6.247955 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: dhry2[m
+[m[37m[  6.258730 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  6.261986 0:6 syscall_fs::imp::stat:49] [32mpath : /dhry2reg[m
+[m[37m[  6.265642 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /dhry2reg[m
+[m[37m[  6.269104 0:6 axfs::fops:117] [36mopen file: /dhry2reg READ[m
+[m[37m[  6.271513 0:6 axfs::root:81] [36mlookup at root: /dhry2reg[m
+[m[37m[  6.274703 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: dhry2reg[m
+[m[37m[  6.285821 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  6.288786 0:6 syscall_fs::imp::stat:49] [32mpath : /dlopen_dso.so[m
+[m[37m[  6.291521 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /dlopen_dso.so[m
+[m[37m[  6.298076 0:6 axfs::fops:117] [36mopen file: /dlopen_dso.so READ[m
+[m[37m[  6.300922 0:6 axfs::root:81] [36mlookup at root: /dlopen_dso.so[m
+[m[37m[  6.306024 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: dlopen_dso.so[m
+[m[37m[  6.315563 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  6.318574 0:6 syscall_fs::imp::stat:49] [32mpath : /double[m
+[m[37m[  6.321142 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /double[m
+[m[37m[  6.325018 0:6 axfs::fops:117] [36mopen file: /double READ[m
+[m[37m[  6.327627 0:6 axfs::root:81] [36mlookup at root: /double[m
+[m[37m[  6.330021 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: double[m
+[m[37m[  6.341700 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  6.351650 0:6 syscall_fs::imp::stat:49] [32mpath : /entry-dynamic.exe[m
+[m[37m[  6.355414 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /entry-dynamic.exe[m
+[m[37m[  6.359416 0:6 axfs::fops:117] [36mopen file: /entry-dynamic.exe READ[m
+[m[37m[  6.362535 0:6 axfs::root:81] [36mlookup at root: /entry-dynamic.exe[m
+[m[37m[  6.367190 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: entry-dynamic.exe[m
+[m[37m[  6.385104 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  6.388068 0:6 syscall_fs::imp::stat:49] [32mpath : /entry-static.exe[m
+[m[37m[  6.390913 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /entry-static.exe[m
+[m[37m[  6.395226 0:6 axfs::fops:117] [36mopen file: /entry-static.exe READ[m
+[m[37m[  6.398126 0:6 axfs::root:81] [36mlookup at root: /entry-static.exe[m
+[m[37m[  6.400803 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: entry-static.exe[m
+[m[37m[  6.429370 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  6.432333 0:6 syscall_fs::imp::stat:49] [32mpath : /execl[m
+[m[37m[  6.438957 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /execl[m
+[m[37m[  6.442430 0:6 axfs::fops:117] [36mopen file: /execl READ[m
+[m[37m[  6.445621 0:6 axfs::root:81] [36mlookup at root: /execl[m
+[m[37m[  6.448269 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: execl[m
+[m[37m[  6.463293 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  6.466424 0:6 syscall_fs::imp::stat:49] [32mpath : /file_io.lua[m
+[m[37m[  6.469167 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /file_io.lua[m
+[m[37m[  6.472419 0:6 axfs::fops:117] [36mopen file: /file_io.lua READ[m
+[m[37m[  6.475853 0:6 axfs::root:81] [36mlookup at root: /file_io.lua[m
+[m[37m[  6.478606 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: file_io.lua[m
+[m[37m[  6.489257 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  6.492259 0:6 syscall_fs::imp::stat:49] [32mpath : /float[m
+[m[37m[  6.495685 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /float[m
+[m[37m[  6.499359 0:6 axfs::fops:117] [36mopen file: /float READ[m
+[m[37m[  6.501663 0:6 axfs::root:81] [36mlookup at root: /float[m
+[m[37m[  6.504896 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: float[m
+[m[37m[  6.519524 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  6.522860 0:6 syscall_fs::imp::stat:49] [32mpath : /fstime[m
+[m[37m[  6.527889 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /fstime[m
+[m[37m[  6.533008 0:6 axfs::fops:117] [36mopen file: /fstime READ[m
+[m[37m[  6.537130 0:6 axfs::root:81] [36mlookup at root: /fstime[m
+[m[37m[  6.540126 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: fstime[m
+[m[37m[  6.554390 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  6.557835 0:6 syscall_fs::imp::stat:49] [32mpath : /hackbench[m
+[m[37m[  6.560436 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /hackbench[m
+[m[37m[  6.564872 0:6 axfs::fops:117] [36mopen file: /hackbench READ[m
+[m[37m[  6.567903 0:6 axfs::root:81] [36mlookup at root: /hackbench[m
+[m[37m[  6.570330 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: hackbench[m
+[m[37m[  6.585320 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  6.588270 0:6 syscall_fs::imp::stat:49] [32mpath : /hanoi[m
+[m[37m[  6.590721 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /hanoi[m
+[m[37m[  6.594503 0:6 axfs::fops:117] [36mopen file: /hanoi READ[m
+[m[37m[  6.601871 0:6 axfs::root:81] [36mlookup at root: /hanoi[m
+[m[37m[  6.610414 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: hanoi[m
+[m[37m[  6.624840 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  6.627795 0:6 syscall_fs::imp::stat:49] [32mpath : /hello[m
+[m[37m[  6.630253 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /hello[m
+[m[37m[  6.634287 0:6 axfs::fops:117] [36mopen file: /hello READ[m
+[m[37m[  6.636873 0:6 axfs::root:81] [36mlookup at root: /hello[m
+[m[37m[  6.639170 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: hello[m
+[m[37m[  6.654282 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  6.657209 0:6 syscall_fs::imp::stat:49] [32mpath : /int[m
+[m[37m[  6.659727 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /int[m
+[m[37m[  6.663323 0:6 axfs::fops:117] [36mopen file: /int READ[m
+[m[37m[  6.666094 0:6 axfs::root:81] [36mlookup at root: /int[m
+[m[37m[  6.668509 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: int[m
+[m[37m[  6.683245 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  6.686213 0:6 syscall_fs::imp::stat:49] [32mpath : /interrupts-test-1[m
+[m[37m[  6.689037 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /interrupts-test-1[m
+[m[37m[  6.692393 0:6 axfs::fops:117] [36mopen file: /interrupts-test-1 READ[m
+[m[37m[  6.696209 0:6 axfs::root:81] [36mlookup at root: /interrupts-test-1[m
+[m[37m[  6.699400 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: interrupts-test-1[m
+[m[37m[  6.712510 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  6.716664 0:6 syscall_fs::imp::stat:49] [32mpath : /interrupts-test-2[m
+[m[37m[  6.719496 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /interrupts-test-2[m
+[m[37m[  6.723163 0:6 axfs::fops:117] [36mopen file: /interrupts-test-2 READ[m
+[m[37m[  6.726032 0:6 axfs::root:81] [36mlookup at root: /interrupts-test-2[m
+[m[37m[  6.728692 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: interrupts-test-2[m
+[m[37m[  6.743366 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  6.746297 0:6 syscall_fs::imp::stat:49] [32mpath : /iozone[m
+[m[37m[  6.748784 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /iozone[m
+[m[37m[  6.752000 0:6 axfs::fops:117] [36mopen file: /iozone READ[m
+[m[37m[  6.755575 0:6 axfs::root:81] [36mlookup at root: /iozone[m
+[m[37m[  6.758155 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: iozone[m
+[m[37m[  6.780071 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  6.783547 0:6 syscall_fs::imp::stat:49] [32mpath : /iozone_testcode.sh[m
+[m[37m[  6.786528 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /iozone_testcode.sh[m
+[m[37m[  6.790109 0:6 axfs::fops:117] [36mopen file: /iozone_testcode.sh READ[m
+[m[37m[  6.792760 0:6 axfs::root:81] [36mlookup at root: /iozone_testcode.sh[m
+[m[37m[  6.797210 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: iozone_testcode.sh[m
+[m[37m[  6.813080 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  6.817780 0:6 syscall_fs::imp::stat:49] [32mpath : /iperf3[m
+[m[37m[  6.821455 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /iperf3[m
+[m[37m[  6.826072 0:6 axfs::fops:117] [36mopen file: /iperf3 READ[m
+[m[37m[  6.829331 0:6 axfs::root:81] [36mlookup at root: /iperf3[m
+[m[37m[  6.831728 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: iperf3[m
+[m[37m[  6.867139 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  6.870260 0:6 syscall_fs::imp::stat:49] [32mpath : /iperf_testcode.sh[m
+[m[37m[  6.873640 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /iperf_testcode.sh[m
+[m[37m[  6.877753 0:6 axfs::fops:117] [36mopen file: /iperf_testcode.sh READ[m
+[m[37m[  6.880506 0:6 axfs::root:81] [36mlookup at root: /iperf_testcode.sh[m
+[m[37m[  6.883819 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: iperf_testcode.sh[m
+[m[37m[  6.899523 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  6.903196 0:6 syscall_fs::imp::stat:49] [32mpath : /libc-bench[m
+[m[37m[  6.905939 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /libc-bench[m
+[m[37m[  6.909272 0:6 axfs::fops:117] [36mopen file: /libc-bench READ[m
+[m[37m[  6.911786 0:6 axfs::root:81] [36mlookup at root: /libc-bench[m
+[m[37m[  6.918968 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: libc-bench[m
+[m[37m[  6.937661 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  6.940564 0:6 syscall_mem::imp:51] [36mmmap start=0 len=2000 prot=[MMAPPROT(
+    PROT_READ | PROT_WRITE,
+)] flags=[MMAPFlags(
+    MAP_PRIVATE | MAP_ANONYMOUS,
+)] fd=-1 offset=0[m
+[m[37m[  6.948841 0:6 axmem:468] [32m[mmap] vaddr: [VA:0x0, VA:0x2000), MappingFlags(READ | WRITE | USER), fixed: false, backend: false[m
+[m[37m[  6.954566 0:6 axmem:486] [32mfind free area[m
+[m[37m[  6.956810 0:6 axmem:491] [32mfound area [VA:0x3000, VA:0x5000)[m
+[m[37m[  6.959403 0:6 axmem:343] [36mallocating [0x3000, 0x5000) to [0x3000, 0x5000) flag: MappingFlags(READ | WRITE | USER)[m
+[m[37m[  6.964400 0:6 axmem:500] [36m[mmap] return addr: 0x3000[m
+[m[37m[  6.969162 0:6 syscall_mem::imp:100] [36mmmap: 0x3000[m
+[m[37m[  6.971865 0:6 syscall_entry::syscall:41] [32msyscall: 222 -> 12288[m
+[m[37m[  6.975670 0:6 axprocess::api:190] [36m'page fault' addr: VA:0x4ff0, flags: MappingFlags(WRITE | USER)[m
+[m[37m[  6.979660 0:6 axprocess::api:192] [36mmemory token : 3154317312[m
+[m[37m[  6.983044 0:6 axmem::area:124] [36mpage index 1[m
+[m[37m[  6.985715 0:6 axmem::area:129] [36mnew phys page virtual (offset) address VA:0xffffffc0bc798000[m
+[m[37m[  6.993835 0:6 axprocess::api:190] [36m'page fault' addr: VA:0x3010, flags: MappingFlags(WRITE | USER)[m
+[m[37m[  6.998294 0:6 axprocess::api:192] [36mmemory token : 3154317312[m
+[m[37m[  7.000624 0:6 axmem::area:124] [36mpage index 0[m
+[m[37m[  7.002494 0:6 axmem::area:129] [36mnew phys page virtual (offset) address VA:0xffffffc0bc799000[m
+[m[37m[  7.009255 0:6 syscall_fs::imp::stat:49] [32mpath : /libc.so[m
+[m[37m[  7.011799 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /libc.so[m
+[m[37m[  7.015338 0:6 axfs::fops:117] [36mopen file: /libc.so READ[m
+[m[37m[  7.017762 0:6 axfs::root:81] [36mlookup at root: /libc.so[m
+[m[37m[  7.020005 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: libc.so[m
+[m[37m[  7.057320 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  7.060238 0:6 syscall_fs::imp::stat:49] [32mpath : /libctest_testcode.sh[m
+[m[37m[  7.063337 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /libctest_testcode.sh[m
+[m[37m[  7.068276 0:6 axfs::fops:117] [36mopen file: /libctest_testcode.sh READ[m
+[m[37m[  7.071681 0:6 axfs::root:81] [36mlookup at root: /libctest_testcode.sh[m
+[m[37m[  7.074422 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: libctest_testcode.sh[m
+[m[37m[  7.092449 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  7.096289 0:6 syscall_fs::imp::stat:49] [32mpath : /lmbench_all[m
+[m[37m[  7.099680 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /lmbench_all[m
+[m[37m[  7.102684 0:6 axfs::fops:117] [36mopen file: /lmbench_all READ[m
+[m[37m[  7.105844 0:6 axfs::root:81] [36mlookup at root: /lmbench_all[m
+[m[37m[  7.109074 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: lmbench_all[m
+[m[37m[  7.148652 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  7.151659 0:6 syscall_fs::imp::stat:49] [32mpath : /lmbench_testcode.sh[m
+[m[37m[  7.157530 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /lmbench_testcode.sh[m
+[m[37m[  7.164759 0:6 axfs::fops:117] [36mopen file: /lmbench_testcode.sh READ[m
+[m[37m[  7.169327 0:6 axfs::root:81] [36mlookup at root: /lmbench_testcode.sh[m
+[m[37m[  7.173416 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: lmbench_testcode.sh[m
+[m[37m[  7.192166 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  7.196015 0:6 syscall_fs::imp::stat:49] [32mpath : /long[m
+[m[37m[  7.198526 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /long[m
+[m[37m[  7.201577 0:6 axfs::fops:117] [36mopen file: /long READ[m
+[m[37m[  7.203740 0:6 axfs::root:81] [36mlookup at root: /long[m
+[m[37m[  7.207047 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: long[m
+[m[37m[  7.226908 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  7.229948 0:6 syscall_fs::imp::stat:49] [32mpath : /looper[m
+[m[37m[  7.232349 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /looper[m
+[m[37m[  7.236183 0:6 axfs::fops:117] [36mopen file: /looper READ[m
+[m[37m[  7.238787 0:6 axfs::root:81] [36mlookup at root: /looper[m
+[m[37m[  7.241041 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: looper[m
+[m[37m[  7.261051 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  7.264358 0:6 syscall_fs::imp::stat:49] [32mpath : /lua[m
+[m[37m[  7.266695 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /lua[m
+[m[37m[  7.269519 0:6 axfs::fops:117] [36mopen file: /lua READ[m
+[m[37m[  7.271628 0:6 axfs::root:81] [36mlookup at root: /lua[m
+[m[37m[  7.274517 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: lua[m
+[m[37m[  7.299188 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  7.302045 0:6 syscall_fs::imp::stat:49] [32mpath : /lua_testcode.sh[m
+[m[37m[  7.305518 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /lua_testcode.sh[m
+[m[37m[  7.309033 0:6 axfs::fops:117] [36mopen file: /lua_testcode.sh READ[m
+[m[37m[  7.311472 0:6 axfs::root:81] [36mlookup at root: /lua_testcode.sh[m
+[m[37m[  7.314587 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: lua_testcode.sh[m
+[m[37m[  7.332451 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  7.336367 0:6 syscall_fs::imp::stat:49] [32mpath : /main[m
+[m[37m[  7.338671 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /main[m
+[m[37m[  7.341447 0:6 axfs::fops:117] [36mopen file: /main READ[m
+[m[37m[  7.343526 0:6 axfs::root:81] [36mlookup at root: /main[m
+[m[37m[  7.346703 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: main[m
+[m[37m[  7.368524 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  7.371374 0:6 syscall_fs::imp::stat:49] [32mpath : /max_min.lua[m
+[m[37m[  7.375854 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /max_min.lua[m
+[m[37m[  7.379225 0:6 axfs::fops:117] [36mopen file: /max_min.lua READ[m
+[m[37m[  7.381506 0:6 axfs::root:81] [36mlookup at root: /max_min.lua[m
+[m[37m[  7.383818 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: max_min.lua[m
+[m[37m[  7.402992 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  7.406914 0:6 syscall_fs::imp::stat:49] [32mpath : /multi.sh[m
+[m[37m[  7.409344 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /multi.sh[m
+[m[37m[  7.412279 0:6 axfs::fops:117] [36mopen file: /multi.sh READ[m
+[m[37m[  7.415407 0:6 axfs::root:81] [36mlookup at root: /multi.sh[m
+[m[37m[  7.417943 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: multi.sh[m
+[m[37m[  7.436938 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  7.439820 0:6 syscall_fs::imp::stat:49] [32mpath : /netperf[m
+[m[37m[  7.442256 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /netperf[m
+[m[37m[  7.446192 0:6 axfs::fops:117] [36mopen file: /netperf READ[m
+[m[37m[  7.451138 0:6 axfs::root:81] [36mlookup at root: /netperf[m
+[m[37m[  7.455669 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: netperf[m
+[m[37m[  7.485858 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  7.489021 0:6 syscall_fs::imp::stat:49] [32mpath : /netperf_testcode.sh[m
+[m[37m[  7.491927 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /netperf_testcode.sh[m
+[m[37m[  7.496122 0:6 axfs::fops:117] [36mopen file: /netperf_testcode.sh READ[m
+[m[37m[  7.499065 0:6 axfs::root:81] [36mlookup at root: /netperf_testcode.sh[m
+[m[37m[  7.501870 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: netperf_testcode.sh[m
+[m[37m[  7.524013 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  7.527022 0:6 syscall_fs::imp::stat:49] [32mpath : /netserver[m
+[m[37m[  7.529727 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /netserver[m
+[m[37m[  7.532683 0:6 axfs::fops:117] [36mopen file: /netserver READ[m
+[m[37m[  7.535913 0:6 axfs::root:81] [36mlookup at root: /netserver[m
+[m[37m[  7.538430 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: netserver[m
+[m[37m[  7.568598 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  7.571583 0:6 syscall_fs::imp::stat:49] [32mpath : /pipe[m
+[m[37m[  7.574207 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /pipe[m
+[m[37m[  7.577381 0:6 axfs::fops:117] [36mopen file: /pipe READ[m
+[m[37m[  7.579457 0:6 axfs::root:81] [36mlookup at root: /pipe[m
+[m[37m[  7.581667 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: pipe[m
+[m[37m[  7.605087 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  7.608078 0:6 syscall_fs::imp::stat:49] [32mpath : /random.lua[m
+[m[37m[  7.610570 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /random.lua[m
+[m[37m[  7.613537 0:6 axfs::fops:117] [36mopen file: /random.lua READ[m
+[m[37m[  7.616964 0:6 axfs::root:81] [36mlookup at root: /random.lua[m
+[m[37m[  7.619604 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: random.lua[m
+[m[37m[  7.640036 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  7.642873 0:6 syscall_fs::imp::stat:49] [32mpath : /register[m
+[m[37m[  7.646058 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /register[m
+[m[37m[  7.649207 0:6 axfs::fops:117] [36mopen file: /register READ[m
+[m[37m[  7.651404 0:6 axfs::root:81] [36mlookup at root: /register[m
+[m[37m[  7.653625 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: register[m
+[m[37m[  7.678218 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  7.681082 0:6 syscall_fs::imp::stat:49] [32mpath : /remove.lua[m
+[m[37m[  7.683663 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /remove.lua[m
+[m[37m[  7.687945 0:6 axfs::fops:117] [36mopen file: /remove.lua READ[m
+[m[37m[  7.691130 0:6 axfs::root:81] [36mlookup at root: /remove.lua[m
+[m[37m[  7.693498 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: remove.lua[m
+[m[37m[  7.715708 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  7.718549 0:6 syscall_fs::imp::stat:49] [32mpath : /round_num.lua[m
+[m[37m[  7.721105 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /round_num.lua[m
+[m[37m[  7.724581 0:6 axfs::fops:117] [36mopen file: /round_num.lua READ[m
+[m[37m[  7.727152 0:6 axfs::root:81] [36mlookup at root: /round_num.lua[m
+[m[37m[  7.729567 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: round_num.lua[m
+[m[37m[  7.751279 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  7.754458 0:6 syscall_fs::imp::stat:49] [32mpath : /run-dynamic.sh[m
+[m[37m[  7.757061 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /run-dynamic.sh[m
+[m[37m[  7.760161 0:6 axfs::fops:117] [36mopen file: /run-dynamic.sh READ[m
+[m[37m[  7.763097 0:6 axfs::root:81] [36mlookup at root: /run-dynamic.sh[m
+[m[37m[  7.766410 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: run-dynamic.sh[m
+[m[37m[  7.788614 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  7.791454 0:6 syscall_fs::imp::stat:49] [32mpath : /run-static.sh[m
+[m[37m[  7.794509 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /run-static.sh[m
+[m[37m[  7.797893 0:6 axfs::fops:117] [36mopen file: /run-static.sh READ[m
+[m[37m[  7.800517 0:6 axfs::root:81] [36mlookup at root: /run-static.sh[m
+[m[37m[  7.802915 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: run-static.sh[m
+[m[37m[  7.825794 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  7.828611 0:6 syscall_fs::imp::stat:49] [32mpath : /runtest.exe[m
+[m[37m[  7.831104 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /runtest.exe[m
+[m[37m[  7.834529 0:6 axfs::fops:117] [36mopen file: /runtest.exe READ[m
+[m[37m[  7.837223 0:6 axfs::root:81] [36mlookup at root: /runtest.exe[m
+[m[37m[  7.839666 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: runtest.exe[m
+[m[37m[  7.865209 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  7.868023 0:6 syscall_fs::imp::stat:49] [32mpath : /short[m
+[m[37m[  7.870331 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /short[m
+[m[37m[  7.873139 0:6 axfs::fops:117] [36mopen file: /short READ[m
+[m[37m[  7.876039 0:6 axfs::root:81] [36mlookup at root: /short[m
+[m[37m[  7.878704 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: short[m
+[m[37m[  7.903655 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  7.908053 0:6 syscall_fs::imp::stat:49] [32mpath : /sin30.lua[m
+[m[37m[  7.911289 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /sin30.lua[m
+[m[37m[  7.914238 0:6 axfs::fops:117] [36mopen file: /sin30.lua READ[m
+[m[37m[  7.917833 0:6 axfs::root:81] [36mlookup at root: /sin30.lua[m
+[m[37m[  7.920731 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: sin30.lua[m
+[m[37m[  7.943701 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  7.947652 0:6 syscall_fs::imp::stat:49] [32mpath : /sort.lua[m
+[m[37m[  7.950565 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /sort.lua[m
+[m[37m[  7.953480 0:6 axfs::fops:117] [36mopen file: /sort.lua READ[m
+[m[37m[  7.956752 0:6 axfs::root:81] [36mlookup at root: /sort.lua[m
+[m[37m[  7.959551 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: sort.lua[m
+[m[37m[  7.982837 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  7.986547 0:6 syscall_fs::imp::stat:49] [32mpath : /spawn[m
+[m[37m[  7.989030 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /spawn[m
+[m[37m[  7.992017 0:6 axfs::fops:117] [36mopen file: /spawn READ[m
+[m[37m[  7.995561 0:6 axfs::root:81] [36mlookup at root: /spawn[m
+[m[37m[  7.998163 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: spawn[m
+[m[37m[  8.024122 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  8.026924 0:6 syscall_fs::imp::stat:49] [32mpath : /strings.lua[m
+[m[37m[  8.029413 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /strings.lua[m
+[m[37m[  8.032420 0:6 axfs::fops:117] [36mopen file: /strings.lua READ[m
+[m[37m[  8.035326 0:6 axfs::root:81] [36mlookup at root: /strings.lua[m
+[m[37m[  8.037891 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: strings.lua[m
+[m[37m[  8.061639 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  8.065484 0:6 syscall_fs::imp::stat:49] [32mpath : /syscall[m
+[m[37m[  8.069479 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /syscall[m
+[m[37m[  8.072993 0:6 axfs::fops:117] [36mopen file: /syscall READ[m
+[m[37m[  8.075926 0:6 axfs::root:81] [36mlookup at root: /syscall[m
+[m[37m[  8.079123 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: syscall[m
+[m[37m[  8.106786 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  8.109597 0:6 syscall_fs::imp::stat:49] [32mpath : /test.sh[m
+[m[37m[  8.111928 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /test.sh[m
+[m[37m[  8.115471 0:6 axfs::fops:117] [36mopen file: /test.sh READ[m
+[m[37m[  8.118261 0:6 axfs::root:81] [36mlookup at root: /test.sh[m
+[m[37m[  8.120461 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: test.sh[m
+[m[37m[  8.145135 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  8.147922 0:6 syscall_fs::imp::stat:49] [32mpath : /test.txt[m
+[m[37m[  8.150305 0:6 syscall_fs::ctype::file:185] [36mInto function new_fd, path: /test.txt[m
+[m[37m[  8.153201 0:6 axfs::fops:117] [36mopen file: /test.txt READ[m
+[m[37m[  8.156449 0:6 axfs::root:81] [36mlookup at root: /test.txt[m
+[m[37m[  8.158906 0:6 axfs::fs::fatfs:156] [36mlookup at fatfs: test.txt[m
+[m[37m[  8.183334 0:6 syscall_entry::syscall:41] [32msyscall: 79 -> 0[m
+[m[37m[  8.187042 0:6 axprocess::link:317] [36mhandled_path: //[m
+[m[37m[  8.189535 0:6 syscall_entry::syscall:41] [32msyscall: 61 -> 0[m
+[m[37m[  8.192889 0:6 syscall_fs::imp::io:338] [32mInto syscall_close. fd: 3[m
+[m[37m[  8.200628 0:6 syscall_entry::syscall:41] [32msyscall: 57 -> 0[m
+[m[37m[  8.222371 0:6 syscall_fs::imp::ctl:335] [32mfd: 1, request: 21523, argp: 1073740360[m
+[m[37m[  8.228748 0:6 syscall_entry::syscall:41] [32msyscall: 29 -> 0[m
+[m[37m[  8.232509 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.237053 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x164cb8), len: 83[m
+[m[37m[  8.243850 0:6 axmem:736] [36mallocating page at 164000[m
+[m[0;0marithoh[m                 [0;0mfstime[m                  [0;0mmulti.sh[m[37m[  8.251874 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.254164 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x3ffffa6f), len: 1[m
+[m[37m[  8.258936 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m
+[37m[  8.261824 0:6 syscall_entry::syscall:41] [32msyscall: 66 -> 84[m
+[m[37m[  8.265065 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.269143 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x164cb8), len: 82[m
+[m[37m[  8.275196 0:6 axmem:736] [36mallocating page at 164000[m
+[m[0;0mbin[m                     [0;0mhackbench[m               [0;0mnetperf[m[37m[  8.280506 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.282819 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x3ffffa6f), len: 1[m
+[m[37m[  8.287310 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m
+[37m[  8.289840 0:6 syscall_entry::syscall:41] [32msyscall: 66 -> 83[m
+[m[37m[  8.292577 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.295015 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x164cb8), len: 94[m
+[m[37m[  8.300120 0:6 axmem:736] [36mallocating page at 164000[m
+[m[0;0mbusybox[m                 [0;0mhanoi[m                   [0;0mnetperf_testcode.sh[m[37m[  8.306529 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.308771 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x3ffffa6f), len: 1[m
+[m[37m[  8.311983 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m
+[37m[  8.315145 0:6 syscall_entry::syscall:41] [32msyscall: 66 -> 95[m
+[m[37m[  8.317809 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.320184 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x164cb8), len: 84[m
+[m[37m[  8.323264 0:6 axmem:736] [36mallocating page at 164000[m
+[m[0;0mbusybox_cmd.txt[m         [0;0mhello[m                   [0;0mnetserver[m[37m[  8.329393 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.331600 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x3ffffa6f), len: 1[m
+[m[37m[  8.335693 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m
+[37m[  8.338171 0:6 syscall_entry::syscall:41] [32msyscall: 66 -> 85[m
+[m[37m[  8.340779 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.343138 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x164cb8), len: 79[m
+[m[37m[  8.347380 0:6 axmem:736] [36mallocating page at 164000[m
+[m[0;0mbusybox_testcode.sh[m     [0;0mint[m                     [0;0mpipe[m[37m[  8.352570 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.355376 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x3ffffa6f), len: 1[m
+[m[37m[  8.358689 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m
+[37m[  8.360959 0:6 syscall_entry::syscall:41] [32msyscall: 66 -> 80[m
+[m[37m[  8.363635 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.376143 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x164cb8), len: 85[m
+[m[37m[  8.379400 0:6 axmem:736] [36mallocating page at 164000[m
+[m[0;0mcontext1[m                [0;0minterrupts-test-1[m       [0;0mrandom.lua[m[37m[  8.386377 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.390074 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x3ffffa6f), len: 1[m
+[m[37m[  8.394356 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m
+[37m[  8.396599 0:6 syscall_entry::syscall:41] [32msyscall: 66 -> 86[m
+[m[37m[  8.400816 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.403501 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x164cb8), len: 83[m
+[m[37m[  8.407185 0:6 axmem:736] [36mallocating page at 164000[m
+[m[0;0mcopy-file-range-test-1[m  [0;0minterrupts-test-2[m       [0;0mregister[m[37m[  8.412071 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.414268 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x3ffffa6f), len: 1[m
+[m[37m[  8.418186 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m
+[37m[  8.420965 0:6 syscall_entry::syscall:41] [32msyscall: 66 -> 84[m
+[m[37m[  8.423502 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.426048 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x164cb8), len: 85[m
+[m[37m[  8.430364 0:6 axmem:736] [36mallocating page at 164000[m
+[m[0;0mcopy-file-range-test-2[m  [0;0miozone[m                  [0;0mremove.lua[m[37m[  8.435993 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.439008 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x3ffffa6f), len: 1[m
+[m[37m[  8.442444 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m
+[37m[  8.444626 0:6 syscall_entry::syscall:41] [32msyscall: 66 -> 86[m
+[m[37m[  8.447709 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.450209 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x164cb8), len: 88[m
+[m[37m[  8.453216 0:6 axmem:736] [36mallocating page at 164000[m
+[m[0;0mcopy-file-range-test-3[m  [0;0miozone_testcode.sh[m      [0;0mround_num.lua[m[37m[  8.459340 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.461571 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x3ffffa6f), len: 1[m
+[m[37m[  8.464792 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m
+[37m[  8.468132 0:6 syscall_entry::syscall:41] [32msyscall: 66 -> 89[m
+[m[37m[  8.470769 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.473132 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x164cb8), len: 89[m
+[m[37m[  8.476195 0:6 axmem:736] [36mallocating page at 164000[m
+[m[0;0mcopy-file-range-test-4[m  [0;0miperf3[m                  [0;0mrun-dynamic.sh[m[37m[  8.482528 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.484755 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x3ffffa6f), len: 1[m
+[m[37m[  8.488609 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m
+[37m[  8.491048 0:6 syscall_entry::syscall:41] [32msyscall: 66 -> 90[m
+[m[37m[  8.493640 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.496007 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x164cb8), len: 88[m
+[m[37m[  8.500320 0:6 axmem:736] [36mallocating page at 164000[m
+[m[0;0mcyclictest[m              [0;0miperf_testcode.sh[m       [0;0mrun-static.sh[m[37m[  8.505298 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.508364 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x3ffffa6f), len: 1[m
+[m[37m[  8.511769 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m
+[37m[  8.514007 0:6 syscall_entry::syscall:41] [32msyscall: 66 -> 89[m
+[m[37m[  8.516900 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.519274 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x164cb8), len: 86[m
+[m[37m[  8.522320 0:6 axmem:736] [36mallocating page at 164000[m
+[m[0;0mcyclictest_testcode.sh[m  [0;0mlibc-bench[m              [0;0mruntest.exe[m[37m[  8.527983 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.530170 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x3ffffa6f), len: 1[m
+[m[37m[  8.533235 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m
+[37m[  8.535470 0:6 syscall_entry::syscall:41] [32msyscall: 66 -> 87[m
+[m[37m[  8.539023 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.541396 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x164cb8), len: 80[m
+[m[37m[  8.544773 0:6 axmem:736] [36mallocating page at 164000[m
+[m[0;0mdate.lua[m                [0;0mlibc.so[m                 [0;0mshort[m[37m[  8.549886 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.552190 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x3ffffa6f), len: 1[m
+[m[37m[  8.555214 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m
+[37m[  8.558223 0:6 syscall_entry::syscall:41] [32msyscall: 66 -> 81[m
+[m[37m[  8.560795 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.563284 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x164cb8), len: 84[m
+[m[37m[  8.566251 0:6 axmem:736] [36mallocating page at 164000[m
+[m[0;0mdhry2[m                   [0;0mlibctest_testcode.sh[m    [0;0msin30.lua[m[37m[  8.572655 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.574894 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x3ffffa6f), len: 1[m
+[m[37m[  8.579149 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m
+[37m[  8.581549 0:6 syscall_entry::syscall:41] [32msyscall: 66 -> 85[m
+[m[37m[  8.584102 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.586966 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x164cb8), len: 83[m
+[m[37m[  8.590275 0:6 axmem:736] [36mallocating page at 164000[m
+[m[0;0mdhry2reg[m                [0;0mlmbench_all[m             [0;0msort.lua[m[37m[  8.594726 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.597280 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x3ffffa6f), len: 1[m
+[m[37m[  8.600530 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m
+[37m[  8.602720 0:6 syscall_entry::syscall:41] [32msyscall: 66 -> 84[m
+[m[37m[  8.605227 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.608197 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x164cb8), len: 80[m
+[m[37m[  8.611370 0:6 axmem:736] [36mallocating page at 164000[m
+[m[0;0mdlopen_dso.so[m           [0;0mlmbench_testcode.sh[m     [0;0mspawn[m[37m[  8.615866 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.618858 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x3ffffa6f), len: 1[m
+[m[37m[  8.622063 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m
+[37m[  8.624280 0:6 syscall_entry::syscall:41] [32msyscall: 66 -> 81[m
+[m[37m[  8.627949 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.630451 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x164cb8), len: 86[m
+[m[37m[  8.633669 0:6 axmem:736] [36mallocating page at 164000[m
+[m[0;0mdouble[m                  [0;0mlong[m                    [0;0mstrings.lua[m[37m[  8.639025 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.641240 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x3ffffa6f), len: 1[m
+[m[37m[  8.644250 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m
+[37m[  8.647165 0:6 syscall_entry::syscall:41] [32msyscall: 66 -> 87[m
+[m[37m[  8.649757 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.652050 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x164cb8), len: 82[m
+[m[37m[  8.655015 0:6 axmem:736] [36mallocating page at 164000[m
+[m[0;0mentry-dynamic.exe[m       [0;0mlooper[m                  [0;0msyscall[m[37m[  8.660243 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.662703 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x3ffffa6f), len: 1[m
+[m[37m[  8.665848 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m
+[37m[  8.669130 0:6 syscall_entry::syscall:41] [32msyscall: 66 -> 83[m
+[m[37m[  8.671681 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.673979 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x164cb8), len: 82[m
+[m[37m[  8.677639 0:6 axmem:736] [36mallocating page at 164000[m
+[m[0;0mentry-static.exe[m        [0;0mlua[m                     [0;0mtest.sh[m[37m[  8.682268 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.684398 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x3ffffa6f), len: 1[m
+[m[37m[  8.688053 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m
+[37m[  8.690477 0:6 syscall_entry::syscall:41] [32msyscall: 66 -> 83[m
+[m[37m[  8.693165 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.695485 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x164cb8), len: 83[m
+[m[37m[  8.699631 0:6 axmem:736] [36mallocating page at 164000[m
+[m[0;0mexecl[m                   [0;0mlua_testcode.sh[m         [0;0mtest.txt[m[37m[  8.705470 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.708668 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x3ffffa6f), len: 1[m
+[m[37m[  8.712387 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m
+[37m[  8.714779 0:6 syscall_entry::syscall:41] [32msyscall: 66 -> 84[m
+[m[37m[  8.718390 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.720964 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x164cb8), len: 46[m
+[m[37m[  8.723957 0:6 axmem:736] [36mallocating page at 164000[m
+[m[0;0mfile_io.lua[m             [0;0mmain[m[37m[  8.728367 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.730523 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x3ffffa6f), len: 1[m
+[m[37m[  8.733578 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m
+[37m[  8.735964 0:6 syscall_entry::syscall:41] [32msyscall: 66 -> 47[m
+[m[37m[  8.739394 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.741906 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x164cb8), len: 53[m
+[m[37m[  8.744965 0:6 axmem:736] [36mallocating page at 164000[m
+[m[0;0mfloat[m                   [0;0mmax_min.lua[m[37m[  8.749458 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m[37m[  8.751657 0:6 syscall_fs::imp::io:93] [32m[write()] fd: 1, buf: u8(0x3ffffa6f), len: 1[m
+[m[37m[  8.754724 0:6 axmem:736] [36mallocating page at 3ffff000[m
+[m
+[37m[  8.757676 0:6 syscall_entry::syscall:41] [32msyscall: 66 -> 54[m
+[m[37m[  8.770578 0:6 syscall_task::imp::task:34] [32mexit: exit_code = 0[m
+[m[37m[  8.774968 0:6 axprocess::api:59] [32mexit task id 6 with code 0[m
+[m[37m[  8.789517 0:6 axtask::run_queue:98] [36mtask exit: Task(6, "busybox"), exit_code=0[m
+[m[37m[  8.794918 0:6 axtask::run_queue:148] [36mtask unblock: Task(4, "gc")[m
+[m[37m[  8.817670 0:3 axtask::task:641] [36mtask drop: Task(6, "busybox")[m
+[m[37m[  8.826024 0:3 syscall_entry::test:417] [32m --------------- test passed --------------- [m
+[m[37m[  8.836653 0:3 syscall_entry::test:434] [32m --------------- all test ended, passed 1 / 1 --------------- [m
+[m[37m[  8.842767 0:3 syscall_entry::test:438] [32m --------------- failed tests: --------------- [m
+[m[37m[  8.848037 0:3 syscall_entry::test:442] [32m --------------- end --------------- [m
+[m[37m[  8.853238 0:3 axtask::run_queue:98] [36mtask exit: Task(3, "main"), exit_code=0[m
+[m[37m[  8.858383 0:3 axhal::platform::riscv64_qemu_virt::misc:3] [32mShutting down...[m
+[m

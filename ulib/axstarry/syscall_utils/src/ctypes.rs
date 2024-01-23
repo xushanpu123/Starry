@@ -2,7 +2,7 @@ use axhal::{
     paging::MappingFlags,
     time::{current_time_nanos, nanos_to_ticks, MICROS_PER_SEC, NANOS_PER_MICROS, NANOS_PER_SEC},
 };
-use axprocess::UserRef;
+use syscall_pathref::UserRef;
 use core::ptr::copy_nonoverlapping;
 use bitflags::*;
 use core::panic;
@@ -419,7 +419,7 @@ impl DirEnt {
         self.d_type = type_ as u8;
     }
 
-    pub fn _copy_nonoverlapping(&mut self, src: *const u8, len: usize) {
+    pub fn copy_nonoverlapping(&mut self, src: *const u8, len: usize) {
         unsafe {
             copy_nonoverlapping(src, self.d_name.as_mut_ptr(), len);
         }

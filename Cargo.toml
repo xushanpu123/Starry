@@ -62,6 +62,7 @@ members = [
     "ulib/axstarry/syscall_net",
     "ulib/axstarry/syscall_utils",
     "ulib/axstarry/syscall_task",
+    "ulib/axstarry/syscall_pathref",
     "ulib/axstarry/syscall_entry",
     "apps/display",
     "apps/exception",

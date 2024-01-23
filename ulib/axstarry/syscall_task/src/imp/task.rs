@@ -20,7 +20,7 @@ use axtask::TaskId;
 use syscall_utils::{SyscallError, SyscallResult};
 extern crate alloc;
 use alloc::{string::ToString, sync::Arc, vec::Vec};
-use axprocess::UserRef;
+use syscall_pathref::{CheckType, UserRef};
 use syscall_utils::{RLimit, TimeSecs, WaitFlags, RLIMIT_AS, RLIMIT_NOFILE, RLIMIT_STACK};
 
 #[cfg(feature = "signal")]
@@ -81,7 +81,7 @@ pub fn syscall_exec(
     mut args: UserRef<usize>,
     mut envp: UserRef<usize>,
 ) -> SyscallResult {
-    let path = deal_with_path(AT_FDCWD, Some(path.get_ptr()), false);
+    let path = deal_with_path(AT_FDCWD, Some(path.get_ptr(CheckType::Lazy).unwrap()), false);
     if path.is_none() {
         return Err(SyscallError::EINVAL);
     }
@@ -93,22 +93,22 @@ pub fn syscall_exec(
     let mut args_vec = Vec::new();
     // args相当于argv，指向了参数所在的地址
     loop {
-        let args_str_ptr = *args.get_ref();
+        let args_str_ptr = *args.get_ref(CheckType::Lazy).unwrap();
         if args_str_ptr == 0 {
             break;
         }
-        args_vec.push((UserRef::<u8>::from(args_str_ptr)).raw_ptr_to_ref_str().to_string());
-        args = (args.add_count(1) as usize).into();
+        args_vec.push((UserRef::<u8>::from(args_str_ptr)).raw_ptr_to_ref_str(CheckType::Lazy).unwrap().to_string());
+        args = (args.add(1) as usize).into();
     }
     let mut envs_vec = Vec::new();
-    if envp.get_usize() != 0 {
+    if envp.is_valid() {
         loop {
-            let envp_str_ptr = *envp.get_ref();
+            let envp_str_ptr = *envp.get_ref(CheckType::Lazy).unwrap();
             if envp_str_ptr == 0 {
                 break;
             }
-            envs_vec.push((UserRef::<u8>::from(envp_str_ptr)).raw_ptr_to_ref_str().to_string());
-            envp = (envp.add_count(1) as usize).into();
+            envs_vec.push((UserRef::<u8>::from(envp_str_ptr)).raw_ptr_to_ref_str(CheckType::Lazy).unwrap().to_string());
+            envp = (envp.add(1) as usize).into();
         }
     }
     // let testcase = if args_vec[0] == "./busybox".to_string()
@@ -213,22 +213,22 @@ pub fn syscall_yield() -> SyscallResult {
 /// rem存储当睡眠完成时，真实睡眠时间和预期睡眠时间之间的差值
 pub fn syscall_sleep(req: UserRef<TimeSecs>, rem: UserRef<TimeSecs>) -> SyscallResult {
     // error!("req: {:X}, rem: {:X}", req as us, rem);
-    let req_time = *req.get_ref();
+    let req_time = *req.get_ref(CheckType::Lazy).unwrap();
     let start_to_sleep = current_time();
     // info!("sleep: req_time = {:?}", req_time);
     let dur = Duration::new(req_time.tv_sec as u64, req_time.tv_nsec as u32);
     sleep_now_task(dur);
     // 若被唤醒时时间小于请求时间，则将剩余时间写入rem
     let sleep_time = current_time() - start_to_sleep;
-    if rem.get_usize() != 0 {
+    if rem.is_valid() {
         if sleep_time < dur {
             let delta = (dur - sleep_time).as_nanos() as usize;
-            *rem.get_mut_ref() = TimeSecs {
+            *rem.get_mut_ref(CheckType::Lazy).unwrap() = TimeSecs {
                 tv_sec: delta / 1000_000_000,
                 tv_nsec: delta % 1000_000_000,
             };
         } else {
-            *rem.get_mut_ref() = TimeSecs {
+            *rem.get_mut_ref(CheckType::Lazy).unwrap() = TimeSecs {
                 tv_sec: 0,
                 tv_nsec: 0,
             };
@@ -262,8 +262,8 @@ pub fn syscall_prlimit64(
     if pid == 0 || pid == curr_process.pid() as usize {
         match resource {
             RLIMIT_STACK => {
-                if old_limit.get_usize() != 0 {
-                    *old_limit.get_mut_ref() = RLimit {
+                if old_limit.is_valid() {
+                    *old_limit.get_mut_ref(CheckType::Lazy).unwrap() = RLimit {
                         rlim_cur: TASK_STACK_SIZE as u64,
                         rlim_max: TASK_STACK_SIZE as u64,
                     };
@@ -271,22 +271,22 @@ pub fn syscall_prlimit64(
             }
             RLIMIT_NOFILE => {
                 // 仅支持修改最大文件数
-                if old_limit.get_usize() != 0 {
+                if old_limit.is_valid() {
                     let limit = curr_process.fd_manager.get_limit();
-                    *old_limit.get_mut_ref() = RLimit {
+                    *old_limit.get_mut_ref(CheckType::Lazy).unwrap() = RLimit {
                         rlim_cur: limit as u64,
                         rlim_max: limit as u64,
                     };
                 }
-                if new_limit.get_usize() != 0 {
-                    let new_limit = (*new_limit.get_ref()).rlim_cur;
+                if new_limit.is_valid() {
+                    let new_limit = (*new_limit.get_ref(CheckType::Lazy).unwrap()).rlim_cur;
                     curr_process.fd_manager.set_limit(new_limit);
                 }
             }
             RLIMIT_AS => {
                 const USER_MEMORY_LIMIT: usize = 0xffff_ffff;
-                if old_limit.get_usize() != 0 {
-                    *old_limit.get_mut_ref() = RLimit {
+                if old_limit.is_valid() {
+                    *old_limit.get_mut_ref(CheckType::Lazy).unwrap() = RLimit {
                         rlim_cur: USER_MEMORY_LIMIT as u64,
                         rlim_max: USER_MEMORY_LIMIT as u64,
                     };

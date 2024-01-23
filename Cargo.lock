@@ -486,7 +486,6 @@ dependencies = [
  "cfg-if",
  "crate_interface",
  "lazy_static",
- "memory_addr",
  "riscv",
  "spinlock",
  "xmas-elf",
@@ -1952,6 +1951,7 @@ dependencies = [
  "axtask",
  "bitflags 2.4.0",
  "numeric-enum-macro",
+ "syscall_pathref",
  "syscall_utils",
 ]
 
@@ -1985,7 +1985,17 @@ dependencies = [
  "axsync",
  "num_enum",
  "numeric-enum-macro",
+ "syscall_pathref",
  "syscall_utils",
+]
+
+[[package]]
+name = "syscall_pathref"
+version = "0.1.0"
+dependencies = [
+ "axerrno",
+ "axprocess",
+ "memory_addr",
 ]
 
 [[package]]
@@ -2002,6 +2012,7 @@ dependencies = [
  "axtask",
  "numeric-enum-macro",
  "rand",
+ "syscall_pathref",
  "syscall_utils",
 ]
 
@@ -2018,6 +2029,7 @@ dependencies = [
  "bitflags 2.4.0",
  "num_enum",
  "numeric-enum-macro",
+ "syscall_pathref",
 ]
 
 [[package]]

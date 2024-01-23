@@ -7,8 +7,9 @@ use axerrno::AxError;
 use axfs::api::{FileIOType, OpenFlags};
 use axio::SeekFrom;
 use axlog::{debug, info};
+use axprocess::current_process;
 use axprocess::link::{create_link, deal_with_path, real_path};
-use axprocess::{current_process, UserRef};
+use syscall_pathref::{CheckType, UserRef, UserRefSlice};
 use syscall_utils::{IoVec, SyscallError, SyscallResult};
 
 use crate::ctype::pipe::make_pipe;
@@ -19,24 +20,23 @@ use crate::ctype::{dir::new_dir, file::new_fd};
 ///     - buf：一个缓存区，用于存放读取的内容。
 ///     - count：要读取的字节数。
 /// 返回值：成功执行，返回读取的字节数。如为0，表示文件结束。错误，则返回-1。
-pub fn syscall_read(fd: usize, buf: UserRef<u8>, count: usize) -> SyscallResult {
-    info!("[read()] fd: {fd}, buf: {buf:?}, len: {count}",);
+pub fn syscall_read(fd: usize, buffer: UserRefSlice<u8>) -> SyscallResult {
+    info!(
+        "[read()] fd: {fd}, buf: {:?}, len: {}",
+        buffer.useref(), buffer.len()
+    );
 
-    if buf.ptr_is_null() {
+    let buf = buffer.useref();
+    let count = buffer.len();
+
+    if buffer.is_null() {
         return Err(SyscallError::EFAULT);
     }
 
     let process = current_process();
 
     // TODO: 左闭右开
-    let buf = match process.manual_alloc_range_for_lazy(
-        (buf.get_usize()).into(),
-        (buf.add_count(count) as usize - 1).into(),
-    ) {
-        Ok(_) => buf.slice_mut_with_len(count),
-        Err(_) => return Err(SyscallError::EFAULT),
-    };
-
+    let buf = buffer.from_raw_parts_mut(CheckType::RangeLazy((buf.add(count) as usize - 1).into())).unwrap();
     let file = match process.fd_manager.fd_table.lock().get(fd) {
         Some(Some(f)) => f.clone(),
         _ => return Err(SyscallError::EBADF),
@@ -86,23 +86,20 @@ pub fn syscall_read(fd: usize, buf: UserRef<u8>, count: usize) -> SyscallResult 
 ///     - buf：一个缓存区，用于存放要写入的内容。
 ///     - count：要写入的字节数。
 /// 返回值：成功执行，返回写入的字节数。错误，则返回-1。
-pub fn syscall_write(fd: usize, buf: UserRef<u8>, count: usize) -> SyscallResult {
+pub fn syscall_write(fd: usize, buffer: UserRefSlice<u8>) -> SyscallResult {
+    let buf = buffer.useref();
+    let count = buffer.len();
+
     info!("[write()] fd: {fd}, buf: {buf:?}, len: {count}");
 
-    if buf.ptr_is_null() {
+    if buffer.is_null() {
         return Err(SyscallError::EFAULT);
     }
 
     let process = current_process();
 
     // TODO: 左闭右开
-    let buf = match process.manual_alloc_range_for_lazy(
-        (buf.get_usize()).into(),
-        (buf.add_count(count) as usize - 1).into(),
-    ) {
-        Ok(_) => buf.slice_mut_with_unmut_len(count),
-        Err(_) => return Err(SyscallError::EFAULT),
-    };
+    let buf = buffer.from_raw_parts(CheckType::RangeLazy((buf.add(count) as usize - 1).into())).unwrap();
 
     let file = match process.fd_manager.fd_table.lock().get(fd) {
         Some(Some(f)) => f.clone(),
@@ -154,11 +151,11 @@ pub fn syscall_readv(fd: usize, iov: UserRef<IoVec>, iov_cnt: usize) -> SyscallR
     let mut read_len = 0;
     // 似乎要判断iov是否分配，但是懒了，反正能过测例
     for i in 0..iov_cnt {
-        let io: &IoVec = iov.get_t(i);
-        if io.base.ptr_is_null() || io.len == 0 {
+        let io: &IoVec = iov.get_t(i, CheckType::TypeLazy).unwrap();
+        if io.base.is_null() || io.len == 0 {
             continue;
         }
-        match syscall_read(fd, io.base, io.len) {
+        match syscall_read(fd, (io.base, io.len).into()) {
             len if len.is_ok() => read_len += len.unwrap(),
 
             err => return err,
@@ -172,11 +169,11 @@ pub fn syscall_writev(fd: usize, iov: UserRef<IoVec>, iov_cnt: usize) -> Syscall
     let mut write_len = 0;
     // 似乎要判断iov是否分配，但是懒了，反正能过测例
     for i in 0..iov_cnt {
-        let io: &IoVec = iov.get_t(i);
-        if io.base.ptr_is_null() || io.len == 0 {
+        let io: &IoVec = iov.get_t(i, CheckType::TypeLazy).unwrap();
+        if io.base.is_null() || io.len == 0 {
             continue;
         }
-        match syscall_write(fd, io.base, io.len) {
+        match syscall_write(fd, (io.base, io.len).into()) {
             len if len.is_ok() => write_len += len.unwrap(),
 
             err => return err,
@@ -198,12 +195,6 @@ pub fn syscall_pipe2(fd: UserRef<u32>, flags: usize) -> SyscallResult {
         flags
     );
     let process = current_process();
-    if process
-        .manual_alloc_for_lazy((fd.get_usize()).into())
-        .is_err()
-    {
-        return Err(SyscallError::EINVAL);
-    }
     let non_block = (flags & 0x800) != 0;
     let (read, write) = make_pipe(non_block);
     let mut fd_table = process.fd_manager.fd_table.lock();
@@ -220,8 +211,8 @@ pub fn syscall_pipe2(fd: UserRef<u32>, flags: usize) -> SyscallResult {
     };
     fd_table[fd_num2] = Some(write);
     info!("read end: {} write: end: {}", fd_num, fd_num2);
-    fd.write_offset(0, fd_num as u32);
-    fd.write_offset(1, fd_num2 as u32);
+    fd.write_offset(0, fd_num as u32, CheckType::Lazy).unwrap();
+    fd.write_offset(1, fd_num2 as u32, CheckType::Lazy).unwrap();
     Ok(0)
 }
 
@@ -299,7 +290,7 @@ pub fn syscall_dup3(fd: usize, new_fd: usize) -> SyscallResult {
 /// flags: O_RDONLY: 0, O_WRONLY: 1, O_RDWR: 2, O_CREAT: 64, O_DIRECTORY: 65536
 pub fn syscall_openat(fd: usize, path: UserRef<u8>, flags: usize, _mode: u8) -> SyscallResult {
     let force_dir = OpenFlags::from(flags).is_dir();
-    let path = if let Some(path) = deal_with_path(fd, Some(path.get_ptr()), force_dir) {
+    let path = if let Some(path) = deal_with_path(fd, Some(path.get_ptr(CheckType::Lazy).unwrap()), force_dir) {
         path
     } else {
         return Err(SyscallError::EINVAL);
@@ -374,15 +365,15 @@ pub fn syscall_close(fd: usize) -> SyscallResult {
 /// 67
 /// pread64
 /// 从文件的指定位置读取数据，并且不改变文件的读写指针
-pub fn syscall_pread64(fd: usize, buf: UserRef<u8>, count: usize, offset: usize) -> SyscallResult {
+pub fn syscall_pread64(fd: usize, buffer: UserRefSlice<u8>, offset: usize) -> SyscallResult {
     let process = current_process();
     // todo: 把check fd整合到fd_manager中
     let file = process.fd_manager.fd_table.lock()[fd].clone().unwrap();
 
     let old_offset = file.seek(SeekFrom::Current(0)).unwrap();
-    let ret = file.seek(SeekFrom::Start(offset as u64)).and_then(|_| {
-        file.read(buf.slice_mut_with_len(count))
-    });
+    let ret = file
+        .seek(SeekFrom::Start(offset as u64))
+        .and_then(|_| file.read(buffer.from_raw_parts_mut(CheckType::RangeLazy((buffer.useref().add(buffer.len()) as usize).into())).unwrap()));
     file.seek(SeekFrom::Start(old_offset)).unwrap();
     ret.map(|size| Ok(size as isize))
         .unwrap_or_else(|_| Err(SyscallError::EINVAL))
@@ -391,7 +382,7 @@ pub fn syscall_pread64(fd: usize, buf: UserRef<u8>, count: usize, offset: usize)
 /// 68
 /// pwrite64
 /// 向文件的指定位置写入数据，并且不改变文件的读写指针
-pub fn syscall_pwrite64(fd: usize, buf: UserRef<u8>, count: usize, offset: usize) -> SyscallResult {
+pub fn syscall_pwrite64(fd: usize, buffer: UserRefSlice<u8>, offset: usize) -> SyscallResult {
     let process = current_process();
 
     let file = process.fd_manager.fd_table.lock()[fd].clone().unwrap();
@@ -399,9 +390,11 @@ pub fn syscall_pwrite64(fd: usize, buf: UserRef<u8>, count: usize, offset: usize
     let old_offset = file.seek(SeekFrom::Current(0)).unwrap();
 
     let ret = file.seek(SeekFrom::Start(offset as u64)).and_then(|_| {
-        let res = file.write( buf.slice_mut_with_unmut_len(count));
+        let res = file.write(buffer.from_raw_parts(CheckType::RangeLazy((buffer.useref().add(buffer.len()) as usize).into())).unwrap());
         res
     });
+
+    
 
     file.seek(SeekFrom::Start(old_offset)).unwrap();
     drop(file);
@@ -428,12 +421,12 @@ pub fn syscall_sendfile64(
     let old_in_offset = in_file.seek(SeekFrom::Current(0)).unwrap();
 
     let mut buf = vec![0u8; count];
-    if !offset.ptr_is_null() {
+    if !offset.is_null() {
         // 如果offset不为NULL，则从offset指定的位置开始读取
-        let in_offset = *offset.get_mut_ref();
+        let in_offset = *offset.get_mut_ref(CheckType::Lazy).unwrap();
         in_file.seek(SeekFrom::Start(in_offset as u64)).unwrap();
         let ret = in_file.read(buf.as_mut_slice());
-        *offset.get_mut_ref() = in_offset + ret.unwrap();
+        *offset.get_mut_ref(CheckType::Lazy).unwrap() = in_offset + ret.unwrap();
         in_file.seek(SeekFrom::Start(old_in_offset)).unwrap();
         let buf = buf[..ret.unwrap()].to_vec();
         Ok(out_file.write(buf.as_slice()).unwrap() as isize)
@@ -457,26 +450,15 @@ pub fn syscall_sendfile64(
 pub fn syscall_readlinkat(
     dir_fd: usize,
     path: UserRef<u8>,
-    buf: UserRef<u8>,
-    bufsiz: usize,
+    buffer: UserRefSlice<u8>,
 ) -> SyscallResult {
-    let process = current_process();
-    if process
-        .manual_alloc_for_lazy((path.get_usize()).into())
-        .is_err()
-    {
-        return Err(SyscallError::EFAULT);
-    }
-    if !buf.ptr_is_null() {
-        if process
-            .manual_alloc_for_lazy((buf.get_usize()).into())
-            .is_err()
-        {
+    if !buffer.is_null() {
+        if !buffer.useref().manual_alloc_for_lazy_is_ok() {
             return Err(SyscallError::EFAULT);
         }
     }
 
-    let path = deal_with_path(dir_fd, Some(path.get_ptr()), false);
+    let path = deal_with_path(dir_fd, Some(path.get_ptr(CheckType::Lazy).unwrap()), false);
     if path.is_none() {
         return Err(SyscallError::ENOENT);
     }
@@ -484,16 +466,17 @@ pub fn syscall_readlinkat(
     if path.path() == "proc/self/exe" {
         // 针对lmbench_all特判
         let name = "/lmbench_all";
-        let len = bufsiz.min(name.len());
-        let slice = buf.slice_mut_with_len(bufsiz);
+        let len = buffer.len().min(name.len());
+        let slice = buffer.from_raw_parts_mut(CheckType::RangeLazy(len.into())).unwrap();
         slice.copy_from_slice(&name.as_bytes()[..len]);
         return Ok(len as isize);
     }
     if path.path().to_string() != real_path(&(path.path().to_string())) {
         // 说明链接存在
         let path = path.path();
-        let len = bufsiz.min(path.len());
-        let slice = buf.slice_mut_with_len(len);
+        let len = buffer.len().min(path.len());
+        let buffer: UserRefSlice<u8> = (*buffer.useref(), len).into();
+        let slice = buffer.from_raw_parts_mut(CheckType::RangeLazy(len.into())).unwrap();
         slice.copy_from_slice(&path.as_bytes()[..len]);
         return Ok(path.len() as isize);
     }
@@ -571,15 +554,15 @@ pub fn syscall_copyfilerange(
     len: usize,
     flags: usize,
 ) -> SyscallResult {
-    let in_offset = if off_in.ptr_is_null() {
+    let in_offset = if off_in.is_null() {
         -1
     } else {
-        off_in.get_mut_ptr() as isize 
+        off_in.get_mut_ptr(CheckType::Lazy).unwrap() as isize
     };
-    let out_offset = if off_out.ptr_is_null() {
+    let out_offset = if off_out.is_null() {
         -1
     } else {
-        *off_out.get_mut_ref() as isize
+        *off_out.get_mut_ref(CheckType::Lazy).unwrap() as isize
     };
     if len == 0 {
         return Ok(0);
@@ -600,11 +583,11 @@ pub fn syscall_copyfilerange(
     // }
 
     // set offset
-    if !off_in.ptr_is_null() {
+    if !off_in.is_null() {
         in_file.seek(SeekFrom::Start(in_offset as u64)).unwrap();
     }
 
-    if !off_out.ptr_is_null() {
+    if !off_out.is_null() {
         out_file.seek(SeekFrom::Start(out_offset as u64)).unwrap();
     }
 
@@ -617,13 +600,13 @@ pub fn syscall_copyfilerange(
     // assert_eq!(read_len, write_len);    // tmp
 
     // set offset | modify off_in & off_out
-    if !off_in.ptr_is_null() {
+    if !off_in.is_null() {
         in_file.seek(SeekFrom::Start(old_in_offset)).unwrap();
-        *off_in.get_mut_ref() += read_len;
+        *off_in.get_mut_ref(CheckType::Lazy).unwrap() += read_len;
     }
-    if !off_out.ptr_is_null() {
+    if !off_out.is_null() {
         out_file.seek(SeekFrom::Start(old_out_offset)).unwrap();
-        *off_out.get_mut_ref() += write_len;
+        *off_out.get_mut_ref(CheckType::Lazy).unwrap() += write_len;
     }
 
     Ok(write_len as isize)

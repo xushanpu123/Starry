@@ -2,9 +2,10 @@ use core::time::Duration;
 
 use axhal::time::{current_time, current_time_nanos, nanos_to_ticks, NANOS_PER_SEC};
 
-use axprocess::{current_process, current_task, time_stat_output, UserRef};
+use axprocess::{current_process, current_task, time_stat_output};
 use rand::{rngs::SmallRng, Fill, SeedableRng};
 
+use syscall_pathref::{CheckType, UserRef, UserRefSlice};
 use syscall_utils::{
     ClockId, ITimerVal, RusageFlags, SysInfo, SyscallError, SyscallResult, TimeSecs, TimeVal,
     UtsName, TMS,
@@ -13,7 +14,7 @@ use syscall_utils::{
 /// 返回值为当前经过的时钟中断数
 pub fn syscall_time(tms: UserRef<TMS>) -> SyscallResult {
     let (_, utime_us, _, stime_us) = time_stat_output();
-    *tms.get_mut_ref() = TMS {
+    *tms.get_mut_ref(CheckType::Lazy).unwrap() = TMS {
         tms_utime: utime_us,
         tms_stime: stime_us,
         tms_cutime: utime_us,
@@ -25,7 +26,7 @@ pub fn syscall_time(tms: UserRef<TMS>) -> SyscallResult {
 /// 获取当前系统时间并且存储在给定结构体中
 pub fn syscall_get_time_of_day(ts: UserRef<TimeVal>) -> SyscallResult {
     let current_us = current_time_nanos() as usize / 1000;
-    *ts.get_mut_ref() = TimeVal {
+    *ts.get_mut_ref(CheckType::Lazy).unwrap() = TimeVal {
         sec: current_us / 1000_000,
         usec: current_us % 1000_000,
     };
@@ -34,25 +35,20 @@ pub fn syscall_get_time_of_day(ts: UserRef<TimeVal>) -> SyscallResult {
 
 /// 用于获取当前系统时间并且存储在对应的结构体中
 pub fn syscall_clock_get_time(_clock_id: usize, ts: UserRef<TimeSecs>) -> SyscallResult {
-    *ts.get_mut_ref() = TimeSecs::now();
+    *ts.get_mut_ref(CheckType::Lazy).unwrap() = TimeSecs::now();
     Ok(0)
 }
 
 /// 获取系统信息
 pub fn syscall_uname(uts: UserRef<UtsName>) -> SyscallResult {
-    *uts.get_mut_ref() = UtsName::default();
+    *uts.get_mut_ref(CheckType::Lazy).unwrap() = UtsName::default();
     Ok(0)
 }
 
 /// 获取系统的启动时间和内存信息，当前仅支持启动时间
 pub fn syscall_sysinfo(info: UserRef<SysInfo>) -> SyscallResult {
-    let process = current_process();
-    if process.manual_alloc_type_for_lazy(info.get_ptr()).is_err() {
-        return Err(SyscallError::EFAULT);
-    }
-
     // 获取以秒为单位的时间
-    (*info.get_mut_ref()).uptime = (current_time_nanos() / NANOS_PER_SEC) as isize;
+    (*info.get_mut_ref(CheckType::TypeLazy).unwrap()).uptime = (current_time_nanos() / NANOS_PER_SEC) as isize;
 
     Ok(0)
 }
@@ -62,28 +58,17 @@ pub fn syscall_settimer(
     new_value: UserRef<ITimerVal>,
     old_value: UserRef<ITimerVal>,
 ) -> SyscallResult {
-    let process = current_process();
-
-    if new_value.ptr_is_null() {
+    if new_value.is_null() {
         return Err(SyscallError::EFAULT);
     }
 
-    let new_value = match process.manual_alloc_type_for_lazy(new_value.get_ptr()) {
-        Ok(_) => &*new_value.get_ref(),
-        Err(_) => return Err(SyscallError::EFAULT),
-    };
+    let new_value = &*new_value.get_ref(CheckType::TypeLazy).unwrap();
 
-    if !old_value.ptr_is_null() {
-        if process
-            .manual_alloc_type_for_lazy(old_value.get_mut_ptr())
-            .is_err()
-        {
-            return Err(SyscallError::EFAULT);
-        }
+    if !old_value.is_null() {
 
         let (time_interval_us, time_remained_us) = current_task().timer_output();
-        (*old_value.get_mut_ref()).it_interval = TimeVal::from_micro(time_interval_us);
-        (*old_value.get_mut_ref()).it_value = TimeVal::from_micro(time_remained_us);
+        (*old_value.get_mut_ref(CheckType::TypeLazy).unwrap()).it_interval = TimeVal::from_micro(time_interval_us);
+        (*old_value.get_mut_ref(CheckType::TypeLazy).unwrap()).it_value = TimeVal::from_micro(time_remained_us);
     }
     let (time_interval_ns, time_remained_ns) = (
         new_value.it_interval.to_nanos(),
@@ -98,52 +83,33 @@ pub fn syscall_settimer(
 }
 
 pub fn syscall_gettimer(_which: usize, value: UserRef<ITimerVal>) -> SyscallResult {
-    let process = current_process();
-    if process.manual_alloc_type_for_lazy(value.get_ptr()).is_err() {
-        return Err(SyscallError::EFAULT);
-    }
     let (time_interval_us, time_remained_us) = current_task().timer_output();
-    (*value.get_mut_ref()).it_interval = TimeVal::from_micro(time_interval_us);
-    (*value.get_mut_ref()).it_value = TimeVal::from_micro(time_remained_us);
+    (*value.get_mut_ref(CheckType::TypeLazy).unwrap()).it_interval = TimeVal::from_micro(time_interval_us);
+    (*value.get_mut_ref(CheckType::TypeLazy).unwrap()).it_value = TimeVal::from_micro(time_remained_us);
     Ok(0)
 }
 
 pub fn syscall_getrusage(who: i32, utime: UserRef<TimeVal>) -> SyscallResult {
-    let stime: *mut TimeVal = utime.add_count(1);
+    let stime: *mut TimeVal = utime.add(1);
     let stime_ref = utime.get_adjacent_mut_ref(stime);
     let process = current_process();
-    if process
-        .manual_alloc_type_for_lazy(utime.get_mut_ptr())
-        .is_err()
-        || process.manual_alloc_type_for_lazy(stime).is_err()
+    if process.manual_alloc_type_for_lazy(stime).is_err()
     {
         return Err(SyscallError::EFAULT);
     }
     if RusageFlags::from(who).is_some() {
         let (_, utime_us, _, stime_us) = time_stat_output();
-        *utime.get_mut_ref() = TimeVal::from_micro(utime_us);
+        *utime.get_mut_ref(CheckType::Lazy).unwrap() = TimeVal::from_micro(utime_us);
         *stime_ref = TimeVal::from_micro(stime_us);
-        
+
         Ok(0)
     } else {
         Err(SyscallError::EINVAL)
     }
 }
 
-pub fn syscall_getrandom(buf: UserRef<u8>, len: usize, _flags: usize) -> SyscallResult {
-    let process = current_process();
-
-    if process
-        .manual_alloc_range_for_lazy(
-            (buf.get_usize()).into(),
-            (buf.add_count(len) as usize).into(),
-        )
-        .is_err()
-    {
-        return Err(SyscallError::EFAULT);
-    }
-
-    let buf = buf.slice_mut_with_len(len);
+pub fn syscall_getrandom(buffer: UserRefSlice<u8>, _flags: usize) -> SyscallResult {
+    let buf = buffer.from_raw_parts_mut(CheckType::RangeLazy((buffer.useref().add(buffer.len()) as usize).into())).unwrap();
 
     // TODO: flags
     // - GRND_RANDOM: use /dev/random or /dev/urandom
@@ -172,15 +138,7 @@ pub fn syscall_clock_getres(id: usize, res: UserRef<TimeSecs>) -> SyscallResult 
         return Err(SyscallError::EINVAL);
     }
 
-    let process = current_process();
-    if process
-        .manual_alloc_type_for_lazy(res.get_mut_ptr())
-        .is_err()
-    {
-        return Err(SyscallError::EFAULT);
-    }
-
-    (*res.get_mut_ref()) = TimeSecs {
+    (*res.get_mut_ref(CheckType::TypeLazy).unwrap()) = TimeSecs {
         tv_nsec: 1,
         tv_sec: 0,
     };
@@ -218,15 +176,7 @@ pub fn syscall_clock_nanosleep(
         return Err(SyscallError::EINVAL);
     }
 
-    let process = current_process();
-
-    if process
-        .manual_alloc_type_for_lazy(request.get_ptr())
-        .is_err()
-    {
-        return Err(SyscallError::EFAULT);
-    }
-    let request_time = *request.get_mut_ref();
+    let request_time = *request.get_mut_ref(CheckType::TypeLazy).unwrap();
     let request_time = Duration::new(request_time.tv_sec as u64, request_time.tv_nsec as u32);
     let deadline = if flags != TIMER_ABSTIME {
         current_time() + request_time
@@ -240,20 +190,13 @@ pub fn syscall_clock_nanosleep(
     axtask::sleep_until(deadline);
 
     let current_time = current_time();
-    if current_time < deadline && !remain.ptr_is_null() {
-        if process
-            .manual_alloc_type_for_lazy(remain.get_mut_ptr())
-            .is_err()
-        {
-            return Err(SyscallError::EFAULT);
-        } else {
-            let delta = (deadline - current_time).as_nanos() as usize;
-            *remain.get_mut_ref() = TimeSecs {
-                tv_sec: delta / 1000_000_000,
-                tv_nsec: delta % 1000_000_000,
-            };
-            return Err(SyscallError::EINTR);
-        }
+    if current_time < deadline && !remain.is_null() {
+        let delta = (deadline - current_time).as_nanos() as usize;
+        *remain.get_mut_ref(CheckType::Lazy).unwrap() = TimeSecs {
+            tv_sec: delta / 1000_000_000,
+            tv_nsec: delta % 1000_000_000,
+        };
+        return Err(SyscallError::EINTR);
     }
     Ok(0)
 }

@@ -5,12 +5,11 @@ use core::mem::transmute;
 
 use axhal::mem::VirtAddr;
 use axprocess::{
-    read_from_addr,
     current_process,
     link::{deal_with_path, FilePath, AT_FDCWD},
-    UserRef,
 };
 
+use syscall_pathref::{read_from_addr, CheckType, UserRef, UserRefSlice};
 use syscall_utils::{DirEnt, DirEntType, Fcntl64Cmd, SyscallError, SyscallResult, TimeSecs};
 
 use crate::{ctype::file::new_fd, FileDesc};
@@ -26,11 +25,11 @@ use alloc::string::ToString;
 ///  暂时：成功执行，则返回当前工作目录的字符串的指针 as isize。失败，则返回0。
 ///
 /// 注意：当前写法存在问题，cwd应当是各个进程独立的，而这里修改的是整个fs的目录
-pub fn syscall_getcwd(buf: UserRef<u8>, len: usize) -> SyscallResult {
+pub fn syscall_getcwd(buffer: UserRefSlice<u8>) -> SyscallResult {
     debug!(
         "Into syscall_getcwd. buf: {}, len: {}",
-        buf.get_usize(),
-        len
+        buffer.useref().get_usize(),
+        buffer.len()
     );
     let cwd = axfs::api::current_dir().unwrap();
 
@@ -43,17 +42,12 @@ pub fn syscall_getcwd(buf: UserRef<u8>, len: usize) -> SyscallResult {
 
     let cwd = cwd.as_bytes();
 
-    return if len >= cwd.len() {
-        let process = current_process();
-        let start = (buf.get_usize()).into();
-        let end = start + len;
-        if process.manual_alloc_range_for_lazy(start, end).is_ok() {
-            buf.copy_nonoverlapping(cwd, cwd.len());
-            Ok(buf.get_ptr() as isize)
-        } else {
-            // ErrorNo::EINVAL as isize
-            Err(SyscallError::EINVAL)
-        }
+    return if buffer.len() >= cwd.len() {
+        // let process = current_process();
+        let start: VirtAddr = (buffer.useref().get_usize()).into();
+        let end = start + buffer.len();
+        buffer.copy_nonoverlapping(cwd, cwd.len(), CheckType::RangeLazy(end)).unwrap();
+        Ok(buffer.useref().get_ptr(CheckType::Lazy).unwrap() as isize)
     } else {
         debug!("getcwd: buf size is too small");
         Err(SyscallError::ERANGE)
@@ -68,7 +62,7 @@ pub fn syscall_getcwd(buf: UserRef<u8>, len: usize) -> SyscallResult {
 /// 返回值：成功执行，返回0。失败，返回-1。
 pub fn syscall_mkdirat(dir_fd: usize, path: UserRef<u8>, mode: u32) -> SyscallResult {
     // info!("signal module: {:?}", process_inner.signal_module.keys());
-    let path = if let Some(path) = deal_with_path(dir_fd, Some(path.get_ptr()), true) {
+    let path = if let Some(path) = deal_with_path(dir_fd, Some(path.get_ptr(CheckType::Lazy).unwrap()), true) {
         path
     } else {
         return Err(SyscallError::EINVAL);
@@ -98,7 +92,7 @@ pub fn syscall_mkdirat(dir_fd: usize, path: UserRef<u8>, mode: u32) -> SyscallRe
 /// 返回值：成功执行，返回0。失败，返回-1。
 pub fn syscall_chdir(path: UserRef<u8>) -> SyscallResult {
     // 从path中读取字符串
-    let path = if let Some(path) = deal_with_path(AT_FDCWD, Some(path.get_ptr()), true) {
+    let path = if let Some(path) = deal_with_path(AT_FDCWD, Some(path.get_ptr(CheckType::Lazy).unwrap()), true) {
         path
     } else {
         return Err(SyscallError::EINVAL);
@@ -129,28 +123,31 @@ pub fn syscall_chdir(path: UserRef<u8>) -> SyscallResult {
 ///       实测结果在我的电脑上是这样的，没有按最大对齐方式8字节对齐
 ///  2. d_off 和 d_reclen 同时存在的原因：
 ///       不同的dirent可以不按照顺序紧密排列
-pub fn syscall_getdents64(fd: usize, buf: UserRef<u8>, len: usize) -> SyscallResult {
+pub fn syscall_getdents64(fd: usize, buffer: UserRefSlice<u8>) -> SyscallResult {
+    let buf = buffer.useref();
+    let len = buffer.len();
+
     let path = if let Some(path) = deal_with_path(fd, None, true) {
         path
     } else {
         return Err(SyscallError::EINVAL);
     };
 
-    let process = current_process();
+    // let process = current_process();
     // 注意是否分配地址
-    let start: VirtAddr = (buf.get_usize()).into();
-    let end = start + len;
-    if process.manual_alloc_range_for_lazy(start, end).is_err() {
-        return Err(SyscallError::EFAULT);
-    }
+    // let start: VirtAddr = (buf.get_usize()).into();
+    // let end = start + len;
+    // if process.manual_alloc_range_for_lazy(start, end).is_err() {
+    //     return Err(SyscallError::EFAULT);
+    // }
 
-    let entry_id_from = read_from_addr::<DirEnt>(buf.into()).d_off;
+    let entry_id_from = read_from_addr::<DirEnt>((*buf).into()).d_off;
     if entry_id_from == -1 {
         // 说明已经读完了
         return Ok(0);
     }
 
-    let buf = buf.slice_mut_with_len(len);
+    let buf = buffer.from_raw_parts_mut(CheckType::RangeLazy((buf.add(len) as usize).into())).unwrap();
     let dir_iter = axfs::api::read_dir(path.path()).unwrap();
     let mut count = 0; // buf中已经写入的字节数
 
@@ -180,7 +177,7 @@ pub fn syscall_getdents64(fd: usize, buf: UserRef<u8>, len: usize) -> SyscallRes
         }
 
         // 写入文件名
-        dirent._copy_nonoverlapping(name.as_ptr(), name_len);
+        dirent.copy_nonoverlapping(name.as_ptr(), name_len);
 
         count += entry_size;
     }
@@ -213,8 +210,8 @@ pub fn syscall_renameat2(
     _new_path: UserRef<u8>,
     flags: usize,
 ) -> SyscallResult {
-    let old_path = deal_with_path(old_dirfd, Some(_old_path.get_ptr()), false).unwrap();
-    let new_path = deal_with_path(new_dirfd, Some(_new_path.get_ptr()), false).unwrap();
+    let old_path = deal_with_path(old_dirfd, Some(_old_path.get_ptr(CheckType::Lazy).unwrap()), false).unwrap();
+    let new_path = deal_with_path(new_dirfd, Some(_new_path.get_ptr(CheckType::Lazy).unwrap()), false).unwrap();
 
     let proc_path = FilePath::new("/proc").unwrap();
     if old_path.start_with(&proc_path) || new_path.start_with(&proc_path) {
@@ -349,12 +346,6 @@ pub fn syscall_ioctl(fd: usize, request: usize, argp: UserRef<usize>) -> Syscall
         debug!("fd {} is none", fd);
         return Err(SyscallError::EBADF);
     }
-    if process
-        .manual_alloc_for_lazy((argp.get_usize()).into())
-        .is_err()
-    {
-        return Err(SyscallError::EFAULT); // 地址不合法
-    }
 
     let file = fd_table[fd].clone().unwrap();
     // if file.lock().ioctl(request, argp as usize).is_err() {
@@ -373,7 +364,7 @@ pub fn syscall_ioctl(fd: usize, request: usize, argp: UserRef<usize>) -> Syscall
 /// path为绝对路径：
 ///     忽视dir_fd，直接根据path访问
 pub fn syscall_fchmodat(dir_fd: usize, path: UserRef<u8>, mode: usize) -> SyscallResult {
-    let file_path = deal_with_path(dir_fd, Some(path.get_ptr()), false).unwrap();
+    let file_path = deal_with_path(dir_fd, Some(path.get_ptr(CheckType::Lazy).unwrap()), false).unwrap();
     axfs::api::metadata(file_path.path())
         .map(|mut metadata| {
             metadata.set_permissions(Permissions::from_bits_truncate(mode as u16));
@@ -395,7 +386,7 @@ pub fn syscall_fchmodat(dir_fd: usize, path: UserRef<u8>, mode: usize) -> Syscal
 pub fn syscall_faccessat(dir_fd: usize, path: UserRef<u8>, mode: usize) -> SyscallResult {
     // todo: 有问题，实际上需要考虑当前进程对应的用户UID和文件拥有者之间的关系
     // 现在一律当作root用户处理
-    let file_path = deal_with_path(dir_fd, Some(path.get_ptr()), false).unwrap();
+    let file_path = deal_with_path(dir_fd, Some(path.get_ptr(CheckType::Lazy).unwrap()), false).unwrap();
     axfs::api::metadata(file_path.path())
         .map(|metadata| {
             if mode == 0 {
@@ -444,20 +435,15 @@ pub fn syscall_utimensat(
     }
 
     if dir_fd == AT_FDCWD
-        && process
-            .manual_alloc_for_lazy((path.get_usize()).into())
-            .is_err()
+        && !path.manual_alloc_for_lazy_is_ok()
     {
         return Err(SyscallError::EFAULT); // 地址不合法
     }
     // 需要设置的时间
-    let (new_atime, new_mtime) = if times.ptr_is_null() {
+    let (new_atime, new_mtime) = if times.is_null() {
         (TimeSecs::now(), TimeSecs::now())
     } else {
-        if process.manual_alloc_type_for_lazy(times.get_ptr()).is_err() {
-            return Err(SyscallError::EFAULT);
-        }
-        (*times.get_ref(),  *(times.get_t(1))) //  注意传入的TimeVal中 sec和nsec都是usize, 但TimeValue中nsec是u32
+        (*times.get_ref(CheckType::Lazy).unwrap(), *(times.get_t(1, CheckType::TypeLazy).unwrap())) //  注意传入的TimeVal中 sec和nsec都是usize, 但TimeValue中nsec是u32
     };
     // 感觉以下仿照maturin的实现不太合理，并没有真的把时间写给文件，只是写给了一个新建的临时的fd
     if (dir_fd as isize) > 0 {
@@ -484,7 +470,7 @@ pub fn syscall_utimensat(
         }
         Ok(0)
     } else {
-        let file_path = deal_with_path(dir_fd, Some(path.get_ptr()), false).unwrap();
+        let file_path = deal_with_path(dir_fd, Some(path.get_ptr(CheckType::Lazy).unwrap()), false).unwrap();
         if !axfs::api::path_exists(file_path.path()) {
             error!("Set time failed: file {} doesn't exist!", file_path.path());
             if !axfs::api::path_exists(file_path.dir().unwrap()) {

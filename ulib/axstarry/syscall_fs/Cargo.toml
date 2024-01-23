@@ -21,3 +21,4 @@ axio = { path = "../../../crates/axio" }
 axhal = { path = "../../../modules/axhal" }
 bitflags = "2.0"
 numeric-enum-macro = { git = "https://github.com/mexus/numeric-enum-macro" }
+syscall_pathref = { path = "../syscall_pathref" }

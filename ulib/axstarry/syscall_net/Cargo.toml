@@ -27,3 +27,4 @@ syscall_utils = { path = "../syscall_utils" }
 numeric-enum-macro = { git = "https://github.com/mexus/numeric-enum-macro" }
 axfeat = { path = "../../../api/axfeat" }
 arceos_api = { path = "../../../api/arceos_api" }
+syscall_pathref = { path = "../syscall_pathref" }

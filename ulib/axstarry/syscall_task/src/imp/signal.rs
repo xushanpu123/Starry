@@ -3,9 +3,10 @@
 
 use axhal::cpu::this_cpu_id;
 use axlog::{debug, info};
-use axprocess::{current_process, current_task, yield_now_task, UserRef};
+use axprocess::{current_process, current_task, yield_now_task};
 use axsignal::action::SigAction;
 use axsignal::signal_no::SignalNo;
+use syscall_pathref::{CheckType, UserRef};
 
 use syscall_utils::{SigMaskFlag, SyscallError, SyscallResult, SIGSET_SIZE_IN_BYTE};
 
@@ -36,29 +37,15 @@ pub fn syscall_sigaction(
     if old_address != 0 {
         // old_address非零说明要求写入到这个地址
         // 此时要检查old_address是否在某一个段中
-        if current_process
-            .manual_alloc_for_lazy(old_address.into())
-            .is_err()
-        {
-            // 无法分配
-            return Err(SyscallError::EPERM);
-        }
         if let Some(action) = signal_handler.get_action(signum) {
             // 将原有的action存储到old_address
-            *old_action.get_mut_ref() = *action;
+            *old_action.get_mut_ref(CheckType::Lazy).unwrap() = *action;
         }
     }
 
     let new_address = action.get_usize();
     if new_address != 0 {
-        if current_process
-            .manual_alloc_for_lazy(new_address.into())
-            .is_err()
-        {
-            // 无法分配
-            return Err(SyscallError::EPERM);
-        }
-        unsafe { signal_handler.set_action(signum, action.get_ref()) };
+        unsafe { signal_handler.set_action(signum, action.get_ref(CheckType::Lazy).unwrap()) };
     }
     Ok(0)
 }
@@ -66,12 +53,6 @@ pub fn syscall_sigaction(
 /// 实现sigsuspend系统调用
 pub fn syscall_sigsuspend(mask: UserRef<usize>) -> SyscallResult {
     let process = current_process();
-    if process
-        .manual_alloc_for_lazy((mask.get_usize()).into())
-        .is_err()
-    {
-        return Err(SyscallError::EFAULT);
-    }
     let mut signal_modules = process.signal_modules.lock();
 
     let signal_module = signal_modules
@@ -82,7 +63,7 @@ pub fn syscall_sigsuspend(mask: UserRef<usize>) -> SyscallResult {
         // 信号嵌套的情况下触发这个调用
         return Err(SyscallError::EINTR);
     }
-    signal_module.signal_set.mask = *mask.get_ref();
+    signal_module.signal_set.mask = *mask.get_ref(CheckType::Lazy).unwrap();
     drop(signal_modules);
     loop {
         let mut signal_modules = process.signal_modules.lock();
@@ -119,17 +100,13 @@ pub fn syscall_sigprocmask(
     }
 
     let current_process = current_process();
-    if old_mask.get_usize() != 0
-        && current_process
-            .manual_alloc_for_lazy((old_mask.get_usize()).into())
-            .is_err()
+    if old_mask.is_valid()
+        && !old_mask.manual_alloc_for_lazy_is_ok()
     {
         return Err(SyscallError::EFAULT);
     }
-    if new_mask.get_usize() != 0
-        && current_process
-            .manual_alloc_for_lazy((new_mask.get_usize()).into())
-            .is_err()
+    if new_mask.is_valid()
+        && !new_mask.manual_alloc_for_lazy_is_ok()
     {
         return Err(SyscallError::EPERM);
     }
@@ -138,12 +115,12 @@ pub fn syscall_sigprocmask(
     let signal_module = signal_modules
         .get_mut(&current_task().id().as_u64())
         .unwrap();
-    if old_mask.get_usize() != 0 {
-        *old_mask.get_mut_ref() = signal_module.signal_set.mask;
+    if old_mask.is_valid() {
+        *old_mask.get_mut_ref(CheckType::Lazy).unwrap() = signal_module.signal_set.mask;
     }
 
-    if new_mask.get_usize() != 0 {
-        let now_mask = *new_mask.get_ref();
+    if new_mask.is_valid() {
+        let now_mask = *new_mask.get_ref(CheckType::Lazy).unwrap();
         match flag {
             SigMaskFlag::SigBlock => {
                 signal_module.signal_set.mask |= now_mask;

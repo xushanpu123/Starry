@@ -4,11 +4,11 @@
 use axfs::api::{FileIOType, Kstat};
 use axlog::{debug, error, info};
 use axprocess::{
-    UserRef,
     current_process,
     link::{deal_with_path, FilePath, AT_FDCWD},
 };
 use syscall_utils::{get_fs_stat, FsStat, SyscallError, SyscallResult};
+use syscall_pathref::{CheckType, UserRef};
 
 use crate::ctype::mount::get_stat_in_fs;
 
@@ -33,7 +33,7 @@ pub fn syscall_fstat(fd: usize, kst: UserRef<Kstat>) -> SyscallResult {
 
     match file.get_stat() {
         Ok(stat) => {
-            *kst.get_mut_ref() = stat;
+            *kst.get_mut_ref(CheckType::Lazy).unwrap() = stat;
             Ok(0)
         }
         Err(e) => {
@@ -45,11 +45,11 @@ pub fn syscall_fstat(fd: usize, kst: UserRef<Kstat>) -> SyscallResult {
 
 /// 获取文件状态信息，但是给出的是目录 fd 和相对路径。
 pub fn syscall_fstatat(dir_fd: usize, path: UserRef<u8>, kst: UserRef<Kstat>) -> SyscallResult {
-    let file_path = deal_with_path(dir_fd, Some(path.get_ptr()), false).unwrap();
+    let file_path = deal_with_path(dir_fd, Some(path.get_ptr(CheckType::Lazy).unwrap()), false).unwrap();
     info!("path : {}", file_path.path());
     match get_stat_in_fs(&file_path) {
         Ok(stat) => {
-            *kst.get_mut_ref() = stat;
+            *kst.get_mut_ref(CheckType::Lazy).unwrap() = stat;
             Ok(0)
         },
         Err(error_no) => {
@@ -61,10 +61,10 @@ pub fn syscall_fstatat(dir_fd: usize, path: UserRef<u8>, kst: UserRef<Kstat>) ->
 
 /// 获取文件系统的信息
 pub fn syscall_statfs(path: UserRef<u8>, stat: UserRef<FsStat>) -> SyscallResult {
-    let file_path = deal_with_path(AT_FDCWD, Some(path.get_ptr()), false).unwrap();
+    let file_path = deal_with_path(AT_FDCWD, Some(path.get_ptr(CheckType::Lazy).unwrap()), false).unwrap();
     if file_path.equal_to(&FilePath::new("/").unwrap()) {
         // 目前只支持访问根目录文件系统的信息
-        *stat.get_mut_ref() = get_fs_stat();
+        *stat.get_mut_ref(CheckType::Lazy).unwrap() = get_fs_stat();
         Ok(0)
     } else {
         error!("Only support fs_stat for root");

@@ -1,0 +1,12 @@
+[package]
+name = "syscall_pathref"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+memory_addr = { path = "../../../crates/memory_addr" }
+axprocess = { path = "../../../modules/axprocess" }
+# syscall_utils = { path = "../syscall_utils" }
+axerrno = { path = "../../../crates/axerrno" }

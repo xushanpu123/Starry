@@ -39,7 +39,7 @@ pub fn task_syscall(syscall_id: task_syscall_id::TaskSyscallId, args: [usize; 6]
             args[1].into(),
             WaitFlags::from_bits(args[2] as u32).unwrap(),
         ),
-        GETRANDOM => syscall_getrandom(args[0].into(), args[1], args[2]),
+        GETRANDOM => syscall_getrandom((args[0].into(), args[1]).into(), args[2]),
         #[cfg(feature = "signal")]
         SIGSUSPEND => syscall_sigsuspend(args[0].into()),
         #[cfg(feature = "signal")]

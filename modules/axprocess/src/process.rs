@@ -552,7 +552,7 @@ impl Process {
         self.memory_set.lock().manual_alloc_for_lazy(addr)
     }
 
-    pub fn manual_alloc_range_for_lazy(&self, start: VirtAddr, end: VirtAddr) -> AxResult<()> {
+    pub fn manual_alloc_range_for_lazy(&self, start: VirtAddr, end: VirtAddr) -> AxResult<()> { 
         self.memory_set
             .lock()
             .manual_alloc_range_for_lazy(start, end)

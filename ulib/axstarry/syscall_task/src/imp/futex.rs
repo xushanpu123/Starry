@@ -5,15 +5,14 @@ use alloc::collections::VecDeque;
 use axhal::mem::VirtAddr;
 use axlog::info;
 use axprocess::{
-    read_u32_from_addr,
-    read_from_addr,
     current_process, current_task,
     futex::{FutexRobustList, FUTEX_WAIT_TASK, WAIT_FOR_FUTEX},
-    yield_now_task, UserRef,
+    yield_now_task,
 };
 use axtask::TaskState;
 
 use syscall_utils::{FutexFlags, RobustList, SyscallError, SyscallResult, TimeSecs};
+use syscall_pathref::{read_from_addr, read_u32_from_addr, CheckType, UserRef};
 
 // / Futex requeue操作
 // /
@@ -217,22 +216,15 @@ pub fn syscall_get_robust_list(
     if pid == 0 {
         let process = current_process();
         let curr_id = current_task().id().as_u64();
-        if process
-            .manual_alloc_for_lazy((head.get_usize()).into())
-            .is_ok()
-        {
-            let robust_list = process.robust_list.lock();
-            if robust_list.contains_key(&curr_id) {
-                let list = robust_list.get(&curr_id).unwrap();
-                *head.get_mut_ref() = list.head;
-                *len.get_mut_ref() = list.len;
-            } else {
-                return Err(SyscallError::EPERM);
-            }
-            return Ok(0);
+        let robust_list = process.robust_list.lock();
+        if robust_list.contains_key(&curr_id) {
+            let list = robust_list.get(&curr_id).unwrap();
+            *head.get_mut_ref(CheckType::Lazy).unwrap() = list.head;
+            *len.get_mut_ref(CheckType::Lazy).unwrap() = list.len;
         } else {
             return Err(SyscallError::EPERM);
         }
+        return Ok(0);
     }
     Err(SyscallError::EPERM)
 }
