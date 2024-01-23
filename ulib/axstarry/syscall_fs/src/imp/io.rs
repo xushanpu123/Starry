@@ -87,10 +87,7 @@ pub fn syscall_read(fd: usize, buffer: UserRefSlice<u8>) -> SyscallResult {
 ///     - count：要写入的字节数。
 /// 返回值：成功执行，返回写入的字节数。错误，则返回-1。
 pub fn syscall_write(fd: usize, buffer: UserRefSlice<u8>) -> SyscallResult {
-    let buf = buffer.useref();
-    let count = buffer.len();
-
-    info!("[write()] fd: {fd}, buf: {buf:?}, len: {count}");
+    info!("[write()] fd: {}, buf: {:?}, len: {}", fd, buffer.useref(), buffer.len());
 
     if buffer.is_null() {
         return Err(SyscallError::EFAULT);
@@ -99,7 +96,7 @@ pub fn syscall_write(fd: usize, buffer: UserRefSlice<u8>) -> SyscallResult {
     let process = current_process();
 
     // TODO: 左闭右开
-    let buf = buffer.from_raw_parts(CheckType::RangeLazy((buf.add(count) as usize - 1).into())).unwrap();
+    let buf = buffer.from_raw_parts(CheckType::RangeLazy((buffer.useref().add(buffer.len()) as usize - 1).into())).unwrap();
 
     let file = match process.fd_manager.fd_table.lock().get(fd) {
         Some(Some(f)) => f.clone(),

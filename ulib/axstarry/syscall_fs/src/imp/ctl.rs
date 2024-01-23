@@ -434,9 +434,7 @@ pub fn syscall_utimensat(
         return Err(SyscallError::EBADF); // 错误的文件描述符
     }
 
-    if dir_fd == AT_FDCWD
-        && !path.manual_alloc_for_lazy_is_ok()
-    {
+    if dir_fd == AT_FDCWD {
         return Err(SyscallError::EFAULT); // 地址不合法
     }
     // 需要设置的时间

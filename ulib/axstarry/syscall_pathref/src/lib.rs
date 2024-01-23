@@ -220,51 +220,18 @@ impl<T> UserRef<T> {
 
     #[inline]
     pub fn manual_alloc_for_lazy_is_ok(&self) -> bool {
-        // if self.checked {
-        //     return true;
-        // }
-        // let process = current_process(); // 仅获取一次当前进程
-        // if process.manual_alloc_for_lazy(self.get_usize().into()).is_ok() {
-        //     self.checked = true; // 更新状态
-        //     true
-        // } else {
-        //     false
-        // } 
-        // Err(SyscallError::EINVAL)
         let process = current_process(); // 仅获取一次当前进程
         process.manual_alloc_for_lazy(self.get_usize().into()).is_ok()
     }
 
     #[inline]
     pub fn manual_alloc_type_for_lazy_is_ok(&self) -> bool{
-        // if self.checked {
-        //     return true;
-        // }
-        // let process = current_process(); // 仅获取一次当前进程
-        // if process.manual_alloc_type_for_lazy(self.get_ptr().unwrap()).is_ok() {
-        //     self.checked = true; // 更新状态
-        //     true
-        // } else {
-        //     false
-        // }
-        // Err(SyscallError::EFAULT)
         let process = current_process(); // 仅获取一次当前进程
         process.manual_alloc_type_for_lazy(self.get_ptr(CheckType::Lazy).unwrap()).is_ok()
     }
 
     #[inline]
     pub fn manual_alloc_range_for_lazy_is_ok(&self, end: VirtAddr) -> bool {
-        // if self.checked {
-        //     return true;
-        // }
-        // let process = current_process(); // 仅获取一次当前进程
-        // if process.manual_alloc_range_for_lazy(self.get_usize().into(), end).is_ok() {
-        //     self.checked = true; // 更新状态
-        //     true
-        // } else {
-        //     false
-        // }
-        // Err(SyscallError::EFAULT)
         let process = current_process(); // 仅获取一次当前进程
         process.manual_alloc_range_for_lazy(self.get_usize().into(), end).is_ok()
     }
@@ -362,17 +329,6 @@ impl<T> UserRefSlice<T> {
 
     #[inline]
     pub fn manual_alloc_range_for_lazy_is_ok(&self, end: VirtAddr) -> bool {
-        // if self.checked {
-        //     return true;
-        // }
-        // let process = current_process(); // 仅获取一次当前进程
-        // if process.manual_alloc_range_for_lazy(self.get_usize().into(), end).is_ok() {
-        //     self.checked = true; // 更新状态
-        //     true
-        // } else {
-        //     false
-        // }
-        // Err(SyscallError::EFAULT)
         let process = current_process(); // 仅获取一次当前进程
         process.manual_alloc_range_for_lazy(self.useref().get_usize().into(), end).is_ok()
     }
