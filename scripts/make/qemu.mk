@@ -34,7 +34,7 @@ qemu_args-$(NET) += \
   -device virtio-net-$(vdev-suffix),netdev=net0
 
 ifeq ($(NET_DEV), user)
-  qemu_args-$(NET) += -netdev user,id=net0,hostfwd=tcp::5555-:5555,hostfwd=udp::5555-:5555
+  qemu_args-$(NET) += -netdev user,id=net0,hostfwd=tcp::6380-:6380,hostfwd=udp::6380-:6380 -object filter-dump,id=net0,netdev=net0,file=packets.pcap
 else ifeq ($(NET_DEV), tap)
   qemu_args-$(NET) += -netdev tap,id=net0,script=scripts/net/qemu-ifup.sh,downscript=no,vhost=$(VHOST),vhostforce=$(VHOST)
   QEMU := sudo $(QEMU)

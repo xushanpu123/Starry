@@ -311,6 +311,7 @@ pub const OSTRAIN_TESTCASES: &[&str] = &[
 
 #[allow(dead_code)]
 pub const SDCARD_TESTCASES: &[&str] = &[
+    "busybox sh",
     // "busybox sh ./test_all.sh",
     // "./riscv64-linux-musl-native/bin/riscv64-linux-musl-gcc ./hello.c -static",
     // "./a.out",
@@ -364,7 +365,7 @@ pub const SDCARD_TESTCASES: &[&str] = &[
     // "busybox sh lua_testcode.sh",
     // "libc-bench",
     // "busybox sh ./netperf_testcode.sh",
-    "busybox sh ./iperf_testcode.sh",
+    // "busybox sh ./iperf_testcode.sh",
     // "busybox sh ./cyclictest_testcode.sh",
 ];
 
