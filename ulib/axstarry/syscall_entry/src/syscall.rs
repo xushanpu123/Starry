@@ -48,6 +48,5 @@ pub fn syscall(syscall_id: usize, args: [usize; 6]) -> isize {
         axlog::warn!("here return an error!!!");
     }
     axlog::info!("[tid: {:?}]syscall: {} -> {}", current_task().id(), syscall_id, ans);
-    // axlog::info!("======================================syscall frame======================================");
     ans
 }

@@ -361,7 +361,6 @@ pub fn syscall_close(fd: usize) -> SyscallResult {
     }
     // let file = process_inner.fd_manager.fd_table[fd].unwrap();
     use axfs::api::FileIO;
-    info!("cur fd strong count is {:?}===============",Arc::<dyn FileIO>::strong_count(fd_table[fd].as_ref().unwrap()));
     fd_table[fd] = None;
     // for i in 0..process_inner.fd_table.len() {
     //     if let Some(file) = process_inner.fd_table[i].as_ref() {

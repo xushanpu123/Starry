@@ -96,7 +96,7 @@ pub fn syscall_accept4(
         return Err(SyscallError::ENOTSOCK);
     };
 
-    info!("[accept()] socket {fd} accept");
+    debug!("[accept()] socket {fd} accept");
 
     // socket.accept() might block, we need to release all lock now.
 

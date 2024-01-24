@@ -146,7 +146,7 @@ impl<'a> SocketSetWrapper<'a> {
 
     pub fn remove(&self, handle: SocketHandle) {
         self.0.lock().remove(handle);
-        info!("socket {}: destroyed", handle);
+        debug!("socket {}: destroyed", handle);
     }
 }
 

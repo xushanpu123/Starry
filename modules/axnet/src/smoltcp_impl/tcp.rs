@@ -244,7 +244,7 @@ impl TcpSocket {
         warn!("local port is {:?}",local_port);
         self.block_on(|| {
             let (handle, (local_addr, peer_addr)) = LISTEN_TABLE.accept(local_port)?;
-            info!("TCP socket accepted a new connection {}", peer_addr);
+            debug!("TCP socket accepted a new connection {}", peer_addr);
             Ok(TcpSocket::new_connected(handle, local_addr, peer_addr))
         })
     }
