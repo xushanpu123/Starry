@@ -2,8 +2,8 @@
 // Made it musl compatible
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
+#include <stdlib.h>
 // #include <error.h>
 #include <errno.h>
 #include <sys/wait.h>
@@ -14,41 +14,39 @@
 
 /*
     The successful output is 
-    Before vfork
-    Child spawn, blocking parent
-    Executed by execv, child stop blocking
-    Child exec done, quitting
+    Data originally: 10
+    Child modified to 90
+    Parent reading: 90
 */
 int
-main (void)
+main(void)
 {
-    pid_t pid;
+    int data=10;
     int status;
-    char* execv_str[] = {"echo", "Child exec done, quitting", NULL};
+    pid_t pid;
 
-    printf ("Before vfork\n");
-    fflush (stdout);
-    pid = vfork ();
+    pid = vfork();
+ 
+    if (pid == -1) {
+        printf("create child process failed!\n");
+        return -1;
+    }
     if (pid == 0)
     {
         /* This will clobber the return pc from vfork in the parent on
      machines where it is stored on the stack, if vfork wasn't
      implemented correctly, */
         // noop ();
-        printf("Child spawn, blocking parent\n");
+        printf("Data originally: %d\n",data);
         sleep(1);
-        execv("/busybox", execv_str);
-        printf("Error: this line is not supposed to be printed\n");
+        printf("Child modified to 90\n");
+        data = 90;
+        exit(0);
     }
-    else if (pid < 0) {
-        // error (1, errno, "vfork");
-        printf("vfork error: %d\n", errno);
-        exit(errno);
-    }
-    printf ("Executed by execv, child stop blocking\n");
+    printf("Parent reading: %d\n",data);
     if (waitpid (0, &status, 0) != pid
         || !WIFEXITED (status) || WEXITSTATUS (status) != NR)
-        exit (1);
+        exit (1); 
 
     return 0;
 }
@@ -57,4 +55,3 @@ void
 noop (void)
 {
 }
-

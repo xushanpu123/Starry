@@ -183,7 +183,7 @@ pub fn syscall_clone(
 
 /// 创建一个子进程，挂起父进程，直到子进程exec或者exit，父进程才继续执行
 pub fn syscall_vfork() -> SyscallResult {
-    syscall_clone(0x4011, 0, 0, 0, 0)
+    syscall_clone(0x4111, 0, 0, 0, 0)
 }
 
 /// 等待子进程完成任务，若子进程没有完成，则自身yield
