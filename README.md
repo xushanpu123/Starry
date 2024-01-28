@@ -38,6 +38,8 @@ make run
 ```shell
 # 构建镜像
 ./build_img.sh sdcard
+./build_img.sh testsuits-x86_64-linux-musl
+
 # 运行 Unikernel 架构内核
 make run
 
@@ -46,6 +48,10 @@ make A=apps/oscomp ARCH=riscv64 run
 
 # 使用 ramdisk 加载测例并且运行内核，可以显著提高文件 IO 速度
 make A=apps/oscomp ARCH=riscv64 FEATURES=img run
+
+# x86
+
+make A=apps/oscomp ARCH=x86_64 FEATURES=fp_simd run 
 
 ```
 
