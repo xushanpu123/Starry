@@ -302,7 +302,8 @@ pub const OSTRAIN_TESTCASES: &[&str] = &[
     // "fileread",
     // "filewrite",
     // "task_yield",
-    "task_single_yield",
+    "busybox readlink /etc/localtime",
+    // "task_single_yield",
     // "getpid",
     // "malloc",
     // "thread_sigsegv",
@@ -311,7 +312,12 @@ pub const OSTRAIN_TESTCASES: &[&str] = &[
 
 #[allow(dead_code)]
 pub const SDCARD_TESTCASES: &[&str] = &[
-    "busybox sh",
+    // "busybox sh",
+    "./readlink_localtime",
+    "./real_time",
+    "./fstatat /etc/localtime",
+    // "busybox strings /etc/localtime",
+    // "busybox od -c /etc/localtime",
     //"./prctl",
     //"./test-vfork-exit-x86_64",
     //"./test-vfork-exec-x86_64",
@@ -598,6 +604,16 @@ pub fn fs_init(_case: &'static str) {
         &FilePath::new(format!("{}/libstdc++.so.6", src_dir).as_str()).unwrap(),
         &FilePath::new(format!("{}/libstdc++.so.6.0.29", src_dir).as_str()).unwrap(),
     );
+    
+    create_link(
+        &(FilePath::new("/etc/localtime").unwrap()),
+        &(FilePath::new("/usr/share/zoneinfo/Asia/Shanghai").unwrap()),
+    );
+
+    // create_link(
+    //     &(FilePath::new("/etc/localtime").unwrap()),
+    //     &(FilePath::new("/usr/share/zoneinfo/US/Pacific").unwrap()),
+    // );
 }
 
 pub fn run_testcases(case: &'static str) {

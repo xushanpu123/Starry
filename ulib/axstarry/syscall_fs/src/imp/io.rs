@@ -6,7 +6,7 @@ use alloc::vec;
 use axerrno::AxError;
 use axfs::api::{FileIOType, OpenFlags};
 use axio::SeekFrom;
-use axlog::{debug, info};
+use axlog::{debug, error, info};
 use axprocess::current_process;
 use axprocess::link::{create_link, deal_with_path, real_path, AT_FDCWD};
 use syscall_utils::{IoVec, SyscallError, SyscallResult};
@@ -502,6 +502,7 @@ pub fn syscall_readlinkat(
     }
 
     let path = deal_with_path(dir_fd, Some(path), false);
+
     if path.is_none() {
         return Err(SyscallError::ENOENT);
     }
@@ -514,6 +515,10 @@ pub fn syscall_readlinkat(
         slice.copy_from_slice(&name.as_bytes()[..len]);
         return Ok(len as isize);
     }
+
+    error!("readlinkat: {}", path.path());
+    error!("test: real_path: {}", real_path(&(path.path().to_string())));
+
     if path.path().to_string() != real_path(&(path.path().to_string())) {
         // 说明链接存在
         let path = path.path();
@@ -530,11 +535,7 @@ pub fn syscall_readlinkat(
 /// 如果buf为NULL，则返回符号链接文件的长度
 /// 如果buf不为NULL，则将符号链接文件的内容写入buf中
 /// 如果写入的内容超出了buf_size则直接截断
-pub fn syscall_readlink(
-    path: *const u8,
-    buf: *mut u8,
-    bufsiz: usize,
-) -> SyscallResult {
+pub fn syscall_readlink(path: *const u8, buf: *mut u8, bufsiz: usize) -> SyscallResult {
     syscall_readlinkat(AT_FDCWD, path, buf, bufsiz)
 }
 

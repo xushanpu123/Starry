@@ -17,7 +17,7 @@ use axprocess::{
 //     monolithic_task::task::{SchedPolicy, SchedStatus},
 //     AxTaskRef,
 // };
-use axlog::{info, warn};
+use axlog::{error, info, warn};
 use axtask::TaskId;
 use syscall_utils::{SyscallError, SyscallResult};
 extern crate alloc;
@@ -92,6 +92,9 @@ pub fn syscall_exec(
         return Err(SyscallError::EISDIR);
     }
     let path = path.path().to_string();
+
+    error!("path: {}", path);
+
     let mut args_vec = Vec::new();
     // args相当于argv，指向了参数所在的地址
     loop {
