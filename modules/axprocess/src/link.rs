@@ -6,7 +6,7 @@ use alloc::format;
 use alloc::string::{String, ToString};
 use axerrno::{AxError, AxResult};
 use axfs::api::{canonicalize, path_exists, remove_file, FileIOType};
-use axlog::{debug, error, info, trace};
+use axlog::{debug, info, trace};
 use axsync::Mutex;
 
 use crate::current_process;
@@ -150,7 +150,7 @@ pub fn real_path(src_path: &String) -> String {
     // 找到对应的链接
     match map.get(src_path) {
         Some(dest_path) => {
-            error!("src_path: {}, dest_path: {}", src_path, dest_path);
+            // error!("src_path: {}, dest_path: {}", src_path, dest_path);
             dest_path.clone()
         }
         None => {

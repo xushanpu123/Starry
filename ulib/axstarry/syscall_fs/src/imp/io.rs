@@ -6,7 +6,7 @@ use alloc::vec;
 use axerrno::AxError;
 use axfs::api::{FileIOType, OpenFlags};
 use axio::SeekFrom;
-use axlog::{debug, error, info};
+use axlog::{debug, info};
 use axprocess::current_process;
 use axprocess::link::{create_link, deal_with_path, real_path, AT_FDCWD};
 use syscall_utils::{IoVec, SyscallError, SyscallResult};
@@ -515,9 +515,6 @@ pub fn syscall_readlinkat(
         slice.copy_from_slice(&name.as_bytes()[..len]);
         return Ok(len as isize);
     }
-
-    error!("readlinkat: {}", path.path());
-    error!("test: real_path: {}", real_path(&(path.path().to_string())));
 
     if path.path().to_string() != real_path(&(path.path().to_string())) {
         // 说明链接存在

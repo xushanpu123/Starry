@@ -47,7 +47,7 @@ pub fn syscall_fstat(fd: usize, kst: *mut Kstat) -> SyscallResult {
 /// 获取文件状态信息，但是给出的是目录 fd 和相对路径。
 pub fn syscall_fstatat(dir_fd: usize, path: *const u8, kst: *mut Kstat) -> SyscallResult {
     let file_path = if let Some(file_path) = deal_with_path(dir_fd, Some(path), false) {
-        error!("test {:?}", file_path);
+        // error!("test {:?}", file_path);
         file_path
     } else {
         // x86 下应用会调用 newfstatat(1, "", {st_mode=S_IFCHR|0620, st_rdev=makedev(0x88, 0xe), ...}, AT_EMPTY_PATH) = 0
