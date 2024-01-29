@@ -1,5 +1,5 @@
-use axprocess::current_task;
 use syscall_utils::deal_result;
+use axlog::error;
 
 #[no_mangle]
 pub fn syscall(syscall_id: usize, args: [usize; 6]) -> isize {
