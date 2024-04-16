@@ -16,7 +16,7 @@ log = "0.4"
 axhal = { path = "../axhal", features = ["paging"] }
 axalloc = { path = "../axalloc" }
 axconfig = { path = "../axconfig" }
-axerrno = { path = "../../crates/axerrno" }
+axerrno = { git = "https://github.com/Arceos-crates/axerrno.git" }
 axfs = { path = "../axfs" }
 axio = { path = "../../crates/axio" }
 spinlock = { path = "../../crates/spinlock" }

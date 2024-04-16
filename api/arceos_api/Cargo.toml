@@ -32,7 +32,7 @@ axruntime = { path = "../../modules/axruntime" }
 axconfig = { path = "../../modules/axconfig" }
 axlog = { path = "../../modules/axlog" }
 axio = { path = "../../crates/axio" }
-axerrno = { path = "../../crates/axerrno" }
+axerrno = { git = "https://github.com/Arceos-crates/axerrno.git" }
 axhal = { path = "../../modules/axhal" }
 axalloc = { path = "../../modules/axalloc", optional = true }
 axtask = { path = "../../modules/axtask", optional = true }

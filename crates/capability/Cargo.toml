@@ -11,4 +11,4 @@ documentation = "https://rcore-os.github.io/arceos/capability/index.html"
 
 [dependencies]
 bitflags = "2.2"
-axerrno = { path = "../axerrno" }
+axerrno = { git = "https://github.com/Arceos-crates/axerrno.git" }

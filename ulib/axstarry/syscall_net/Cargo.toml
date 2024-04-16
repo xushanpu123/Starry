@@ -16,7 +16,7 @@ dns = []
 
 [dependencies]
 axnet = { path = "../../../modules/axnet" }
-axerrno = { path = "../../../crates/axerrno" }
+axerrno = { git = "https://github.com/Arceos-crates/axerrno.git" }
 axprocess = { path = "../../../modules/axprocess" }
 axfs = { path = "../../../modules/axfs" }
 axio = { path = "../../../crates/axio" }

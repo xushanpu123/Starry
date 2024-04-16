@@ -42,7 +42,7 @@ axnet = { path = "../../modules/axnet", optional = true }
 
 # Other crates
 axio = { path = "../../crates/axio" }
-axerrno = { path = "../../crates/axerrno" }
+axerrno = { git = "https://github.com/Arceos-crates/axerrno.git" }
 static_assertions = "1.1.0"
 spin = { version = "0.9" }
 lazy_static = { version = "1.4", features = ["spin_no_std"] }

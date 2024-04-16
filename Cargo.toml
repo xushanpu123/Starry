@@ -6,7 +6,6 @@ members = [
     "crates/arm_gic",
     "crates/arm_pl011",
     "crates/dw_apb_uart",
-    "crates/axerrno",
     "crates/axfs_devfs",
     "crates/axfs_ramfs",
     "crates/axfs_vfs",
