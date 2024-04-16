@@ -408,6 +408,7 @@ dependencies = [
 [[package]]
 name = "axio"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/axio#782815ebb40dc389ce64b4e6f599a4831d0d5da0"
 dependencies = [
  "axerrno",
 ]
@@ -950,6 +951,7 @@ dependencies = [
 [[package]]
 name = "driver_common"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/driver_common.git#196a975f7a48e905d5b6ec743648ebf7adb26b9d"
 
 [[package]]
 name = "driver_display"
@@ -971,6 +973,7 @@ dependencies = [
 [[package]]
 name = "driver_pci"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/driver_pci.git#c9b5e362a7490bea76ea7577ac5a73f10d9ba079"
 dependencies = [
  "virtio-drivers",
 ]

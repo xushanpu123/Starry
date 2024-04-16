@@ -10,4 +10,4 @@ repository = "https://github.com/rcore-os/arceos/tree/main/crates/driver_display
 documentation = "https://rcore-os.github.io/arceos/driver_display/index.html"
 
 [dependencies]
-driver_common = { path = "../driver_common" }
+driver_common = { git = "https://github.com/Arceos-crates/driver_common.git" }

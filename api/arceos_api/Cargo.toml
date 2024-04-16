@@ -31,7 +31,7 @@ axfeat = { path = "../axfeat" }
 axruntime = { path = "../../modules/axruntime" }
 axconfig = { path = "../../modules/axconfig" }
 axlog = { path = "../../modules/axlog" }
-axio = { path = "../../crates/axio" }
+axio = { git = "https://github.com/Arceos-crates/axio" }
 axerrno = { git = "https://github.com/Arceos-crates/axerrno.git" }
 axhal = { path = "../../modules/axhal" }
 axalloc = { path = "../../modules/axalloc", optional = true }

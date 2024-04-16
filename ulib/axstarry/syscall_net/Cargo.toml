@@ -19,7 +19,7 @@ axnet = { path = "../../../modules/axnet" }
 axerrno = { git = "https://github.com/Arceos-crates/axerrno.git" }
 axprocess = { path = "../../../modules/axprocess" }
 axfs = { path = "../../../modules/axfs" }
-axio = { path = "../../../crates/axio" }
+axio = { git = "https://github.com/Arceos-crates/axio" }
 axlog = { path = "../../../modules/axlog" }
 axsync = { path = "../../../modules/axsync" }
 num_enum = { version = "0.5.11", default-features = false }

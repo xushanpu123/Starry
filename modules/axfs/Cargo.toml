@@ -26,7 +26,7 @@ cfg-if = "1.0"
 lazy_init = { path = "../../crates/lazy_init" }
 capability = { path = "../../crates/capability" }
 driver_block = { path = "../../crates/driver_block" }
-axio = { path = "../../crates/axio", features = ["alloc"] }
+axio = { git = "https://github.com/Arceos-crates/axio" }
 axerrno = { git = "https://github.com/Arceos-crates/axerrno.git" }
 axfs_vfs = { path = "../../crates/axfs_vfs" }
 axfs_devfs = { path = "../../crates/axfs_devfs", optional = true }

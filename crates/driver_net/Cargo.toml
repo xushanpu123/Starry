@@ -16,5 +16,5 @@ ixgbe = ["dep:ixgbe-driver"]
 [dependencies]
 spin = "0.9"
 log = "0.4"
-driver_common = { path = "../driver_common" }
+driver_common = { git = "https://github.com/Arceos-crates/driver_common.git" }
 ixgbe-driver = {git = "https://github.com/KuangjuX/ixgbe-driver.git", rev = "8e5eb74", optional = true}

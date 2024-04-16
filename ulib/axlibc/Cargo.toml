@@ -50,7 +50,7 @@ epoll = ["arceos_posix_api/epoll"]
 [dependencies]
 axfeat = { path = "../../api/axfeat" }
 arceos_posix_api = { path = "../../api/arceos_posix_api" }
-axio = { path = "../../crates/axio" }
+axio = { git = "https://github.com/Arceos-crates/axio" }
 axerrno = { git = "https://github.com/Arceos-crates/axerrno.git" }
 
 [build-dependencies]

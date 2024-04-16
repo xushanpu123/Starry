@@ -25,7 +25,7 @@ axtask = { path = "../axtask" }
 axsync = { path = "../axsync" }
 axmem = { path = "../axmem" }
 axalloc = { path = "../axalloc" }
-axio = { path = "../../crates/axio", features = ["alloc"] }
+axio = { git = "https://github.com/Arceos-crates/axio" }
 axhal = { path = "../axhal" }
 axlog = { path = "../axlog" }
 axerrno = { git = "https://github.com/Arceos-crates/axerrno.git" }
