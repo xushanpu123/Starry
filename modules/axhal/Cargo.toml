@@ -30,7 +30,7 @@ axconfig = { path = "../axconfig" }
 axalloc = { git = "https://github.com/Arceos-crates/axalloc.git", optional = true }
 kernel_guard = { git = "https://github.com/Arceos-crates/kernel_guard.git" }
 spinlock = { git = "https://github.com/Arceos-crates/spinlock.git" }
-ratio = { path = "../../crates/ratio" }
+ratio = { git = "https://github.com/Arceos-crates/ratio.git" }
 lazy_init = { git = "https://github.com/Arceos-crates/lazy_init.git" }
 page_table = { git = "https://github.com/Arceos-crates/page_table.git", optional = true }
 page_table_entry = { git = "https://github.com/Arceos-crates/page_table_entry.git" }

@@ -1288,6 +1288,7 @@ dependencies = [
 [[package]]
 name = "ratio"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/ratio.git#dde1a7615b8aa6f3d2c638c974e9fe125e15c8a0"
 
 [[package]]
 name = "raw-cpuid"
