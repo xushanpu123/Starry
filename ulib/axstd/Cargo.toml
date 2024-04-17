@@ -73,4 +73,4 @@ axfeat = { path = "../../api/axfeat" }
 arceos_api = { path = "../../api/arceos_api" }
 axio = { git = "https://github.com/Arceos-crates/axio" }
 axerrno = { git = "https://github.com/Arceos-crates/axerrno.git" }
-spinlock = { path = "../../crates/spinlock" }
+spinlock = { git = "https://github.com/Arceos-crates/spinlock.git" }

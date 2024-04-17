@@ -14,7 +14,7 @@ axtask = { path = "../../../modules/axtask" }
 axsync = { path = "../../../modules/axsync" }
 axfs = { path = "../../../modules/axfs" }
 axerrno = { git = "https://github.com/Arceos-crates/axerrno.git" }
-axlog = { path = "../../../modules/axlog" }
+axlog = { git = "https://github.com/Arceos-crates/axlog.git" }
 axprocess = { path = "../../../modules/axprocess" }
 syscall_utils = { path = "../syscall_utils" }
 axio = { git = "https://github.com/Arceos-crates/axio" }

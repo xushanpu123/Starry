@@ -14,7 +14,7 @@ multitask = ["axtask/multitask"]
 default = []
 
 [dependencies]
-spinlock = { path = "../../crates/spinlock" }
+spinlock = { git = "https://github.com/Arceos-crates/spinlock.git" }
 axtask = { path = "../axtask" }
 
 [dev-dependencies]

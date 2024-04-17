@@ -10,7 +10,7 @@ repository = "https://github.com/rcore-os/arceos/tree/main/crates/axfs_ramfs"
 documentation = "https://rcore-os.github.io/arceos/axfs_ramfs/index.html"
 
 [dependencies]
-axfs_vfs = { path = "../axfs_vfs" }
+axfs_vfs = { git = "https://github.com/Arceos-crates/axfs_vfs.git" }
 spin = "0.9"
 log = "0.4"
 lazy_static = { version = "1.4", features = ["spin_no_std"] }

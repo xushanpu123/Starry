@@ -29,9 +29,9 @@ monolithic = ["axprocess/monolithic", "axhal/monolithic", "axtask/monolithic", "
 [dependencies]
 cfg-if = "1.0"
 axhal = { path = "../axhal" }
-axlog = { path = "../axlog" }
+axlog = { git = "https://github.com/Arceos-crates/axlog.git" }
 axconfig = { path = "../axconfig" }
-axalloc = { path = "../axalloc", optional = true }
+axalloc = { git = "https://github.com/Arceos-crates/axalloc.git", optional = true }
 axdriver = { path = "../axdriver", optional = true }
 axfs = { path = "../axfs", optional = true }
 axnet = { path = "../axnet", optional = true }
@@ -39,7 +39,7 @@ axdisplay = { path = "../axdisplay", optional = true }
 axtask = { path = "../axtask", optional = true }
 axprocess = { path = "../axprocess", optional = true }
 axmem = { path = "../axmem", optional = true }
-crate_interface = { path = "../../crates/crate_interface" }
-percpu = { path = "../../crates/percpu", optional = true }
-kernel_guard = { path = "../../crates/kernel_guard", optional = true }
-lazy_init = { path = "../../crates/lazy_init", optional = true }
+crate_interface = { git = "https://github.com/Arceos-crates/crate_interface.git" }
+percpu = { git = "https://github.com/Arceos-crates/percpu.git", optional = true }
+kernel_guard = { git = "https://github.com/Arceos-crates/kernel_guard.git", optional = true }
+lazy_init = { git = "https://github.com/Arceos-crates/lazy_init.git" , optional = true }

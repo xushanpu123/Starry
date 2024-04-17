@@ -67,7 +67,7 @@ syscall_task = ["dep:syscall_task"]
 [dependencies]
 axfeat = { path = "../../../api/axfeat" }
 arceos_api = { path = "../../../api/arceos_api" }
-axlog = { path = "../../../modules/axlog" }
+axlog = { git = "https://github.com/Arceos-crates/axlog.git" }
 axruntime = { path = "../../../modules/axruntime" }
 axhal = { path = "../../../modules/axhal" }
 axtask = { path = "../../../modules/axtask" }
@@ -80,7 +80,7 @@ syscall_net = { path = "../syscall_net", optional = true }
 syscall_task = { path = "../syscall_task", optional = true }
 syscall_mem = { path = "../syscall_mem", optional = true }
 
-crate_interface = { path = "../../../crates/crate_interface" }
-lazy_init = { path = "../../../crates/lazy_init" }
-spinlock = { path = "../../../crates/spinlock" }
-kernel_guard = { path = "../../../crates/kernel_guard" }
+crate_interface = { git = "https://github.com/Arceos-crates/crate_interface.git" }
+lazy_init = { git = "https://github.com/Arceos-crates/lazy_init.git" }
+spinlock = { git = "https://github.com/Arceos-crates/spinlock.git" }
+kernel_guard = { git = "https://github.com/Arceos-crates/kernel_guard.git" }

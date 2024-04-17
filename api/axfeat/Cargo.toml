@@ -72,8 +72,8 @@ log-level-trace = ["axlog/log-level-trace"]
 [dependencies]
 axruntime = { path = "../../modules/axruntime" }
 axhal = { path = "../../modules/axhal" }
-axlog = { path = "../../modules/axlog" }
-axalloc = { path = "../../modules/axalloc", optional = true }
+axlog = { git = "https://github.com/Arceos-crates/axlog.git" }
+axalloc = { git = "https://github.com/Arceos-crates/axalloc.git", optional = true }
 axdriver = { path = "../../modules/axdriver", optional = true }
 axfs = { path = "../../modules/axfs", optional = true }
 axnet = { path = "../../modules/axnet", optional = true }
@@ -81,4 +81,4 @@ axdisplay = { path = "../../modules/axdisplay", optional = true }
 axsync = { path = "../../modules/axsync", optional = true }
 axtask = { path = "../../modules/axtask", optional = true }
 axprocess = { path = "../../modules/axprocess", optional = true }
-spinlock = { path = "../../crates/spinlock", optional = true }
+spinlock = { git = "https://github.com/Arceos-crates/spinlock.git", optional = true }

@@ -23,17 +23,17 @@ default = ["devfs", "ramfs", "fatfs", "procfs", "sysfs"]
 [dependencies]
 log = "0.4"
 cfg-if = "1.0"
-lazy_init = { path = "../../crates/lazy_init" }
+lazy_init = { git = "https://github.com/Arceos-crates/lazy_init.git"  }
 capability = { path = "../../crates/capability" }
 driver_block = { git = "https://github.com/Arceos-crates/driver_block.git", optional = true }
 axio = { git = "https://github.com/Arceos-crates/axio" }
 axerrno = { git = "https://github.com/Arceos-crates/axerrno.git" }
-axfs_vfs = { path = "../../crates/axfs_vfs" }
+axfs_vfs = { git = "https://github.com/Arceos-crates/axfs_vfs.git" }
 axfs_devfs = { path = "../../crates/axfs_devfs", optional = true }
 axfs_ramfs = { path = "../../crates/axfs_ramfs", optional = true }
 axdriver = { path = "../axdriver", features = ["block"] }
 axsync = { path = "../axsync" }
-crate_interface = { path = "../../crates/crate_interface", optional = true }
+crate_interface = { git = "https://github.com/Arceos-crates/crate_interface.git", optional = true }
 bitflags = "2.0"
 
 [dependencies.fatfs]

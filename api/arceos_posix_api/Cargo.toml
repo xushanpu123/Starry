@@ -32,10 +32,10 @@ epoll = ["fd"]
 axfeat = { path = "../axfeat" }
 axruntime = { path = "../../modules/axruntime" }
 axconfig = { path = "../../modules/axconfig" }
-axlog = { path = "../../modules/axlog" }
+axlog = { git = "https://github.com/Arceos-crates/axlog.git" }
 axhal = { path = "../../modules/axhal" }
 axsync = { path = "../../modules/axsync" }
-axalloc = { path = "../../modules/axalloc", optional = true }
+axalloc = { git = "https://github.com/Arceos-crates/axalloc.git", optional = true }
 axtask = { path = "../../modules/axtask", optional = true }
 axfs = { path = "../../modules/axfs", optional = true }
 axnet = { path = "../../modules/axnet", optional = true }

@@ -20,7 +20,7 @@ axerrno = { git = "https://github.com/Arceos-crates/axerrno.git" }
 axprocess = { path = "../../../modules/axprocess" }
 axfs = { path = "../../../modules/axfs" }
 axio = { git = "https://github.com/Arceos-crates/axio" }
-axlog = { path = "../../../modules/axlog" }
+axlog = { git = "https://github.com/Arceos-crates/axlog.git" }
 axsync = { path = "../../../modules/axsync" }
 num_enum = { version = "0.5.11", default-features = false }
 syscall_utils = { path = "../syscall_utils" }

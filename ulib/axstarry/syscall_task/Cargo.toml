@@ -26,7 +26,7 @@ axsignal = { path = "../../../modules/axsignal", optional = true }
 axtask = { path = "../../../modules/axtask" }
 axprocess = { path = "../../../modules/axprocess" }
 axconfig = { path = "../../../modules/axconfig" }
-axlog = { path = "../../../modules/axlog" }
+axlog = { git = "https://github.com/Arceos-crates/axlog.git" }
 axhal = { path = "../../../modules/axhal" }
 syscall_utils = { path = "../syscall_utils" }
 rand = { version = "0.8.5", default-features = false, features = ["small_rng"] }

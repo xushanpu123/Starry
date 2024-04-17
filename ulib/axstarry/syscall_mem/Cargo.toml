@@ -13,7 +13,7 @@ fs = ["dep:syscall_fs"]
 axprocess = { path = "../../../modules/axprocess" }
 axerrno = { git = "https://github.com/Arceos-crates/axerrno.git" }
 syscall_utils = { path = "../syscall_utils" }
-axlog = { path = "../../../modules/axlog" }
+axlog = { git = "https://github.com/Arceos-crates/axlog.git" }
 bitflags = "2.0"
 axhal = { path = "../../../modules/axhal" }
 axmem = { path = "../../../modules/axmem" }
