@@ -1145,6 +1145,7 @@ dependencies = [
 [[package]]
 name = "page_table"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/page_table.git#dfd02c7d3ffc8e7ded9dde03068a7f3d7852aad8"
 dependencies = [
  "log",
  "memory_addr",
