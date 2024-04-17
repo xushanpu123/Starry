@@ -37,8 +37,8 @@ default = ["bus-mmio"]
 log = "0.4"
 cfg-if = "1.0"
 driver_common = { git = "https://github.com/Arceos-crates/driver_common.git" }
-driver_block = { path = "../../crates/driver_block", optional = true }
-driver_net = { path = "../../crates/driver_net", optional = true }
+driver_block = { git = "https://github.com/Arceos-crates/driver_block.git", optional = true }
+driver_net = { git = "https://github.com/Arceos-crates/driver_net.git", optional = true }
 driver_display = { path = "../../crates/driver_display", optional = true }
 driver_pci = { git = "https://github.com/Arceos-crates/driver_pci.git", optional = true }
 driver_virtio = { path = "../../crates/driver_virtio", optional = true }

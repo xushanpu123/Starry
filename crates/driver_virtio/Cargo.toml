@@ -16,7 +16,7 @@ gpu = ["driver_display"]
 
 [dependencies]
 driver_common = { git = "https://github.com/Arceos-crates/driver_common.git" }
-driver_block = { path = "../driver_block", optional = true }
-driver_net = { path = "../driver_net", optional = true }
+driver_block = { git = "https://github.com/Arceos-crates/driver_block.git", optional = true }
+driver_net = { git = "https://github.com/Arceos-crates/driver_net.git", optional = true }
 driver_display = { path = "../driver_display", optional = true}
 virtio-drivers = { git = "https://github.com/rcore-os/virtio-drivers.git", rev = "4b60f5d" }

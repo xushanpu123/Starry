@@ -25,7 +25,7 @@ log = "0.4"
 cfg-if = "1.0"
 lazy_init = { path = "../../crates/lazy_init" }
 capability = { path = "../../crates/capability" }
-driver_block = { path = "../../crates/driver_block" }
+driver_block = { git = "https://github.com/Arceos-crates/driver_block.git", optional = true }
 axio = { git = "https://github.com/Arceos-crates/axio" }
 axerrno = { git = "https://github.com/Arceos-crates/axerrno.git" }
 axfs_vfs = { path = "../../crates/axfs_vfs" }
@@ -50,6 +50,6 @@ features = [ # no std
 
 [dev-dependencies]
 axdriver = { path = "../axdriver", features = ["block", "ramdisk"] }
-driver_block = { path = "../../crates/driver_block", features = ["ramdisk"] }
+driver_block = { git = "https://github.com/Arceos-crates/driver_block.git", features = ["ramdisk"] }
 axsync = { path = "../axsync", features = ["multitask"] }
 axtask = { path = "../axtask", features = ["test"] }

@@ -942,6 +942,7 @@ dependencies = [
 [[package]]
 name = "driver_block"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/driver_block.git#209aa41be37cf3a2ecb6d5dbb6cb0f23a89dab72"
 dependencies = [
  "bcm2835-sdhci",
  "driver_common",
@@ -963,6 +964,7 @@ dependencies = [
 [[package]]
 name = "driver_net"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/driver_net.git#0b88bed57830d2420f5156436dacbd26b382a79e"
 dependencies = [
  "driver_common",
  "ixgbe-driver",
