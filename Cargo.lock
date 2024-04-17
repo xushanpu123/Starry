@@ -917,6 +917,7 @@ checksum = "d2fabcfbdc87f4758337ca535fb41a6d701b65693ce38287d856d1674551ec9b"
 [[package]]
 name = "handler_table"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/handler_table.git#20b0742506716e910d29723e52cb28d501fada72"
 
 [[package]]
 name = "hash32"

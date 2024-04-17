@@ -9,7 +9,6 @@ members = [
     "crates/axfs_ramfs",
     "crates/capability",
     "crates/flatten_objects",
-    "crates/handler_table",
     "crates/linked_list",
     "crates/scheduler",
     "crates/timer_list",

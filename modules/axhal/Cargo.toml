@@ -36,7 +36,7 @@ page_table = { git = "https://github.com/Arceos-crates/page_table.git", optional
 page_table_entry = { git = "https://github.com/Arceos-crates/page_table_entry.git" }
 percpu = { git = "https://github.com/Arceos-crates/percpu.git" }
 memory_addr = { git = "https://github.com/Arceos-crates/memory_addr.git" }
-handler_table = { path = "../../crates/handler_table" }
+handler_table = { git = "https://github.com/Arceos-crates/handler_table.git" }
 crate_interface = { git = "https://github.com/Arceos-crates/crate_interface.git" }
 axfs_ramfs = { path = "../../crates/axfs_ramfs", optional = true }
 riscv = "0.10"
