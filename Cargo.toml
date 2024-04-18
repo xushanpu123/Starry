@@ -2,10 +2,7 @@
 resolver = "2"
 
 members = [
-    "crates/arm_pl011",
     "crates/dw_apb_uart",
-    "crates/axfs_devfs",
-    "crates/capability",
     "crates/flatten_objects",
     "crates/timer_list",
     "crates/tuple_for_each",

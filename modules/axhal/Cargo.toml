@@ -55,7 +55,7 @@ aarch64-cpu = "9.3"
 tock-registers = "0.8"
 either = {version = "1.6", default-features = false}
 arm_gic = { git = "https://github.com/Arceos-crates/arm_gic.git" }
-arm_pl011 = { path = "../../crates/arm_pl011" }
+arm_pl011 = { git = "https://github.com/Arceos-crates/arm_pl011.git" }
 dw_apb_uart = { path = "../../crates/dw_apb_uart" }
 of = { path = "../../crates/of"}
 

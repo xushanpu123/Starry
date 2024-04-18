@@ -195,6 +195,7 @@ dependencies = [
 [[package]]
 name = "arm_pl011"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/arm_pl011.git#9bd15d42d55ae5d2e6b76b312a1394a2cb3ece1e"
 dependencies = [
  "tock-registers",
 ]
@@ -314,6 +315,7 @@ dependencies = [
 [[package]]
 name = "axfs_devfs"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/axfs_devfs.git#852daac6bb17ed8a1b2b6808c8584a86d783273e"
 dependencies = [
  "axfs_vfs",
  "log",
@@ -643,6 +645,7 @@ checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
 [[package]]
 name = "capability"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/capability.git#8390a158ee94743dd5762d21ec2e627b990c4896"
 dependencies = [
  "axerrno",
  "bitflags 2.4.0",
