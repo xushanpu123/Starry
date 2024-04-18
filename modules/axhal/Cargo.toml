@@ -57,7 +57,7 @@ either = {version = "1.6", default-features = false}
 arm_gic = { git = "https://github.com/Arceos-crates/arm_gic.git" }
 arm_pl011 = { git = "https://github.com/Arceos-crates/arm_pl011.git" }
 dw_apb_uart = { git = "https://github.com/Arceos-crates/dw_apb_uart.git" }
-of = { path = "../../crates/of"}
+of = { git = "https://github.com/Arceos-crates/of.git"}
 
 [build-dependencies]
 axconfig = { path = "../axconfig" }

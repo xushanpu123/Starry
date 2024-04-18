@@ -1133,6 +1133,7 @@ source = "git+https://github.com/mexus/numeric-enum-macro#20aef288b2ecd2381ab662
 [[package]]
 name = "of"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/of.git#4ba9775021cc5e8acd17d2669f6a7bf684f118a3"
 dependencies = [
  "fdt",
  "lazy_static",
