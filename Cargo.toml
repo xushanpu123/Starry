@@ -2,8 +2,6 @@
 resolver = "2"
 
 members = [
-    "crates/dw_apb_uart",
-    "crates/flatten_objects",
     "crates/timer_list",
     "crates/tuple_for_each",
     "modules/axconfig",

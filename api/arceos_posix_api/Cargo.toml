@@ -46,7 +46,7 @@ axerrno = { git = "https://github.com/Arceos-crates/axerrno.git" }
 static_assertions = "1.1.0"
 spin = { version = "0.9" }
 lazy_static = { version = "1.4", features = ["spin_no_std"] }
-flatten_objects = { path = "../../crates/flatten_objects" }
+flatten_objects = { git = "https://github.com/Arceos-crates/flatten_objects.git" }
 
 [build-dependencies]
 bindgen ={ version = "0.66" }

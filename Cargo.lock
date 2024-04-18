@@ -801,6 +801,7 @@ dependencies = [
 [[package]]
 name = "dw_apb_uart"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/dw_apb_uart.git#449211803101234391057356d61573580f909b2c"
 dependencies = [
  "tock-registers",
 ]
@@ -889,6 +890,7 @@ dependencies = [
 [[package]]
 name = "flatten_objects"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/flatten_objects.git#8b54f132bfcd781221648c56bac57d69676d21bc"
 dependencies = [
  "bitmaps",
 ]
