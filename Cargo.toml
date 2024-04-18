@@ -6,11 +6,8 @@ members = [
     "crates/arm_pl011",
     "crates/dw_apb_uart",
     "crates/axfs_devfs",
-    "crates/axfs_ramfs",
     "crates/capability",
     "crates/flatten_objects",
-    "crates/linked_list",
-    "crates/scheduler",
     "crates/timer_list",
     "crates/tuple_for_each",
     "modules/axconfig",
@@ -24,7 +21,6 @@ members = [
     "modules/axtask",
     "modules/axprocess",
     "modules/axsignal",
-
     "api/axfeat",
     "api/arceos_api",
     

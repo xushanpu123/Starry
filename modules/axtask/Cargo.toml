@@ -41,7 +41,7 @@ percpu = { git = "https://github.com/Arceos-crates/percpu.git", optional = true 
 spinlock = { git = "https://github.com/Arceos-crates/spinlock.git", optional = true }
 lazy_init = { git = "https://github.com/Arceos-crates/lazy_init.git" , optional = true }
 memory_addr = { git = "https://github.com/Arceos-crates/memory_addr.git", optional = true }
-scheduler = { path = "../../crates/scheduler", optional = true }
+scheduler = { git = "https://github.com/Arceos-crates/scheduler.git", optional = true }
 timer_list = { path = "../../crates/timer_list", optional = true }
 kernel_guard = { git = "https://github.com/Arceos-crates/kernel_guard.git", optional = true }
 crate_interface = { git = "https://github.com/Arceos-crates/crate_interface.git", optional = true }

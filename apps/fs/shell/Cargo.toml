@@ -12,6 +12,6 @@ default = []
 
 [dependencies]
 axfs_vfs = { git = "https://github.com/Arceos-crates/axfs_vfs.git", optional = true }
-axfs_ramfs = { path = "../../../crates/axfs_ramfs", optional = true }
+axfs_ramfs = { git = "https://github.com/Arceos-crates/axfs_ramfs.git", optional = true }
 crate_interface = { git = "https://github.com/Arceos-crates/crate_interface.git", optional = true }
 axstd = { path = "../../../ulib/axstd", features = ["alloc", "fs"], optional = true }

@@ -323,6 +323,7 @@ dependencies = [
 [[package]]
 name = "axfs_ramfs"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/axfs_ramfs.git#f6f827c8c06f00dc7100ebd011670083094d2d41"
 dependencies = [
  "axerrno",
  "axfs_vfs",
@@ -1017,6 +1018,7 @@ dependencies = [
 [[package]]
 name = "linked_list"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/linked_list.git#c09c92852cf8d97e3f67d1a5a8f294904e4879fb"
 
 [[package]]
 name = "lock_api"
