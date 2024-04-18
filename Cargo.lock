@@ -1675,6 +1675,7 @@ dependencies = [
 [[package]]
 name = "timer_list"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/timer_list.git#cf335a5457abf9f348da408174d50db90edb2def"
 
 [[package]]
 name = "tock-registers"
@@ -1697,15 +1698,6 @@ dependencies = [
  "indexmap",
  "toml_datetime",
  "winnow",
-]
-
-[[package]]
-name = "tuple_for_each"
-version = "0.1.0"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.39",
 ]
 
 [[package]]

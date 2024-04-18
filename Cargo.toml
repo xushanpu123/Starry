@@ -2,8 +2,6 @@
 resolver = "2"
 
 members = [
-    "crates/timer_list",
-    "crates/tuple_for_each",
     "modules/axconfig",
     "modules/axdisplay",
     "modules/axdriver",
