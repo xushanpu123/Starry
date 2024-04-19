@@ -30,7 +30,7 @@ monolithic = ["axprocess/monolithic", "axhal/monolithic", "axtask/monolithic", "
 cfg-if = "1.0"
 axhal = { path = "../axhal" }
 axlog = { git = "https://github.com/Arceos-crates/axlog.git" }
-axconfig = { path = "../axconfig" }
+axconfig = { git = "https://github.com/Arceos-crates/axconfig.git"}
 axalloc = { git = "https://github.com/Arceos-crates/axalloc.git", optional = true }
 axdriver = { path = "../axdriver", optional = true }
 axfs = { path = "../axfs", optional = true }

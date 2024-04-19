@@ -36,7 +36,7 @@ log = "0.4"
 numeric-enum-macro = { git = "https://github.com/mexus/numeric-enum-macro" }
 axhal = { path = "../axhal" }
 axsignal = { path = "../axsignal", optional = true }
-axconfig = { path = "../axconfig", optional = true }
+axconfig = { git = "https://github.com/Arceos-crates/axconfig.git", optional = true }
 percpu = { git = "https://github.com/Arceos-crates/percpu.git", optional = true }
 spinlock = { git = "https://github.com/Arceos-crates/spinlock.git", optional = true }
 lazy_init = { git = "https://github.com/Arceos-crates/lazy_init.git" , optional = true }

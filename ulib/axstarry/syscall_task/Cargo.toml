@@ -25,7 +25,7 @@ arceos_api = { path = "../../../api/arceos_api" }
 axsignal = { path = "../../../modules/axsignal", optional = true }
 axtask = { path = "../../../modules/axtask" }
 axprocess = { path = "../../../modules/axprocess" }
-axconfig = { path = "../../../modules/axconfig" }
+axconfig = { git = "https://github.com/Arceos-crates/axconfig.git"}
 axlog = { git = "https://github.com/Arceos-crates/axlog.git" }
 axhal = { path = "../../../modules/axhal" }
 syscall_utils = { path = "../syscall_utils" }

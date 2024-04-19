@@ -15,7 +15,7 @@ default = []
 log = "0.4"
 axhal = { path = "../axhal", features = ["paging"] }
 axalloc = { git = "https://github.com/Arceos-crates/axalloc.git" }
-axconfig = { path = "../axconfig" }
+axconfig = { git = "https://github.com/Arceos-crates/axconfig.git"}
 axerrno = { git = "https://github.com/Arceos-crates/axerrno.git" }
 axfs = { path = "../axfs" }
 axio = { git = "https://github.com/Arceos-crates/axio" }

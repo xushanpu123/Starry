@@ -31,7 +31,7 @@ epoll = ["fd"]
 # ArceOS modules
 axfeat = { path = "../axfeat" }
 axruntime = { path = "../../modules/axruntime" }
-axconfig = { path = "../../modules/axconfig" }
+axconfig = { git = "https://github.com/Arceos-crates/axconfig.git" }
 axlog = { git = "https://github.com/Arceos-crates/axlog.git" }
 axhal = { path = "../../modules/axhal" }
 axsync = { path = "../../modules/axsync" }

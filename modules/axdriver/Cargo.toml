@@ -44,4 +44,4 @@ driver_pci = { git = "https://github.com/Arceos-crates/driver_pci.git", optional
 driver_virtio = { git = "https://github.com/Arceos-crates/driver_virtio.git", optional = true }
 axalloc = { git = "https://github.com/Arceos-crates/axalloc.git" , optional = true }
 axhal = { path = "../axhal", optional = true }
-axconfig = { path = "../axconfig", optional = true }
+axconfig = { git = "https://github.com/Arceos-crates/axconfig.git", optional = true }

@@ -26,7 +26,7 @@ cfg-if = "1.0"
 bitflags = "2.2"
 static_assertions = "1.1.0"
 axlog = { git = "https://github.com/Arceos-crates/axlog.git" }
-axconfig = { path = "../axconfig" }
+axconfig = { git = "https://github.com/Arceos-crates/axconfig.git"}
 axalloc = { git = "https://github.com/Arceos-crates/axalloc.git", optional = true }
 kernel_guard = { git = "https://github.com/Arceos-crates/kernel_guard.git" }
 spinlock = { git = "https://github.com/Arceos-crates/spinlock.git" }
@@ -60,4 +60,4 @@ dw_apb_uart = { git = "https://github.com/Arceos-crates/dw_apb_uart.git" }
 of = { git = "https://github.com/Arceos-crates/of.git"}
 
 [build-dependencies]
-axconfig = { path = "../axconfig" }
+axconfig = { git = "https://github.com/Arceos-crates/axconfig.git"}
