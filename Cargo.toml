@@ -27,9 +27,6 @@ members = [
     "apps/task/priority",
     "apps/task/tls",
     "apps/oscomp",
-    "apps/ostrain/filewrite",
-    "apps/ostrain/taskyield",
-    "apps/ostrain/task_single_yield",
 ]
 
 [profile.release]

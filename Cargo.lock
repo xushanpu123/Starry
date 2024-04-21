@@ -752,13 +752,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "784a4df722dc6267a04af36895398f59d21d07dce47232adf31ec0ff2fa45e67"
 
 [[package]]
-name = "filewrite"
-version = "0.1.0"
-dependencies = [
- "axstd",
-]
-
-[[package]]
 name = "flatten_objects"
 version = "0.1.0"
 source = "git+https://github.com/Arceos-crates/flatten_objects.git#8b54f132bfcd781221648c56bac57d69676d21bc"
@@ -1415,20 +1408,6 @@ dependencies = [
  "bitflags 2.5.0",
  "num_enum",
  "numeric-enum-macro",
-]
-
-[[package]]
-name = "task_single_yield"
-version = "0.1.0"
-dependencies = [
- "axstd",
-]
-
-[[package]]
-name = "taskyield"
-version = "0.1.0"
-dependencies = [
- "axstd",
 ]
 
 [[package]]
