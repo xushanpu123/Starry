@@ -50,7 +50,7 @@ GRAPHIC ?= n
 BUS ?= mmio
 
 DISK_IMG ?= disk.img
-QEMU_LOG ?= n
+QEMU_LOG ?= n    "apps/helloworld",   
 NET_DUMP ?= n
 NET_DEV ?= user
 VFIO_PCI ?=

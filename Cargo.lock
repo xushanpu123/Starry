@@ -137,9 +137,7 @@ dependencies = [
  "cfg-if",
  "driver_block",
  "driver_common",
- "driver_display",
  "driver_net",
- "driver_pci",
  "driver_virtio",
  "log",
 ]
@@ -422,17 +420,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9e1b586273c5702936fe7b7d6896644d8be71e6314cfe09d3167c95f712589e8"
 
 [[package]]
-name = "bcm2835-sdhci"
-version = "0.1.0"
-source = "git+https://github.com/lhw2002426/bcm2835-sdhci.git?rev=e974f16#e974f168efa72b470a01f61bdef32240c66f54fc"
-dependencies = [
- "aarch64-cpu",
- "log",
- "tock-registers",
- "volatile 0.2.7",
-]
-
-[[package]]
 name = "bindgen"
 version = "0.66.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -541,12 +528,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b396d1f76d455557e1218ec8066ae14bba60b4b36ecd55577ba979f5db7ecaa"
 
 [[package]]
-name = "core_detect"
-version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f8f80099a98041a3d1622845c271458a2d73e688351bf3cb999266764b81d48"
-
-[[package]]
 name = "crate_interface"
 version = "0.1.1"
 source = "git+https://github.com/Arceos-crates/crate_interface.git#f735ba00214b4f7e239fdd4f07d5bae085b15514"
@@ -599,7 +580,6 @@ name = "driver_block"
 version = "0.1.0"
 source = "git+https://github.com/Arceos-crates/driver_block.git#209aa41be37cf3a2ecb6d5dbb6cb0f23a89dab72"
 dependencies = [
- "bcm2835-sdhci",
  "driver_common",
  "log",
 ]
@@ -610,30 +590,13 @@ version = "0.1.0"
 source = "git+https://github.com/Arceos-crates/driver_common.git#196a975f7a48e905d5b6ec743648ebf7adb26b9d"
 
 [[package]]
-name = "driver_display"
-version = "0.1.0"
-source = "git+https://github.com/Arceos-crates/driver_display.git#9a674f9da6708918302d1bd332f35577ecd218ec"
-dependencies = [
- "driver_common",
-]
-
-[[package]]
 name = "driver_net"
 version = "0.1.0"
 source = "git+https://github.com/Arceos-crates/driver_net.git#0b88bed57830d2420f5156436dacbd26b382a79e"
 dependencies = [
  "driver_common",
- "ixgbe-driver",
  "log",
  "spin 0.9.8",
-]
-
-[[package]]
-name = "driver_pci"
-version = "0.1.0"
-source = "git+https://github.com/Arceos-crates/driver_pci.git#c9b5e362a7490bea76ea7577ac5a73f10d9ba079"
-dependencies = [
- "virtio-drivers",
 ]
 
 [[package]]
@@ -643,7 +606,6 @@ source = "git+https://github.com/Arceos-crates/driver_virtio.git#e7a1ba6b70d327c
 dependencies = [
  "driver_block",
  "driver_common",
- "driver_display",
  "driver_net",
  "virtio-drivers",
 ]
@@ -767,18 +729,6 @@ checksum = "168fb715dda47215e360912c096649d23d58bf392ac62f73919e831745e40f26"
 dependencies = [
  "equivalent",
  "hashbrown",
-]
-
-[[package]]
-name = "ixgbe-driver"
-version = "0.1.0"
-source = "git+https://github.com/KuangjuX/ixgbe-driver.git?rev=8e5eb74#8e5eb741299d7d95c373ec745e39a1473fe84563"
-dependencies = [
- "bit_field",
- "core_detect",
- "log",
- "smoltcp",
- "volatile 0.3.0",
 ]
 
 [[package]]
@@ -1445,18 +1395,6 @@ checksum = "6a02e4885ed3bc0f2de90ea6dd45ebcbb66dacffe03547fadbb0eeae2770887d"
 
 [[package]]
 name = "volatile"
-version = "0.2.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f6b06ad3ed06fef1713569d547cdbdb439eafed76341820fb0e0344f29a41945"
-
-[[package]]
-name = "volatile"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f8e76fae08f03f96e166d2dfda232190638c10e0383841252416f9cfe2ae60e6"
-
-[[package]]
-name = "volatile"
 version = "0.4.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "442887c63f2c839b346c192d047a7c87e73d0689c9157b00b53dcc27dd5ea793"
@@ -1588,7 +1526,7 @@ dependencies = [
  "bit_field",
  "bitflags 2.5.0",
  "rustversion",
- "volatile 0.4.6",
+ "volatile",
 ]
 
 [[package]]

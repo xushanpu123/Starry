@@ -2,6 +2,7 @@
 use std::{
     fs::File,
     io::{Result, Write},
+    path::PathBuf,
 };
 
 const NET_DEV_FEATURES: &[&str] = &["ixgbe", "virtio-net"];
@@ -22,8 +23,9 @@ fn enable_cfg(key: &str, value: &str) {
 
 #[cfg(feature = "img")]
 fn new_fs_img() -> Result<()> {
-    let mut f = File::create("./image.S").unwrap();
-    let img_path = "./disk.img";
+    let root_dir = PathBuf::from(std::env!("CARGO_MANIFEST_DIR"));
+    let mut f = File::create(root_dir.join("axdriver./image.S")).unwrap();
+    let img_path = root_dir.join("axdriver/./disk.img");
     writeln!(
         f,
         r#"

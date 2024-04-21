@@ -15,7 +15,6 @@ resolver = "2"
 
 members = [
     "modules/axconfig",
-    "modules/axdriver",
     "modules/axhal", 
     "api/arceos_posix_api",
     "ulib/axlibc",
