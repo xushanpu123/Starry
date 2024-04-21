@@ -293,6 +293,7 @@ dependencies = [
 [[package]]
 name = "axfs"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/axfs.git#67b31bfb362f264e00f7f1b012764729c0c5afc8"
 dependencies = [
  "axdriver",
  "axerrno",
@@ -301,12 +302,10 @@ dependencies = [
  "axfs_vfs",
  "axio",
  "axsync",
- "axtask",
  "bitflags 2.5.0",
  "capability",
  "cfg-if",
  "crate_interface",
- "driver_block",
  "fatfs",
  "lazy_init",
  "log",

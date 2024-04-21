@@ -30,7 +30,7 @@ axhal = { git = "https://github.com/Arceos-crates/axhal.git" }
 axlog = { git = "https://github.com/Arceos-crates/axlog.git" }
 axerrno = { git = "https://github.com/Arceos-crates/axerrno.git" }
 axconfig = { git = "https://github.com/Arceos-crates/axconfig.git"}
-axfs = { path = "../axfs", optional = true }
+axfs = { git = "https://github.com/Arceos-crates/axfs.git", optional = true }
 axsignal = { git = "https://github.com/Arceos-crates/axsignal.git", optional = true }
 riscv = "0.10"
 bitflags = "2.0"

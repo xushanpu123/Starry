@@ -14,7 +14,6 @@ members = [
     "modules/axconfig",
     "modules/axdisplay",
     "modules/axdriver",
-    "modules/axfs",
     "modules/axhal",
     "modules/axnet",
     "modules/axruntime",

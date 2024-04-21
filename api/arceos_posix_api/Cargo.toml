@@ -37,7 +37,7 @@ axhal = { git = "https://github.com/Arceos-crates/axhal.git" }
 axsync = { git = "https://github.com/Arceos-crates/axsync.git" }
 axalloc = { git = "https://github.com/Arceos-crates/axalloc.git", optional = true }
 axtask = { git = "https://github.com/Arceos-crates/axtask.git", optional = true }
-axfs = { path = "../../modules/axfs", optional = true }
+axfs = { git = "https://github.com/Arceos-crates/axfs.git", optional = true }
 axnet = { path = "../../modules/axnet", optional = true }
 
 # Other crates

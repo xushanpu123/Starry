@@ -10,7 +10,7 @@ axhal = { git = "https://github.com/Arceos-crates/axhal.git" }
 axlog = { git = "https://github.com/Arceos-crates/axlog.git" }
 num_enum = { version = "0.5.11", default-features = false }
 bitflags = "2.0"
-axfs = { path = "../../../modules/axfs" }
+axfs = { git = "https://github.com/Arceos-crates/axfs.git" }
 axconfig = { git = "https://github.com/Arceos-crates/axconfig.git" }
 axerrno = { git = "https://github.com/Arceos-crates/axerrno.git" }
 numeric-enum-macro = { git = "https://github.com/mexus/numeric-enum-macro" }
