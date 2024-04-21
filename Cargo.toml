@@ -1,19 +1,9 @@
 
-
-[patch."https://github.com/Arceos-crates/axhal.git".axhal]
-path = "modules/axhal"
-
-
-[patch."https://github.com/Arceos-crates/arceos_posix_api.git".arceos_posix_api]
-path = "api/arceos_posix_api"
-
 [workspace]
 resolver = "2"
 
 members = [
-    "api/arceos_posix_api",
     "apps/helloworld",
-    "apps/oscomp",
 ]
 
 [profile.release]
