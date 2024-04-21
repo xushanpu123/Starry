@@ -8,4 +8,4 @@ authors = ["ChengXiang Qi <kuangjux@outlook.com>"]
 
 [dependencies]
 axstd = { path = "../../../ulib/axstd", features = ["net"] }
-axnet = { path = "../../../modules/axnet" }
+axnet = { git = "https://github.com/Arceos-crates/axnet.git" }

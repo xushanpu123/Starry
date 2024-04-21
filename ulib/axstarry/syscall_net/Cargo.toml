@@ -15,7 +15,7 @@ ip = ["axnet/ip"]
 dns = []
 
 [dependencies]
-axnet = { path = "../../../modules/axnet" }
+axnet = { git = "https://github.com/Arceos-crates/axnet.git" }
 axerrno = { git = "https://github.com/Arceos-crates/axerrno.git" }
 axprocess = { path = "../../../modules/axprocess" }
 axfs = { git = "https://github.com/Arceos-crates/axfs.git" }

@@ -414,7 +414,7 @@ dependencies = [
 [[package]]
 name = "axmem"
 version = "0.1.0"
-source = "git+https://github.com/Arceos-crates/axnet.git#170157b8d6fb045a5605bcb1aadd6266be84f028"
+source = "git+https://github.com/Arceos-crates/axmem.git#170157b8d6fb045a5605bcb1aadd6266be84f028"
 dependencies = [
  "axalloc",
  "axconfig",
@@ -432,6 +432,7 @@ dependencies = [
 [[package]]
 name = "axnet"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/axnet.git#bb26cdc9d60c93cd558b7573f42a5622f100cfd4"
 dependencies = [
  "axdriver",
  "axerrno",

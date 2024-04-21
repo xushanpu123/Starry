@@ -76,7 +76,7 @@ axlog = { git = "https://github.com/Arceos-crates/axlog.git" }
 axalloc = { git = "https://github.com/Arceos-crates/axalloc.git", optional = true }
 axdriver = { git = "https://github.com/Arceos-crates/axdriver.git", optional = true }
 axfs = { git = "https://github.com/Arceos-crates/axfs.git", optional = true }
-axnet = { path = "../../modules/axnet", optional = true }
+axnet = { git = "https://github.com/Arceos-crates/axnet.git", optional = true }
 axdisplay = { path = "../../modules/axdisplay", optional = true }
 axsync = { git = "https://github.com/Arceos-crates/axsync.git", optional = true }
 axtask = { git = "https://github.com/Arceos-crates/axtask.git", optional = true }
