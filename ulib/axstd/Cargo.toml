@@ -70,7 +70,7 @@ log-level-trace = ["axfeat/log-level-trace"]
 
 [dependencies]
 axfeat = { git = "https://github.com/Arceos-crates/axfeat.git" }
-arceos_api = { path = "../../api/arceos_api" }
+arceos_api = { git = "https://github.com/Arceos-crates/arceos_api.git" }
 axio = { git = "https://github.com/Arceos-crates/axio" }
 axerrno = { git = "https://github.com/Arceos-crates/axerrno.git" }
 spinlock = { git = "https://github.com/Arceos-crates/spinlock.git" }

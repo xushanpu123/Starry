@@ -7,19 +7,20 @@ path = "modules/axhal"
 [patch."https://github.com/Arceos-crates/axdriver.git".axdriver]
 path = "modules/axdriver"
 
+[patch."https://github.com/Arceos-crates/arceos_posix_api.git".arceos_posix_api]
+path = "api/arceos_posix_api"
+
 [workspace]
 resolver = "2"
 
 members = [
     "modules/axconfig",
     "modules/axdriver",
-    "modules/axhal",
-    "api/arceos_api",   
+    "modules/axhal", 
     "api/arceos_posix_api",
     "ulib/axstd",
     "ulib/axlibc",
     "ulib/axstarry/syscall_net",
-    "ulib/axstarry/syscall_task",
     "ulib/axstarry/syscall_entry",
     "apps/display",
     "apps/exception",

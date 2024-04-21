@@ -146,6 +146,7 @@ dependencies = [
 [[package]]
 name = "arceos_api"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/arceos_api.git#b2b54c94e64aca2b44f3eda7f3f69ca748ebf720"
 dependencies = [
  "axalloc",
  "axconfig",
@@ -1636,6 +1637,7 @@ dependencies = [
 [[package]]
 name = "syscall_task"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/syscall_task.git#6b426f67112eb1a22bcb521f39e9110205d58842"
 dependencies = [
  "arceos_api",
  "axconfig",

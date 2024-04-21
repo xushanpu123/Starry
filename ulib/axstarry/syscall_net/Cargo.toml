@@ -26,4 +26,4 @@ num_enum = { version = "0.5.11", default-features = false }
 syscall_utils = { git = "https://github.com/Arceos-crates/syscall_utils.git" }
 numeric-enum-macro = { git = "https://github.com/mexus/numeric-enum-macro" }
 axfeat = { git = "https://github.com/Arceos-crates/axfeat.git" }
-arceos_api = { path = "../../../api/arceos_api" }
+arceos_api = { git = "https://github.com/Arceos-crates/arceos_api.git" }
