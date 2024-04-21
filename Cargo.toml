@@ -12,11 +12,8 @@ resolver = "2"
 
 members = [
     "modules/axconfig",
-    "modules/axdisplay",
     "modules/axdriver",
     "modules/axhal",
-    "modules/axruntime",
-    "modules/axprocess",
     "api/axfeat",
     "api/arceos_api",   
     "api/arceos_posix_api",

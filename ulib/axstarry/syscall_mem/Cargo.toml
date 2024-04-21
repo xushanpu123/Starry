@@ -10,7 +10,7 @@ edition = "2021"
 fs = ["dep:syscall_fs"]
 
 [dependencies]
-axprocess = { path = "../../../modules/axprocess" }
+axprocess = { git = "https://github.com/Arceos-crates/axprocess.git" }
 axerrno = { git = "https://github.com/Arceos-crates/axerrno.git" }
 syscall_utils = { path = "../syscall_utils" }
 axlog = { git = "https://github.com/Arceos-crates/axlog.git" }

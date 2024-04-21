@@ -239,6 +239,7 @@ dependencies = [
 [[package]]
 name = "axdisplay"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/axdisplay.git#e953f16556dcffe593838cffafd6d61585427d7b"
 dependencies = [
  "axdriver",
  "axsync",
@@ -451,6 +452,7 @@ dependencies = [
 [[package]]
 name = "axprocess"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/axprocess.git#9063b85dff41a14e71b7fa89e72865308f4374f8"
 dependencies = [
  "axalloc",
  "axconfig",
@@ -475,6 +477,7 @@ dependencies = [
 [[package]]
 name = "axruntime"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/axruntime.git#9aeee8842eca4fbc88a29d06d016127fcde36a08"
 dependencies = [
  "axalloc",
  "axconfig",

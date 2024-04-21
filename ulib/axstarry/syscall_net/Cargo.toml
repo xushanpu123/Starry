@@ -17,7 +17,7 @@ dns = []
 [dependencies]
 axnet = { git = "https://github.com/Arceos-crates/axnet.git" }
 axerrno = { git = "https://github.com/Arceos-crates/axerrno.git" }
-axprocess = { path = "../../../modules/axprocess" }
+axprocess = { git = "https://github.com/Arceos-crates/axprocess.git" }
 axfs = { git = "https://github.com/Arceos-crates/axfs.git" }
 axio = { git = "https://github.com/Arceos-crates/axio" }
 axlog = { git = "https://github.com/Arceos-crates/axlog.git" }
