@@ -19,10 +19,7 @@ members = [
     "modules/axhal", 
     "api/arceos_posix_api",
     "ulib/axlibc",
-    "apps/display",
-    "apps/exception",
     "apps/helloworld",
-    "apps/memtest",
     "apps/fs/shell",
     "apps/task/parallel",
     "apps/task/sleep",
@@ -30,12 +27,9 @@ members = [
     "apps/task/priority",
     "apps/task/tls",
     "apps/oscomp",
-    "apps/ostrain/fileopen",
-    "apps/ostrain/fileread",
     "apps/ostrain/filewrite",
     "apps/ostrain/taskyield",
     "apps/ostrain/task_single_yield",
-    "apps/ostrain/danger_access"
 ]
 
 [profile.release]

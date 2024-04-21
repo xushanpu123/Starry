@@ -30,33 +30,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "arceos-display"
-version = "0.1.0"
-dependencies = [
- "axstd",
- "embedded-graphics",
-]
-
-[[package]]
-name = "arceos-exception"
-version = "0.1.0"
-dependencies = [
- "axstd",
-]
-
-[[package]]
 name = "arceos-helloworld"
 version = "0.1.0"
 dependencies = [
  "axstd",
-]
-
-[[package]]
-name = "arceos-memtest"
-version = "0.1.0"
-dependencies = [
- "axstd",
- "rand",
 ]
 
 [[package]]
@@ -112,7 +89,6 @@ source = "git+https://github.com/Arceos-crates/arceos_api.git#b2b54c94e64aca2b44
 dependencies = [
  "axalloc",
  "axconfig",
- "axdisplay",
  "axerrno",
  "axfeat",
  "axfs",
@@ -199,18 +175,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "axdisplay"
-version = "0.1.0"
-source = "git+https://github.com/Arceos-crates/axdisplay.git#e953f16556dcffe593838cffafd6d61585427d7b"
-dependencies = [
- "axdriver",
- "axsync",
- "driver_display",
- "lazy_init",
- "log",
-]
-
-[[package]]
 name = "axdriver"
 version = "0.1.0"
 dependencies = [
@@ -241,7 +205,6 @@ version = "0.1.0"
 source = "git+https://github.com/Arceos-crates/axfeat.git#1d4fd731463285ce01fa2d3ea2e8a60b1f0ab612"
 dependencies = [
  "axalloc",
- "axdisplay",
  "axdriver",
  "axfs",
  "axhal",
@@ -443,7 +406,6 @@ source = "git+https://github.com/Arceos-crates/axruntime.git#9aeee8842eca4fbc88a
 dependencies = [
  "axalloc",
  "axconfig",
- "axdisplay",
  "axdriver",
  "axfs",
  "axhal",
@@ -500,12 +462,6 @@ dependencies = [
  "spinlock",
  "timer_list",
 ]
-
-[[package]]
-name = "az"
-version = "1.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7b7e4c2464d97fe331d41de9d5db0def0a96f4d823b8b32a2efd503578988973"
 
 [[package]]
 name = "base64"
@@ -655,13 +611,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7059fff8937831a9ae6f0fe4d658ffabf58f2ca96aa9dec1c889f936f705f216"
 
 [[package]]
-name = "danger_access"
-version = "0.1.0"
-dependencies = [
- "axstd",
-]
-
-[[package]]
 name = "defmt"
 version = "0.3.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -762,29 +711,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a47c1c47d2f5964e29c61246e81db715514cd532db6b5116a25ea3c03d6780a2"
 
 [[package]]
-name = "embedded-graphics"
-version = "0.8.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0649998afacf6d575d126d83e68b78c0ab0e00ca2ac7e9b3db11b4cbe8274ef0"
-dependencies = [
- "az",
- "byteorder",
- "embedded-graphics-core",
- "float-cmp",
- "micromath",
-]
-
-[[package]]
-name = "embedded-graphics-core"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ba9ecd261f991856250d2207f6d8376946cd9f412a2165d3b75bc87a0bc7a044"
-dependencies = [
- "az",
- "byteorder",
-]
-
-[[package]]
 name = "embedded-hal"
 version = "0.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -826,20 +752,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "784a4df722dc6267a04af36895398f59d21d07dce47232adf31ec0ff2fa45e67"
 
 [[package]]
-name = "fileopen"
-version = "0.1.0"
-dependencies = [
- "axstd",
-]
-
-[[package]]
-name = "fileread"
-version = "0.1.0"
-dependencies = [
- "axstd",
-]
-
-[[package]]
 name = "filewrite"
 version = "0.1.0"
 dependencies = [
@@ -852,15 +764,6 @@ version = "0.1.0"
 source = "git+https://github.com/Arceos-crates/flatten_objects.git#8b54f132bfcd781221648c56bac57d69676d21bc"
 dependencies = [
  "bitmaps",
-]
-
-[[package]]
-name = "float-cmp"
-version = "0.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "98de4bbd547a563b716d8dfa9aad1cb19bfab00f4fa09a6a4ed21dbcf44ce9c4"
-dependencies = [
- "num-traits",
 ]
 
 [[package]]
@@ -1023,12 +926,6 @@ version = "0.1.0"
 source = "git+https://github.com/Arceos-crates/memory_addr.git#e0d520821bcca9e0abdaf2a218a150ef05c5a694"
 
 [[package]]
-name = "micromath"
-version = "2.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c3c8dda44ff03a2f238717214da50f65d5a53b45cd213a7370424ffdb6fae815"
-
-[[package]]
 name = "minimal-lexical"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1057,15 +954,6 @@ checksum = "d273983c5a657a70a3e8f2a01329822f3b8c8172b73826411a55751e404a0a4a"
 dependencies = [
  "memchr",
  "minimal-lexical",
-]
-
-[[package]]
-name = "num-traits"
-version = "0.2.18"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "da0df0e5185db44f69b44f26786fe401b6c293d1907744beaa7fa62b2e5a517a"
-dependencies = [
- "autocfg",
 ]
 
 [[package]]
