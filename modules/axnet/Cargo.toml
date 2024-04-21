@@ -24,9 +24,9 @@ spin = "0.9"
 driver_net = { git = "https://github.com/Arceos-crates/driver_net.git" }
 lazy_init = { git = "https://github.com/Arceos-crates/lazy_init.git"  }
 axerrno = { git = "https://github.com/Arceos-crates/axerrno.git" }
-axhal = { path = "../axhal" }
+axhal = { git = "https://github.com/Arceos-crates/axhal.git" }
 axsync = { path = "../axsync" }
-axtask = { path = "../axtask" }
+axtask = { git = "https://github.com/Arceos-crates/axtask.git" }
 axdriver = { path = "../axdriver", features = ["net"] }
 axio = { git = "https://github.com/Arceos-crates/axio" }
 

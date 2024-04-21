@@ -33,10 +33,10 @@ axfeat = { path = "../axfeat" }
 axruntime = { path = "../../modules/axruntime" }
 axconfig = { git = "https://github.com/Arceos-crates/axconfig.git" }
 axlog = { git = "https://github.com/Arceos-crates/axlog.git" }
-axhal = { path = "../../modules/axhal" }
+axhal = { git = "https://github.com/Arceos-crates/axhal.git" }
 axsync = { path = "../../modules/axsync" }
 axalloc = { git = "https://github.com/Arceos-crates/axalloc.git", optional = true }
-axtask = { path = "../../modules/axtask", optional = true }
+axtask = { git = "https://github.com/Arceos-crates/axtask.git", optional = true }
 axfs = { path = "../../modules/axfs", optional = true }
 axnet = { path = "../../modules/axnet", optional = true }
 

@@ -10,7 +10,7 @@ edition = "2021"
 signal = ["axprocess/signal"]
 
 [dependencies]
-axtask = { path = "../../../modules/axtask" }
+axtask = { git = "https://github.com/Arceos-crates/axtask.git" }
 axsync = { path = "../../../modules/axsync" }
 axfs = { path = "../../../modules/axfs" }
 axerrno = { git = "https://github.com/Arceos-crates/axerrno.git" }
@@ -18,6 +18,6 @@ axlog = { git = "https://github.com/Arceos-crates/axlog.git" }
 axprocess = { path = "../../../modules/axprocess" }
 syscall_utils = { path = "../syscall_utils" }
 axio = { git = "https://github.com/Arceos-crates/axio" }
-axhal = { path = "../../../modules/axhal" }
+axhal = { git = "https://github.com/Arceos-crates/axhal.git" }
 bitflags = "2.0"
 numeric-enum-macro = { git = "https://github.com/mexus/numeric-enum-macro" }

@@ -28,7 +28,7 @@ monolithic = ["axprocess/monolithic", "axhal/monolithic", "axtask/monolithic", "
 
 [dependencies]
 cfg-if = "1.0"
-axhal = { path = "../axhal" }
+axhal = { git = "https://github.com/Arceos-crates/axhal.git" }
 axlog = { git = "https://github.com/Arceos-crates/axlog.git" }
 axconfig = { git = "https://github.com/Arceos-crates/axconfig.git"}
 axalloc = { git = "https://github.com/Arceos-crates/axalloc.git", optional = true }
@@ -36,7 +36,7 @@ axdriver = { path = "../axdriver", optional = true }
 axfs = { path = "../axfs", optional = true }
 axnet = { path = "../axnet", optional = true }
 axdisplay = { path = "../axdisplay", optional = true }
-axtask = { path = "../axtask", optional = true }
+axtask = { git = "https://github.com/Arceos-crates/axtask.git", optional = true }
 axprocess = { path = "../axprocess", optional = true }
 axmem = { path = "../axmem", optional = true }
 crate_interface = { git = "https://github.com/Arceos-crates/crate_interface.git" }

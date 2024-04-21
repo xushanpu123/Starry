@@ -52,4 +52,4 @@ features = [ # no std
 axdriver = { path = "../axdriver", features = ["block", "ramdisk"] }
 driver_block = { git = "https://github.com/Arceos-crates/driver_block.git", features = ["ramdisk"] }
 axsync = { path = "../axsync", features = ["multitask"] }
-axtask = { path = "../axtask", features = ["test"] }
+axtask = { git = "https://github.com/Arceos-crates/axtask.git", features = ["test"] }

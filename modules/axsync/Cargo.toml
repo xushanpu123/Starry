@@ -15,9 +15,9 @@ default = []
 
 [dependencies]
 spinlock = { git = "https://github.com/Arceos-crates/spinlock.git" }
-axtask = { path = "../axtask" }
+axtask = { git = "https://github.com/Arceos-crates/axtask.git" }
 
 [dev-dependencies]
 rand = "0.8"
 axsync = { path = ".", features = ["multitask"] }
-axtask = { path = "../axtask", features = ["test"] }
+axtask = { git = "https://github.com/Arceos-crates/axtask.git", features = ["test"] }
