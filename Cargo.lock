@@ -128,13 +128,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "arceos-udpserver"
-version = "0.1.0"
-dependencies = [
- "axstd",
-]
-
-[[package]]
 name = "arceos-yield"
 version = "0.1.0"
 dependencies = [
