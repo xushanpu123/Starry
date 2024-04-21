@@ -25,7 +25,6 @@ members = [
     "apps/memtest",
     "apps/fs/shell",
     "apps/net/echoserver",
-    "apps/net/httpclient",
     "apps/net/bwbench",
     "apps/task/parallel",
     "apps/task/sleep",
