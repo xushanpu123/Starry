@@ -27,7 +27,7 @@ dummy-if-not-enabled = []
 monolithic = ["axruntime/monolithic"]
 
 [dependencies]
-axfeat = { path = "../axfeat" }
+axfeat = { git = "https://github.com/Arceos-crates/axfeat.git" }
 axruntime = { git = "https://github.com/Arceos-crates/axruntime.git" }
 axconfig = { git = "https://github.com/Arceos-crates/axconfig.git" }
 axlog = { git = "https://github.com/Arceos-crates/axlog.git" }

@@ -20,7 +20,7 @@ default = []
 
 [dependencies]
 numeric-enum-macro = { git = "https://github.com/mexus/numeric-enum-macro" }
-axfeat = { path = "../../../api/axfeat" }
+axfeat = { git = "https://github.com/Arceos-crates/axfeat.git" }
 arceos_api = { path = "../../../api/arceos_api" }
 axsignal = { git = "https://github.com/Arceos-crates/axsignal.git", optional = true }
 axtask = { git = "https://github.com/Arceos-crates/axtask.git"}

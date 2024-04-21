@@ -276,6 +276,7 @@ dependencies = [
 [[package]]
 name = "axfeat"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/axfeat.git#1d4fd731463285ce01fa2d3ea2e8a60b1f0ab612"
 dependencies = [
  "axalloc",
  "axdisplay",

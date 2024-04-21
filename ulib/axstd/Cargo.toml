@@ -69,7 +69,7 @@ log-level-debug = ["axfeat/log-level-debug"]
 log-level-trace = ["axfeat/log-level-trace"]
 
 [dependencies]
-axfeat = { path = "../../api/axfeat" }
+axfeat = { git = "https://github.com/Arceos-crates/axfeat.git" }
 arceos_api = { path = "../../api/arceos_api" }
 axio = { git = "https://github.com/Arceos-crates/axio" }
 axerrno = { git = "https://github.com/Arceos-crates/axerrno.git" }

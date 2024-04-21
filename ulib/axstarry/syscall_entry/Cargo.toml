@@ -65,7 +65,7 @@ syscall_mem = ["dep:syscall_mem"]
 syscall_task = ["dep:syscall_task"]
 
 [dependencies]
-axfeat = { path = "../../../api/axfeat" }
+axfeat = { git = "https://github.com/Arceos-crates/axfeat.git" }
 arceos_api = { path = "../../../api/arceos_api" }
 axlog = { git = "https://github.com/Arceos-crates/axlog.git" }
 axruntime = { git = "https://github.com/Arceos-crates/axruntime.git" }
