@@ -19,7 +19,6 @@ members = [
     "api/arceos_posix_api",
     "ulib/axstd",
     "ulib/axlibc",
-    "ulib/axstarry/syscall_mem",
     "ulib/axstarry/syscall_net",
     "ulib/axstarry/syscall_task",
     "ulib/axstarry/syscall_entry",

@@ -78,7 +78,7 @@ syscall_utils = { git = "https://github.com/Arceos-crates/syscall_utils.git" }
 syscall_fs = { git = "https://github.com/Arceos-crates/syscall_fs.git", optional = true }
 syscall_net = { path = "../syscall_net", optional = true }
 syscall_task = { path = "../syscall_task", optional = true }
-syscall_mem = { path = "../syscall_mem", optional = true }
+syscall_mem = { git = "https://github.com/Arceos-crates/syscall_mem.git", optional = true }
 
 crate_interface = { git = "https://github.com/Arceos-crates/crate_interface.git" }
 lazy_init = { git = "https://github.com/Arceos-crates/lazy_init.git" }

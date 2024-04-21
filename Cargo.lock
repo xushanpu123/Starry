@@ -1601,6 +1601,7 @@ dependencies = [
 [[package]]
 name = "syscall_mem"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/syscall_mem.git#bfbbb7b50223806b178a0939b9d453c45a496f4e"
 dependencies = [
  "axerrno",
  "axhal",
