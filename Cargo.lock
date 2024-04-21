@@ -74,13 +74,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "arceos-httpserver"
-version = "0.1.0"
-dependencies = [
- "axstd",
-]
-
-[[package]]
 name = "arceos-memtest"
 version = "0.1.0"
 dependencies = [

@@ -26,7 +26,6 @@ members = [
     "apps/fs/shell",
     "apps/net/echoserver",
     "apps/net/httpclient",
-    "apps/net/httpserver",
     "apps/net/bwbench",
     "apps/task/parallel",
     "apps/task/sleep",
