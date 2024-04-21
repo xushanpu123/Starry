@@ -130,6 +130,7 @@ dependencies = [
 [[package]]
 name = "axdriver"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/axdriver.git#9bfaf0a84255790eb7fe25485d9728f9de228455"
 dependencies = [
  "axalloc",
  "axconfig",

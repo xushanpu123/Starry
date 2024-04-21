@@ -4,8 +4,6 @@ path = "modules/axconfig"
 [patch."https://github.com/Arceos-crates/axhal.git".axhal]
 path = "modules/axhal"
 
-[patch."https://github.com/Arceos-crates/axdriver.git".axdriver]
-path = "modules/axdriver"
 
 [patch."https://github.com/Arceos-crates/arceos_posix_api.git".arceos_posix_api]
 path = "api/arceos_posix_api"
