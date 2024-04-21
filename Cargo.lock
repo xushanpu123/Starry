@@ -1619,6 +1619,7 @@ dependencies = [
 [[package]]
 name = "syscall_net"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/syscall_net.git#2754855bb60e652782d087dbceccc64fa9592f56"
 dependencies = [
  "arceos_api",
  "axerrno",
