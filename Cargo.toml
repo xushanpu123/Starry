@@ -20,12 +20,6 @@ members = [
     "api/arceos_posix_api",
     "ulib/axlibc",
     "apps/helloworld",
-    "apps/fs/shell",
-    "apps/task/parallel",
-    "apps/task/sleep",
-    "apps/task/yield",
-    "apps/task/priority",
-    "apps/task/tls",
     "apps/oscomp",
 ]
 

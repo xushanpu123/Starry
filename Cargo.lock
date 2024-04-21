@@ -37,57 +37,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "arceos-parallel"
-version = "0.1.0"
-dependencies = [
- "axstd",
- "rand",
-]
-
-[[package]]
-name = "arceos-priority"
-version = "0.1.0"
-dependencies = [
- "axstd",
-]
-
-[[package]]
-name = "arceos-shell"
-version = "0.1.0"
-dependencies = [
- "axfs_ramfs",
- "axfs_vfs",
- "axstd",
- "crate_interface",
-]
-
-[[package]]
-name = "arceos-sleep"
-version = "0.1.0"
-dependencies = [
- "axstd",
-]
-
-[[package]]
-name = "arceos-tls"
-version = "0.1.0"
-dependencies = [
- "axstd",
-]
-
-[[package]]
-name = "arceos-yield"
-version = "0.1.0"
-dependencies = [
- "axstd",
-]
-
-[[package]]
 name = "arceos_api"
 version = "0.1.0"
 source = "git+https://github.com/Arceos-crates/arceos_api.git#b2b54c94e64aca2b44f3eda7f3f69ca748ebf720"
 dependencies = [
- "axalloc",
  "axconfig",
  "axerrno",
  "axfeat",
@@ -232,7 +185,6 @@ dependencies = [
  "bitflags 2.5.0",
  "capability",
  "cfg-if",
- "crate_interface",
  "fatfs",
  "lazy_init",
  "log",
@@ -1035,7 +987,6 @@ version = "0.1.0"
 source = "git+https://github.com/Arceos-crates/percpu.git#7a1bb439f09b1deb2863229782d9f05206c3b49f"
 dependencies = [
  "cfg-if",
- "kernel_guard",
  "percpu_macros",
  "spin 0.9.8",
  "x86",
