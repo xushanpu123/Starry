@@ -15,7 +15,6 @@ members = [
     "modules/axhal",
     "modules/axnet",
     "modules/axruntime",
-    "modules/axsync",
     "modules/axprocess",
     "api/axfeat",
     "api/arceos_api",   

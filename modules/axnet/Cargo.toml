@@ -25,7 +25,7 @@ driver_net = { git = "https://github.com/Arceos-crates/driver_net.git" }
 lazy_init = { git = "https://github.com/Arceos-crates/lazy_init.git"  }
 axerrno = { git = "https://github.com/Arceos-crates/axerrno.git" }
 axhal = { git = "https://github.com/Arceos-crates/axhal.git" }
-axsync = { path = "../axsync" }
+axsync = { git = "https://github.com/Arceos-crates/axsync.git" }
 axtask = { git = "https://github.com/Arceos-crates/axtask.git" }
 axdriver = { path = "../axdriver", features = ["net"] }
 axio = { git = "https://github.com/Arceos-crates/axio" }

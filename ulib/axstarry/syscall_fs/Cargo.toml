@@ -11,7 +11,7 @@ signal = ["axprocess/signal"]
 
 [dependencies]
 axtask = { git = "https://github.com/Arceos-crates/axtask.git" }
-axsync = { path = "../../../modules/axsync" }
+axsync = { git = "https://github.com/Arceos-crates/axsync.git" }
 axfs = { path = "../../../modules/axfs" }
 axerrno = { git = "https://github.com/Arceos-crates/axerrno.git" }
 axlog = { git = "https://github.com/Arceos-crates/axlog.git" }

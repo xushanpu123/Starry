@@ -78,7 +78,7 @@ axdriver = { path = "../../modules/axdriver", optional = true }
 axfs = { path = "../../modules/axfs", optional = true }
 axnet = { path = "../../modules/axnet", optional = true }
 axdisplay = { path = "../../modules/axdisplay", optional = true }
-axsync = { path = "../../modules/axsync", optional = true }
+axsync = { git = "https://github.com/Arceos-crates/axsync.git", optional = true }
 axtask = { git = "https://github.com/Arceos-crates/axtask.git", optional = true }
 axprocess = { path = "../../modules/axprocess", optional = true }
 spinlock = { git = "https://github.com/Arceos-crates/spinlock.git", optional = true }
