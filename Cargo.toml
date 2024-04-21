@@ -20,7 +20,6 @@ members = [
     "api/arceos_posix_api",
     "ulib/axstd",
     "ulib/axlibc",
-    "ulib/axstarry/syscall_entry",
     "apps/display",
     "apps/exception",
     "apps/helloworld",

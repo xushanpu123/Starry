@@ -464,7 +464,6 @@ dependencies = [
  "axio",
  "axlog",
  "axmem",
- "axsignal",
  "axsync",
  "axtask",
  "bitflags 2.5.0",
@@ -500,16 +499,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "axsignal"
-version = "0.1.0"
-source = "git+https://github.com/Arceos-crates/axsignal.git#2e3b81d809b00e66d237b3936c2e0540b05fa2e1"
-dependencies = [
- "axhal",
- "bitflags 2.5.0",
- "numeric-enum-macro",
-]
-
-[[package]]
 name = "axstd"
 version = "0.1.0"
 dependencies = [
@@ -536,7 +525,6 @@ source = "git+https://github.com/Arceos-crates/axtask.git#c2c80a7843a920d1fdd2ad
 dependencies = [
  "axconfig",
  "axhal",
- "axsignal",
  "cfg-if",
  "crate_interface",
  "kernel_guard",
@@ -1562,6 +1550,7 @@ dependencies = [
 [[package]]
 name = "syscall_entry"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/syscall_entry.git#1c2e1b990bac3c30635a6a2d66464e1a2e541a91"
 dependencies = [
  "arceos_api",
  "axfeat",
@@ -1569,87 +1558,11 @@ dependencies = [
  "axlog",
  "axprocess",
  "axruntime",
- "axsignal",
  "axtask",
  "crate_interface",
  "kernel_guard",
  "lazy_init",
  "spinlock",
- "syscall_fs",
- "syscall_mem",
- "syscall_net",
- "syscall_task",
- "syscall_utils",
-]
-
-[[package]]
-name = "syscall_fs"
-version = "0.1.0"
-source = "git+https://github.com/Arceos-crates/syscall_fs.git#f8d38e21f5c1c4dd2923ad5f56c028f90831049a"
-dependencies = [
- "axerrno",
- "axfs",
- "axhal",
- "axio",
- "axlog",
- "axprocess",
- "axsync",
- "axtask",
- "bitflags 2.5.0",
- "numeric-enum-macro",
- "syscall_utils",
-]
-
-[[package]]
-name = "syscall_mem"
-version = "0.1.0"
-source = "git+https://github.com/Arceos-crates/syscall_mem.git#bfbbb7b50223806b178a0939b9d453c45a496f4e"
-dependencies = [
- "axerrno",
- "axhal",
- "axlog",
- "axmem",
- "axprocess",
- "bitflags 2.5.0",
- "numeric-enum-macro",
- "syscall_fs",
- "syscall_utils",
-]
-
-[[package]]
-name = "syscall_net"
-version = "0.1.0"
-source = "git+https://github.com/Arceos-crates/syscall_net.git#2754855bb60e652782d087dbceccc64fa9592f56"
-dependencies = [
- "arceos_api",
- "axerrno",
- "axfeat",
- "axfs",
- "axio",
- "axlog",
- "axnet",
- "axprocess",
- "axsync",
- "num_enum",
- "numeric-enum-macro",
- "syscall_utils",
-]
-
-[[package]]
-name = "syscall_task"
-version = "0.1.0"
-source = "git+https://github.com/Arceos-crates/syscall_task.git#6b426f67112eb1a22bcb521f39e9110205d58842"
-dependencies = [
- "arceos_api",
- "axconfig",
- "axfeat",
- "axhal",
- "axlog",
- "axprocess",
- "axsignal",
- "axtask",
- "numeric-enum-macro",
- "rand",
  "syscall_utils",
 ]
 
