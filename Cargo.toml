@@ -1,5 +1,4 @@
-[patch."https://github.com/Arceos-crates/axconfig.git".axconfig]
-path = "modules/axconfig"
+
 
 [patch."https://github.com/Arceos-crates/axhal.git".axhal]
 path = "modules/axhal"
@@ -12,10 +11,7 @@ path = "api/arceos_posix_api"
 resolver = "2"
 
 members = [
-    "modules/axconfig",
-    "modules/axhal", 
     "api/arceos_posix_api",
-    "ulib/axlibc",
     "apps/helloworld",
     "apps/oscomp",
 ]

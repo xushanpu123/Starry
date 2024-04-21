@@ -122,6 +122,7 @@ dependencies = [
 [[package]]
 name = "axconfig"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/axconfig.git#dad16425d0c52b448a9b87908cd6ce7f7fd812a9"
 dependencies = [
  "serde",
  "toml_edit",
@@ -265,17 +266,6 @@ version = "0.1.0"
 source = "git+https://github.com/Arceos-crates/axio#782815ebb40dc389ce64b4e6f599a4831d0d5da0"
 dependencies = [
  "axerrno",
-]
-
-[[package]]
-name = "axlibc"
-version = "0.1.0"
-dependencies = [
- "arceos_posix_api",
- "axerrno",
- "axfeat",
- "axio",
- "bindgen",
 ]
 
 [[package]]

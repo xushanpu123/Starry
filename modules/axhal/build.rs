@@ -1,5 +1,5 @@
 use std::io::Result;
-
+use std::path::PathBuf;
 fn main() {
     let arch = std::env::var("CARGO_CFG_TARGET_ARCH").unwrap();
     let platform = axconfig::PLATFORM;
@@ -12,7 +12,7 @@ fn main() {
 }
 
 fn gen_linker_script(arch: &str, platform: &str) -> Result<()> {
-    let fname = format!("linker_{}.lds", platform);
+    let fname = format!("{}/linker_{}.lds", std::env!("CURRENT_DIR"),platform);
     let output_arch = if arch == "x86_64" {
         "i386:x86-64"
     } else if arch.contains("riscv") {
@@ -20,6 +20,7 @@ fn gen_linker_script(arch: &str, platform: &str) -> Result<()> {
     } else {
         arch
     };
+  
     let ld_content = std::fs::read_to_string("linker.lds.S")?;
     let ld_content = ld_content.replace("%ARCH%", output_arch);
     let ld_content = ld_content.replace(
