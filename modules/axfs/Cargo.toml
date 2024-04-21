@@ -31,7 +31,7 @@ axerrno = { git = "https://github.com/Arceos-crates/axerrno.git" }
 axfs_vfs = { git = "https://github.com/Arceos-crates/axfs_vfs.git" }
 axfs_devfs = { git = "https://github.com/Arceos-crates/axfs_devfs.git", optional = true }
 axfs_ramfs = { git = "https://github.com/Arceos-crates/axfs_ramfs.git", optional = true }
-axdriver = { path = "../axdriver", features = ["block"] }
+axdriver = { git = "https://github.com/Arceos-crates/axdriver.git", features = ["block"] }
 axsync = { git = "https://github.com/Arceos-crates/axsync.git" }
 crate_interface = { git = "https://github.com/Arceos-crates/crate_interface.git", optional = true }
 bitflags = "2.0"
@@ -49,7 +49,7 @@ features = [ # no std
 ]
 
 [dev-dependencies]
-axdriver = { path = "../axdriver", features = ["block", "ramdisk"] }
+axdriver = { git = "https://github.com/Arceos-crates/axdriver.git", features = ["block", "ramdisk"] }
 driver_block = { git = "https://github.com/Arceos-crates/driver_block.git", features = ["ramdisk"] }
 axsync = { git = "https://github.com/Arceos-crates/axsync.git", features = ["multitask"] }
 axtask = { git = "https://github.com/Arceos-crates/axtask.git", features = ["test"] }

@@ -11,7 +11,7 @@ documentation = "https://rcore-os.github.io/arceos/axdisplay/index.html"
 
 [dependencies]
 log = "0.4"
-axdriver = { path = "../axdriver", features = ["display"] }
+axdriver = { git = "https://github.com/Arceos-crates/axdriver.git", features = ["display"] }
 lazy_init = { git = "https://github.com/Arceos-crates/lazy_init.git"  }
 axsync = { git = "https://github.com/Arceos-crates/axsync.git" }
 driver_display = { git = "https://github.com/Arceos-crates/driver_display.git" }

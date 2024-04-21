@@ -4,6 +4,9 @@ path = "modules/axconfig"
 [patch."https://github.com/Arceos-crates/axhal.git".axhal]
 path = "modules/axhal"
 
+[patch."https://github.com/Arceos-crates/axdriver.git".axdriver]
+path = "modules/axdriver"
+
 [workspace]
 resolver = "2"
 
