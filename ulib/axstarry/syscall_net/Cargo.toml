@@ -23,7 +23,7 @@ axio = { git = "https://github.com/Arceos-crates/axio" }
 axlog = { git = "https://github.com/Arceos-crates/axlog.git" }
 axsync = { git = "https://github.com/Arceos-crates/axsync.git" }
 num_enum = { version = "0.5.11", default-features = false }
-syscall_utils = { path = "../syscall_utils" }
+syscall_utils = { git = "https://github.com/Arceos-crates/syscall_utils.git" }
 numeric-enum-macro = { git = "https://github.com/mexus/numeric-enum-macro" }
 axfeat = { path = "../../../api/axfeat" }
 arceos_api = { path = "../../../api/arceos_api" }

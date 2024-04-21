@@ -1583,6 +1583,7 @@ dependencies = [
 [[package]]
 name = "syscall_fs"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/syscall_fs.git#f8d38e21f5c1c4dd2923ad5f56c028f90831049a"
 dependencies = [
  "axerrno",
  "axfs",
@@ -1650,6 +1651,7 @@ dependencies = [
 [[package]]
 name = "syscall_utils"
 version = "0.1.0"
+source = "git+https://github.com/Arceos-crates/syscall_utils.git#f67aa151da800457b4ef1a57ba03698764ed0367"
 dependencies = [
  "axconfig",
  "axerrno",

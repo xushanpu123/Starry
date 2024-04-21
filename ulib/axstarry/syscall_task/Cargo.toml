@@ -28,5 +28,5 @@ axprocess = { git = "https://github.com/Arceos-crates/axprocess.git" }
 axconfig = { git = "https://github.com/Arceos-crates/axconfig.git"}
 axlog = { git = "https://github.com/Arceos-crates/axlog.git" }
 axhal = { git = "https://github.com/Arceos-crates/axhal.git" }
-syscall_utils = { path = "../syscall_utils" }
+syscall_utils = { git = "https://github.com/Arceos-crates/syscall_utils.git" }
 rand = { version = "0.8.5", default-features = false, features = ["small_rng"] }

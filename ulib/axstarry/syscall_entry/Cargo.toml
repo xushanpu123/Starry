@@ -74,8 +74,8 @@ axtask = { git = "https://github.com/Arceos-crates/axtask.git" }
 axprocess = { git = "https://github.com/Arceos-crates/axprocess.git" }
 axsignal = { git = "https://github.com/Arceos-crates/axsignal.git", optional = true }
 
-syscall_utils = { path = "../syscall_utils" }
-syscall_fs = { path = "../syscall_fs", optional = true }
+syscall_utils = { git = "https://github.com/Arceos-crates/syscall_utils.git" }
+syscall_fs = { git = "https://github.com/Arceos-crates/syscall_fs.git", optional = true }
 syscall_net = { path = "../syscall_net", optional = true }
 syscall_task = { path = "../syscall_task", optional = true }
 syscall_mem = { path = "../syscall_mem", optional = true }
