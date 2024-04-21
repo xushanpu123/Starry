@@ -46,13 +46,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "arceos-echoserver"
-version = "0.1.0"
-dependencies = [
- "axstd",
-]
-
-[[package]]
 name = "arceos-exception"
 version = "0.1.0"
 dependencies = [
