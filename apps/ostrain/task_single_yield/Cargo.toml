@@ -9,4 +9,4 @@ authors = ["Youjie Zheng <zyj578335934@gmail.com>"]
 [features]
 
 [dependencies]
-axstd = { path = "../../../ulib/axstd", features = ["multitask", "alloc"], optional = true }
+axstd = { git = "https://github.com/Arceos-crates/axstd.git", features = ["multitask", "alloc"], optional = true }

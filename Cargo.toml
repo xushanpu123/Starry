@@ -18,7 +18,6 @@ members = [
     "modules/axdriver",
     "modules/axhal", 
     "api/arceos_posix_api",
-    "ulib/axstd",
     "ulib/axlibc",
     "apps/display",
     "apps/exception",
