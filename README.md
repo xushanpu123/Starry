@@ -1,5 +1,28 @@
 # StarryOS
 
+## 模块化介绍
+
+与主仓库的starry相比，本仓库已经实现了所有模块的拆分，除了必要的工具和C语言库和唯一用来运行的helloworld外，所有rust形式的cargo包均已经被上传到https://github.com/Arceos-crates组织中，对各个crates的调用也不再是通过路径调用而是在cargo.toml中通过git从云端获取。目前该仓库仅支持Unikernel模式下的helloworld测例。
+
+启动命令：
+
+```shell
+# 构建镜像
+./build_img.sh sdcard
+# 运行 Unikernel 架构内核
+make run
+```
+
+获取crates之间的调用图：
+
+```shell
+cargo depgraph --workspace-only | dot -Tpng > graph.png
+```
+
+通过此命令，调用图会保存在Starry/graph.png中。
+
+
+
 ## 简介
 
 这里是StarryOS，一个基于ArceOS实现的宏内核。
